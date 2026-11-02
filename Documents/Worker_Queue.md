@@ -80,7 +80,18 @@ In a separate terminal/process:
 
 Defaults are `data/jobs.sqlite3`, `Images/<job_id>/` for images, and
 `Videos/<job_id>/` for videos. Each job's media, conditioning PNG, and JSON
-metadata are grouped in its own directory. Options include:
+metadata are grouped in its own directory.
+
+The Generation History page has a **Delete** button at the right of each job
+row. Completed, failed, and interrupted jobs can be deleted; queued and running
+jobs must finish first. Deletion permanently removes the history record, its
+generated media, metadata, conditioning images, and any private uploaded source
+owned by that job. Both image and video directories are cleaned, including
+partial files. Original inputs outside managed upload storage and model assets
+are preserved. If file cleanup fails, the history entry remains so deletion can
+be retried. Deletion requires a same-session POST with a valid CSRF token.
+
+Worker options include:
 
 ```bash
 .venv/bin/python -m image_generator.worker --once

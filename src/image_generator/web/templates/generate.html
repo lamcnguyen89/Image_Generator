@@ -6,7 +6,7 @@
 {% block content %}
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('catalog.index') }}">Model catalog</a><span aria-hidden="true"> / </span><a href="{{ url_for('catalog.model_settings', model_id=model.id) }}">{{ model.display_name }}</a><span aria-hidden="true"> / </span><span aria-current="page">Configure</span></nav>
 <div class="page-heading">
-  <div class="badges"><span class="badge">{{ model.family | upper }}</span><span class="badge accent">{{ 'Generation' if can_generate else 'Form preview' }}</span></div>
+  <div class="badges"><span class="badge">{{ model.family | family_label }}</span><span class="badge accent">{{ 'Generation' if can_generate else 'Form preview' }}</span></div>
   <h1>{{ model.display_name }}</h1>
   <p class="muted">{% if can_generate %}Configure your {{ 'videos' if ui.mode == 'img2vid' else 'images' }}, then submit them to the generation queue.{% else %}Configure your {{ 'video' if ui.mode == 'img2vid' else 'image' }}. Preview the request before generation is connected.{% endif %}</p>
   <a href="{{ url_for('catalog.index') }}">Choose another model</a>
@@ -26,7 +26,7 @@
       <section class="card form-section"><label for="generation-mode">Generation mode</label><select id="generation-mode" name="mode">{% for mode in ui.supported_modes %}<option value="{{ mode }}"{% if mode == ui.mode %} selected{% endif %}>{{ mode | mode_label }}</option>{% endfor %}</select></section>
       {% for group, fields in ui.groups.items() %}
         {% if group == 'Advanced' %}<details class="card form-section"><summary>Advanced settings</summary><div class="field-grid">{% for field in fields %}{{ render_field(field, values, errors) }}{% endfor %}</div></details>
-        {% else %}<fieldset class="card form-section"><legend>{{ group }}</legend><div class="field-grid">{% for field in fields %}{{ render_field(field, values, errors) }}{% endfor %}</div>{% if group == 'Sampling' and ui.workflow == 'flux' %}<p class="field-help" id="cfg-status" aria-live="polite">Negative prompting requires true CFG above 1.</p>{% elif group == 'Sampling' and ui.workflow == 'krea2' %}<p class="field-help" id="krea2-cfg-status" aria-live="polite">Negative prompting requires guidance above 0.</p>{% endif %}</fieldset>{% endif %}
+        {% else %}<fieldset class="card form-section"><legend>{{ group }}</legend><div class="field-grid">{% for field in fields %}{{ render_field(field, values, errors) }}{% endfor %}</div>{% if group == 'Sampling' and ui.workflow in ['flux', 'qwen_2_1'] %}<p class="field-help" id="cfg-status" aria-live="polite">Negative prompting requires true CFG above 1.</p>{% elif group == 'Sampling' and ui.workflow == 'krea2' %}<p class="field-help" id="krea2-cfg-status" aria-live="polite">Negative prompting requires guidance above 0.</p>{% endif %}</fieldset>{% endif %}
       {% endfor %}
       {% if ui.partial %}{% include ui.partial %}{% endif %}
       <section class="card form-section" aria-labelledby="loras-heading">

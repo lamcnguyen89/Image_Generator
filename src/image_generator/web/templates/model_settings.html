@@ -3,7 +3,7 @@
 {% block content %}
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('catalog.index') }}">Model catalog</a><span aria-hidden="true"> / </span><span aria-current="page">{{ model.display_name }}</span></nav>
 <div class="page-heading">
-  <div class="badges"><span class="badge">{{ model.family | upper }}</span><span class="badge accent">Read only</span></div>
+  <div class="badges"><span class="badge">{{ model.family | family_label }}</span><span class="badge accent">Read only</span></div>
   <h1>{{ model.display_name }}</h1>
   <p class="muted">{{ model.defaults.get('description', '') }}</p>
   <a class="action-link" href="{{ url_for('generation.configure', model_id=model.id) }}">Configure generation <span aria-hidden="true">→</span></a>

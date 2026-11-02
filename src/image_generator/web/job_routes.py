@@ -5,15 +5,16 @@ import json
 from pathlib import Path
 import sqlite3
 
-from flask import Blueprint, abort, current_app, jsonify, render_template, request, send_file, url_for
+from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, send_file, url_for
 
-from image_generator.jobs import JobStore
+from image_generator.jobs import JobDeletionConflict, JobStore, TERMINAL_STATES
 
 from .job_timing import job_timing
+from .security import csrf_token, valid_csrf
 
 
 jobs_bp = Blueprint("jobs", __name__)
-TERMINAL = {"completed", "failed", "interrupted"}
+TERMINAL = TERMINAL_STATES
 STAGE_LABELS = {
     "queued": "Waiting in queue", "validating": "Checking job assets", "preparing": "Preparing workflow",
     "generating": "Generating", "loading_runtime": "Preparing GPU runtime",
@@ -178,7 +179,29 @@ def source(job_id):
 
 @jobs_bp.get("/jobs")
 def index():
-    return render_template("jobs.html", jobs=get_job_store().list_jobs(limit=50), stage_label=stage_label)
+    return render_template("jobs.html", jobs=get_job_store().list_jobs(limit=50), stage_label=stage_label,
+                           terminal_states=TERMINAL, csrf_token=csrf_token())
+
+
+@jobs_bp.post("/jobs/<job_id>/delete")
+def delete(job_id):
+    if not valid_csrf(request.form.get("csrf_token")):
+        return render_template("error.html", title="Form expired",
+                               message="Reload the jobs page before deleting a job."), 400
+    from image_generator.job_cleanup import delete_job
+
+    try:
+        delete_job(get_job_store(), job_id, output_roots=(
+            current_app.config["JOB_OUTPUT_ROOT"], current_app.config["JOB_VIDEO_OUTPUT_ROOT"],
+        ), input_root=current_app.config["JOB_INPUT_ROOT"])
+    except KeyError:
+        abort(404)
+    except JobDeletionConflict as error:
+        return render_template("error.html", title="Job is still active", message=str(error)), 409
+    except (OSError, ValueError):
+        return render_template("error.html", title="Job could not be deleted",
+                               message="File cleanup could not finish. The job is still in history; check file permissions and try again."), 503
+    return redirect(url_for("jobs.index", deleted=1), code=303)
 
 
 @jobs_bp.get("/jobs/<job_id>")

@@ -54,6 +54,10 @@ class Qwen21NotebookTests(unittest.TestCase):
         self.pipe.config = Config(sample_sigmas=None)
         self.pipe.scheduler = SimpleNamespace(config={})
         self.pipe._notebook_qwen21_lora_key = None
+        self.ns["load_qwen21_lora"] = Mock(side_effect=lambda pipe, path, name: pipe.load_lora_weights(
+            str(path.parent), weight_name=path.name, adapter_name=name,
+            local_files_only=True, use_safetensors=True,
+        ))
         self.loader = Mock(return_value=self.pipe)
         self.transformer = Mock()
         self.transformer_loader = Mock(return_value=Mock(to=Mock(return_value=self.transformer)))

@@ -15,6 +15,7 @@ from .workflows.base import SavedImage, SavedVideo
 
 
 STATES = ("queued", "running", "completed", "failed", "interrupted")
+TERMINAL_STATES = {"completed", "failed", "interrupted"}
 
 
 def _now():
@@ -65,6 +66,10 @@ class Job:
 
 class SubmissionConflict(ValueError):
     """A form's submission key was reused with different values."""
+
+
+class JobDeletionConflict(ValueError):
+    """Queued and running jobs must finish before their files can be deleted."""
 
 
 class JobStore:
@@ -212,6 +217,21 @@ class JobStore:
             row = connection.execute("SELECT * FROM worker_state WHERE singleton=1").fetchone()
             return dict(row) if row else None
 
+    def submission_keys(self, identifier: str) -> tuple[str, ...]:
+        with self._connection() as connection:
+            return tuple(row[0] for row in connection.execute(
+                "SELECT key FROM job_submissions WHERE job_id=?", (identifier,)))
+
+    def delete_finished(self, identifier: str) -> None:
+        """Delete a terminal job's database records after its files are removed."""
+        with self._transaction() as connection:
+            job = self._read_job(connection, identifier)
+            if job.status not in TERMINAL_STATES:
+                raise JobDeletionConflict("Wait for this job to finish before deleting it.")
+            for table in ("job_outputs", "job_events", "job_submissions"):
+                connection.execute(f"DELETE FROM {table} WHERE job_id=?", (identifier,))
+            connection.execute("DELETE FROM jobs WHERE id=?", (identifier,))
+
     def request_model_unload(self) -> dict:
         """Ask the current worker to release models on its owner thread."""
         with self._transaction() as connection:
@@ -344,3 +364,6 @@ class JobStore:
             connection.execute("""UPDATE jobs SET status=?,stage=?,error=?,updated_at=?,finished_at=?,
                 current=?,total=? WHERE id=?""", (status, status, error, now, now, count,
                                                count if status == "completed" else None, job_id))
+            # Return the final snapshot while still holding the transaction:
+            # the history UI may delete this record immediately after commit.
+            return self._read_job(connection, job_id)

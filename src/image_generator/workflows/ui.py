@@ -15,7 +15,7 @@ class FormValidationError(ValueError):
 class UIField:
     name: str
     label: str
-    type: Literal["text", "textarea", "integer", "number", "boolean", "select", "string_list", "file"]
+    type: Literal["text", "textarea", "integer", "number", "boolean", "select", "string_list", "number_list", "file"]
     group: str
     help: str = ""
     required: bool = False
@@ -43,6 +43,14 @@ class UIField:
         elif self.type == "string_list":
             if not isinstance(value, list) or any(not isinstance(item, str) or not item.strip() for item in value):
                 return "Enter one nonempty value per line."
+        elif self.type == "number_list":
+            if not isinstance(value, list) or not value:
+                return "Enter a nonempty list of numbers, or leave blank for the default."
+            try:
+                if any(type(item) not in (int, float) or not math.isfinite(item) for item in value):
+                    return "Every list entry must be a finite number."
+            except OverflowError:
+                return "Number is too large."
         elif self.type in {"integer", "number"}:
             if self.type == "integer" and type(value) is not int:
                 return "Enter a whole number."

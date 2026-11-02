@@ -5,6 +5,11 @@ from collections.abc import Mapping
 from typing import Any
 
 
+def lora_strength_minimum(family: str) -> int | None:
+    """Qwen 2.1 supports signed adapter ratios; other workflows require >= 0."""
+    return None if family == "qwen_2_1" else 0
+
+
 def merge_settings(*layers: Mapping[str, Any]) -> dict[str, Any]:
     """Merge objects recursively; lists and scalars (including null) replace.
 

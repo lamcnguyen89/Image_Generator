@@ -5,7 +5,7 @@ Model assets and experiment notebooks live in `Models/Model_Families/`.
 See the [model folder layout](Models/Model_Families/README.md) for the checkpoint
 and LoRA folders, family configurations, and reusable JSON examples.
 
-The application is in `src/image_generator/`. SDXL, FLUX, and Krea 2 text-to-image
+The application is in `src/image_generator/`. SDXL, FLUX, Qwen 2.1, and Krea 2 text-to-image
 and WAN 2.2 image-to-video generation have reusable backends and command-line runners.
 The notebooks remain independent experiments.
 
@@ -18,14 +18,19 @@ Run `.venv/bin/python main.py` and open <http://127.0.0.1:5000> to browse the
 catalog and inspect each model's resolved settings and linked LoRAs. See the
 [web interface guide](Documents/Web_Interface.md) for configuration and tests.
 
-Choose **Configure generation** to edit SDXL, FLUX, Krea 2, WAN, or MiniMax settings and preview
+Choose **Configure generation** to edit SDXL, FLUX, Qwen 2.1, Krea 2, WAN, or MiniMax settings and preview
 the typed request. For a demo without weights or a GPU, run
 `IMAGE_GENERATOR_CATALOG_ROOT=tests/fixtures/model_families .venv/bin/python main.py`.
 See [generation UI testing](Documents/Generation_UI.md) for the workflow contract,
-fixture pages, and automated/manual checks. SDXL, FLUX, Krea 2, WAN, and MiniMax support queue submission
+fixture pages, and automated/manual checks. SDXL, FLUX, Qwen 2.1, Krea 2, WAN, and MiniMax support queue submission
 and live progress. WAN and MiniMax save uploaded sources and display playable MP4 results,
 conditioning images, and actual output details. The forms also save/reset model settings and shared adapter
 defaults, retain disabled LoRAs, and support checkpoint-specific strengths.
+
+The **QWEN 2.1** catalog section appears between FLUX and Krea 2. Its shared
+generation form supports the Hub model or a local transformer, multiple signed
+LoRA strengths, true CFG, KV caching, and optional sigma schedules. See the
+[Qwen 2.1 workflow guide](Documents/Qwen21_Workflow.md) for UI, CLI, and testing.
 
 Catalog loading automatically creates missing model/LoRA defaults from the
 family's example JSON and missing user files with empty overrides. Existing

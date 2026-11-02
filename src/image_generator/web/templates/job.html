@@ -3,7 +3,7 @@
 {% block head %}<link rel="stylesheet" href="{{ url_for('catalog.static', filename='jobs.css') }}">{% endblock %}
 {% block content %}
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('jobs.index') }}">Generation jobs</a><span aria-hidden="true"> / </span><span aria-current="page">{{ job.id[:8] }}</span></nav>
-<div class="page-heading"><p class="eyebrow">{{ job.workflow | upper }} · {{ job.request.mode | mode_label }}</p><h1>{{ status.model.name }}</h1><p class="muted">Job <code>{{ job.id }}</code></p><a href="{{ url_for('generation.configure', model_id=status.model.id) }}">Configure another request</a></div>
+<div class="page-heading"><p class="eyebrow">{{ job.workflow | family_label }} · {{ job.request.mode | mode_label }}</p><h1>{{ status.model.name }}</h1><p class="muted">Job <code>{{ job.id }}</code></p><a href="{{ url_for('generation.configure', model_id=status.model.id) }}">Configure another request</a></div>
 <div id="job-view" data-status-url="{{ url_for('jobs.status', job_id=job.id) }}" data-terminal="{{ 'true' if status.terminal else 'false' }}" data-output-ids="{{ status.outputs | map(attribute='id') | join(',') }}">
   <section class="card job-panel" aria-labelledby="job-status-heading">
     <div class="section-heading"><h2 id="job-status-heading">Job status</h2><span class="badge accent" id="job-state">{{ job.status | capitalize }}</span></div>

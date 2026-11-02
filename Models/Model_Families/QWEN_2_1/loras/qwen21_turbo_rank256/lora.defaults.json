@@ -15,8 +15,10 @@
   "compatibility": {
     "model_variant": "qwen_image_2_1",
     "trained_on": null,
-    "verified_checkpoint_ids": [],
-    "notes": "Qwen 2.1 target is inferred from the local filename and checkpoint notes; exact training provenance and inference compatibility have not been verified. Big Love notes describe an optional Turbo ratio from -0.3 to 0.5. This is an adjustment range for that checkpoint, not a general Turbo acceleration recipe. No checkpoint is marked verified; no step count or sigma schedule is applied automatically."
+    "verified_checkpoint_ids": [
+      "model_2937e2ae-3021-41ed-a67c-44ad8e11bb29"
+    ],
+    "notes": "Exact training provenance remains unknown. GPU smoke checked with Big Love Qiara1 BF16 at 512x512, two steps, seed 42, and strength -0.1 using the Qwen 2.1 workflow. Fused gate/up LoRA weights were split for Diffusers; all target modules matched and generation succeeded. Disabling the adapter restored the identical seeded base output. This verifies loading and inference, not image quality or a Turbo acceleration preset. Big Love notes describe optional ratios from -0.3 to 0.5; the suggested default 0.3 remains disabled. No step count or sigma schedule is applied automatically."
   },
   "settings": {
     "strength": 0.3,

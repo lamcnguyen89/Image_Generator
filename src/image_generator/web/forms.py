@@ -2,8 +2,10 @@
 
 from copy import deepcopy
 import math
+import re
 
 from image_generator.catalog.persistence import adapter_unavailable
+from image_generator.catalog.settings import lora_strength_minimum
 from image_generator.workflows.ui import set_setting, setting_value
 
 
@@ -18,6 +20,8 @@ def display_values(ui, settings, form=None):
             value = setting_value(settings, field.name)
             if field.type == "string_list":
                 value = "\n".join(value or [])
+            elif field.type == "number_list":
+                value = "\n".join(map(str, value)) if value is not None else ""
         values[field.name] = "" if value is None else value
     return values
 
@@ -41,6 +45,8 @@ def parse_settings(ui, settings, form, *, allow_empty_prompt=False):
                 value = float(raw)
             elif field.type == "string_list":
                 value = [line.strip() for line in raw.splitlines() if line.strip()]
+            elif field.type == "number_list":
+                value = [float(item) for item in re.split(r"[\s,]+", raw.strip())]
             else:
                 value = raw
             error = field.validate(value)
@@ -77,6 +83,7 @@ def lora_options(catalog, model, settings, form=None):
             "strength_source": form.get(f"strength_source:{asset.id}", strength_source) if form is not None else strength_source,
             "strength": form.get(f"strength:{asset.id}", strength) if form is not None else strength,
             "verified": model.id in compatibility.get("verified_checkpoint_ids", []),
+            "minimum_strength": lora_strength_minimum(asset.family),
             "expert": target if target in {"high_noise", "low_noise"} and not reason else "unknown",
         })
     return options
@@ -101,10 +108,14 @@ def parse_loras(options, form, *, preserve_disabled=False):
             continue
         try:
             strength = float(form.get(f"strength:{identifier}", ""))
-            if not math.isfinite(strength) or strength < 0:
+            minimum = item["minimum_strength"]
+            if not math.isfinite(strength) or (minimum is not None and strength < minimum):
                 raise ValueError
         except (ValueError, OverflowError):
-            errors[f"strength:{identifier}"] = "Strength must be a finite number at least zero."
+            errors[f"strength:{identifier}"] = (
+                "Strength must be a finite number." if item["minimum_strength"] is None
+                else "Strength must be a finite number at least zero."
+            )
             continue
         link = {"id": identifier, "enabled": identifier in enabled}
         if source == "override":

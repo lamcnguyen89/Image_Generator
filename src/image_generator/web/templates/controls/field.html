@@ -1,12 +1,12 @@
 {% macro render_field(field, values, errors) %}
 {% set control_id = 'field-' ~ field.name | replace('.', '-') %}
 {% set value = values.get(field.name, '') %}
-<div class="form-field {{ 'wide-field' if field.type in ['textarea', 'string_list', 'file'] else '' }}">
+<div class="form-field {{ 'wide-field' if field.type in ['textarea', 'string_list', 'number_list', 'file'] else '' }}">
   {% if field.type == 'boolean' %}
   <label class="checkbox-label" for="{{ control_id }}"><input type="checkbox" id="{{ control_id }}" name="{{ field.name }}"{% if value %} checked{% endif %} aria-describedby="{{ control_id }}-help">{{ field.label }}</label>
   {% else %}
   <label for="{{ control_id }}">{{ field.label }}{% if field.required %} <span class="muted">(required)</span>{% endif %}</label>
-  {% if field.type in ['textarea', 'string_list'] %}
+  {% if field.type in ['textarea', 'string_list', 'number_list'] %}
   <textarea id="{{ control_id }}" name="{{ field.name }}" rows="{{ 4 if field.name == 'prompt' else 2 }}"{% if field.required %} required{% endif %}{% if field.read_only %} readonly{% endif %} aria-describedby="{{ control_id }}-help"{% if errors.get(field.name) %} aria-invalid="true"{% endif %}>{{ value }}</textarea>
   {% elif field.type == 'select' %}
   <select id="{{ control_id }}" name="{{ field.name }}" aria-describedby="{{ control_id }}-help"{% if errors.get(field.name) %} aria-invalid="true"{% endif %}>

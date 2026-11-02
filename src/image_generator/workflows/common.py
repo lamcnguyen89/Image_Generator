@@ -9,6 +9,8 @@ import re
 import secrets
 import subprocess
 
+from image_generator.catalog.settings import lora_strength_minimum
+
 from .base import Workflow
 
 
@@ -21,13 +23,17 @@ def check_video_encoder():
         raise RuntimeError(f"MP4 encoder is unavailable: {exc}") from exc
 
 
-def _nonnegative_number(value):
+def _finite_number(value):
     if type(value) not in (int, float):
         return False
     try:
-        return math.isfinite(value) and value >= 0
+        return math.isfinite(value)
     except OverflowError:
         return False
+
+
+def _nonnegative_number(value):
+    return _finite_number(value) and value >= 0
 
 
 def scheduler_config_snapshot(value):
@@ -43,7 +49,8 @@ def scheduler_config_snapshot(value):
     return value
 
 
-def validate_common(request, defaults, *, family, mode, count_field, samplers):
+def validate_common(request, defaults, *, family, mode, count_field, samplers,
+                    guidance_field="guidance_scale", dimension_base=16):
     model, settings = request.model, request.settings
     if model.kind != "model" or model.family != family or model.defaults["workflow"] != family:
         raise ValueError(f"The {family.upper()} workflow requires a {family.upper()} catalog model")
@@ -60,7 +67,7 @@ def validate_common(request, defaults, *, family, mode, count_field, samplers):
     multiple = requirements.get("dimension_multiple", 16)
     if type(multiple) is not int or multiple <= 0:
         raise ValueError("requirements.dimension_multiple must be a positive integer")
-    multiple = math.lcm(16, multiple)
+    multiple = math.lcm(dimension_base, multiple)
     for name in ("width", "height", "num_inference_steps", count_field):
         value = settings.get(name)
         if type(value) is not int or value <= 0:
@@ -70,8 +77,8 @@ def validate_common(request, defaults, *, family, mode, count_field, samplers):
     seed = settings.get("seed")
     if seed is not None and (type(seed) is not int or not 0 <= seed < 2**63):
         raise ValueError("seed must be null or an integer between 0 and 2**63 - 1")
-    if not _nonnegative_number(settings.get("guidance_scale")):
-        raise ValueError("guidance_scale must be a finite number >= 0")
+    if not _nonnegative_number(settings.get(guidance_field)):
+        raise ValueError(f"{guidance_field} must be a finite number >= 0")
     sampling = settings.get("sampling")
     if not isinstance(sampling, dict) or set(sampling) != {"sampler", "noise_schedule"}:
         raise ValueError("sampling must contain sampler and noise_schedule")
@@ -96,8 +103,10 @@ def validate_common(request, defaults, *, family, mode, count_field, samplers):
         names.add(selection.adapter_name)
         if not re.fullmatch(r"[A-Za-z0-9_-]+", selection.adapter_name):
             raise ValueError("Invalid adapter name")
-        if not _nonnegative_number(selection.strength):
-            raise ValueError(f"LoRA {asset.id!r} strength must be a finite number >= 0")
+        minimum = lora_strength_minimum(family)
+        if not _finite_number(selection.strength) or (minimum is not None and selection.strength < minimum):
+            suffix = f" >= {minimum}" if minimum is not None else ""
+            raise ValueError(f"LoRA {asset.id!r} strength must be a finite number{suffix}")
         validate_weights(asset.asset_paths["weights"], f"LoRA {asset.id!r}")
 
 
@@ -179,6 +188,13 @@ class TransformerWorkflow(Workflow):
             self._scheduler_config, **request.model.defaults["requirements"].get("scheduler_config", {}),
         )
 
+    def _load_lora(self, selection, **options):
+        path = selection.asset.asset_paths["weights"]
+        self._pipeline.load_lora_weights(
+            str(path.parent), weight_name=path.name, adapter_name=selection.adapter_name,
+            local_files_only=True, **options,
+        )
+
     def _configure_loras(self, request, *, restore_overwritten=False, targeted=False):
         self.report_progress("resetting_loras")
         if self._has_adapters:
@@ -188,15 +204,11 @@ class TransformerWorkflow(Workflow):
         self.report_progress("loading_loras", 0, len(request.loras))
         for index, selection in enumerate(request.loras):
             self._has_adapters = True
-            path = selection.asset.asset_paths["weights"]
             options = {}
             if targeted:
                 options["load_into_transformer_2"] = selection.asset.defaults["compatibility"]["expert_target"] == "low_noise"
             try:
-                self._pipeline.load_lora_weights(
-                    str(path.parent), weight_name=path.name, adapter_name=selection.adapter_name,
-                    local_files_only=True, **options,
-                )
+                self._load_lora(selection, **options)
             except Exception as exc:
                 raise RuntimeError(f"Could not load LoRA {selection.asset.id!r}; check model and loader compatibility: {exc}") from exc
             self.report_progress("loading_loras", index + 1, len(request.loras))

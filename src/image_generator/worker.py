@@ -201,14 +201,14 @@ class Worker:
                 if close_iterator is not None:
                     close_iterator()
             self._check_health()
-            self.store._finish(job.id, self.id, "completed")
+            result = self.store._finish(job.id, self.id, "completed")
         except Exception as error:
             cleanup_error = None
             try:
                 self._close_workflow()
             except WorkerCleanupError as failure:
                 cleanup_error = failure
-            self.store._finish(job.id, self.id, "failed", f"{type(error).__name__}: {error}")
+            result = self.store._finish(job.id, self.id, "failed", f"{type(error).__name__}: {error}")
             LOGGER.warning("Job %s failed (%s)", job.id, type(error).__name__)
             if cleanup_error is not None:
                 raise cleanup_error
@@ -225,7 +225,6 @@ class Worker:
                 self._workflow.set_progress_callback(None)
             self.current_job_id = None
         self._process_model_unloads()
-        result = self.store.get(job.id)
         LOGGER.info("Job %s %s", job.id, result.status)
         return result
 

@@ -14,7 +14,7 @@
     <option value="override"{% if item.strength_source == 'override' %} selected{% endif %}>Checkpoint-specific override</option>
   </select>
   <label for="strength-{{ item.asset.id }}">Strength</label>
-  <input type="number" id="strength-{{ item.asset.id }}" name="strength:{{ item.asset.id }}" value="{{ item.strength }}" min="0" step="any"{% if errors.get('strength:' ~ item.asset.id) %} aria-invalid="true" aria-describedby="strength-error-{{ item.asset.id }}"{% endif %}>
+  <input type="number" id="strength-{{ item.asset.id }}" name="strength:{{ item.asset.id }}" value="{{ item.strength }}" {% if item.minimum_strength is not none %}min="{{ item.minimum_strength }}" {% endif %}step="any"{% if errors.get('strength:' ~ item.asset.id) %} aria-invalid="true" aria-describedby="strength-error-{{ item.asset.id }}"{% endif %}>
   {% if errors.get('strength:' ~ item.asset.id) %}<p class="field-error" id="strength-error-{{ item.asset.id }}">{{ errors['strength:' ~ item.asset.id] }}</p>{% endif %}
   <p class="field-help">Trigger words: {{ item.settings.get('trigger_words', []) | join(', ') or 'None recorded' }}</p>
   {% if item.settings.get('recommended_generation') %}<details><summary>Recommended settings</summary><pre class="json-block">{{ item.settings.recommended_generation | tojson(indent=2) }}</pre><button type="button" class="adapter-button" data-apply-recommendations='{{ item.settings.recommended_generation | tojson }}'>Apply recommended settings</button><p class="field-help">Applies supported generation fields to this form. Save model settings to keep them.</p><p class="field-help" data-recommendation-status role="status"></p></details>{% endif %}
@@ -22,7 +22,7 @@
     <summary>Edit shared adapter defaults</summary>
     <p class="field-help">Shared defaults affect checkpoints using the adapter default. Saving or resetting reloads this form and discards unsaved model edits.</p>
     <label for="adapter-strength-{{ item.asset.id }}">Shared strength</label>
-    <input id="adapter-strength-{{ item.asset.id }}" type="number" name="adapter_strength:{{ item.asset.id }}" value="{{ item.settings.get('strength', 0.8) }}" min="0" step="any">
+    <input id="adapter-strength-{{ item.asset.id }}" type="number" name="adapter_strength:{{ item.asset.id }}" value="{{ item.settings.get('strength', 0.8) }}" {% if item.minimum_strength is not none %}min="{{ item.minimum_strength }}" {% endif %}step="any">
     <label for="adapter-triggers-{{ item.asset.id }}">Shared trigger words (one per line)</label>
     <textarea id="adapter-triggers-{{ item.asset.id }}" name="adapter_trigger_words:{{ item.asset.id }}" rows="2">{{ item.settings.get('trigger_words', []) | join('\n') }}</textarea>
     <button type="submit" name="action" value="save_adapter" formaction="{{ url_for('settings.adapter_settings', adapter_id=item.asset.id) }}" formnovalidate class="adapter-button">Save adapter defaults</button>

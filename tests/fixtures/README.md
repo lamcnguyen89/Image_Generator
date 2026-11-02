@@ -20,3 +20,7 @@ files, overrides, or jobs. Reloading restores the fixture's saved settings.
 
 Krea 2 RAW has a `/generate/fixture-krea2` form and two synthetic adapter entries.
 Its weights are intentionally absent, like the other image family fixtures.
+
+Qwen 2.1 has `/generate/fixture-qwen_2_1` and two synthetic adapters. Its form
+supports true CFG, KV caching, an optional sigma list, and signed adapter
+strengths. Preview works without weights; generation requires real assets.

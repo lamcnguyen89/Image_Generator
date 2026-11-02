@@ -10,7 +10,7 @@ from pathlib import Path
 import tempfile
 
 from .discovery import discover_catalog
-from .settings import resolve_settings
+from .settings import lora_strength_minimum, resolve_settings
 from .validation import CatalogValidationError, validate_user
 
 
@@ -139,7 +139,8 @@ def save_model_settings(catalog, model_id, desired, *, scope, expected_revision,
             if link["enabled"] and adapter_unavailable(model, asset):
                 raise ValueError(adapter_unavailable(model, asset))
             strength = link.get("strength", asset.resolve_settings().get("strength", 0.8))
-            if strength < 0:
+            minimum = lora_strength_minimum(model.family)
+            if minimum is not None and strength < minimum:
                 raise ValueError("Adapter strength must be at least zero.")
         return _write(model, overrides)
 
@@ -156,7 +157,8 @@ def save_adapter_settings(catalog, adapter_id, desired, *, expected_revision, re
         issues = validate_user({"schema_version": 1, "settings": overrides}, asset.user_path)
         if issues:
             raise CatalogValidationError(issues)
-        if effective.get("strength", 0.8) < 0:
+        minimum = lora_strength_minimum(asset.family)
+        if minimum is not None and effective.get("strength", 0.8) < minimum:
             raise ValueError("Adapter strength must be at least zero.")
         return _write(asset, overrides)
 

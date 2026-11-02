@@ -19,6 +19,8 @@ IMPORTS = {
             "StableDiffusionXLPipeline",
             "FluxPipeline",
             "FluxTransformer2DModel",
+            "QwenImage21Pipeline",
+            "QwenImage21Transformer2DModel",
             "Krea2Pipeline",
             "Krea2Transformer2DModel",
             "WanImageToVideoPipeline",
@@ -91,7 +93,7 @@ def check_cuda(torch, allow_cpu=False):
             return ["CUDA is unavailable. Use the compatible GPU PyTorch build and driver stack."]
         print(f"GPU: {torch.cuda.get_device_name(0)}")
         if not torch.cuda.is_bf16_supported():
-            return ["CUDA BF16 support is required by the current FLUX/Krea2/WAN workflows."]
+            return ["CUDA BF16 support is required by the current FLUX/Qwen 2.1/Krea2/WAN workflows."]
         with torch.inference_mode():
             for dtype in (torch.float16, torch.bfloat16):
                 matrix = torch.ones((16, 16), device="cuda", dtype=dtype)

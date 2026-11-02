@@ -10,7 +10,12 @@ catalog_bp = Blueprint(
     static_folder="static", static_url_path="/catalog-assets",
 )
 
-FAMILY_ORDER = {"flux": 0, "krea2": 1, "sdxl": 2, "minimax": 3, "wan": 4}
+FAMILY_ORDER = {"flux": 0, "qwen_2_1": 1, "krea2": 2, "sdxl": 3, "minimax": 4, "wan": 5}
+
+
+@catalog_bp.app_template_filter("family_label")
+def family_label(family):
+    return "QWEN 2.1" if family == "qwen_2_1" else family.upper()
 
 
 def get_catalog():

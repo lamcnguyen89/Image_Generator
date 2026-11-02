@@ -9,7 +9,7 @@
 {% for family in families %}
 <section class="family-section" aria-labelledby="family-{{ loop.index }}">
   <div class="section-heading">
-    <h2 id="family-{{ loop.index }}">{{ family.name | upper }}</h2>
+    <h2 id="family-{{ loop.index }}">{{ family.name | family_label }}</h2>
     <span class="muted">{{ family.models | length }} model{{ '' if family.models | length == 1 else 's' }} · {{ family.lora_count }} registered LoRA{{ '' if family.lora_count == 1 else 's' }}</span>
   </div>
   <div class="model-grid">

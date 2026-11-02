@@ -1,4 +1,4 @@
-"""Shared CLI wiring for catalog-backed FLUX, Krea2, WAN, and MiniMax generation."""
+"""Shared CLI wiring for catalog-backed transformer image and video generation."""
 
 import argparse
 import json
@@ -14,6 +14,7 @@ from .workflows.base import SavedVideo
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODEL_IDS = {
     "flux": "model_6e8d8d55-6a4b-4cf9-b91b-3a4a5beaab1f",
+    "qwen_2_1": "model_73c73d8d-ba6e-462f-b3da-ac775c627979",
     "krea2": "model_43359779-6bc0-4f45-8b70-39a2edff93fa",
     "wan": "model_95f8fb96-fc3b-4cf3-8b6f-e95e8cb5209b",
     "minimax": "model_b065ec3d-cd27-4cb3-bcab-48797bee8b6b",
@@ -48,11 +49,14 @@ def run_family(family, argv=None):
     parser.add_argument("--root", type=Path, default=PROJECT_ROOT / "Models/Model_Families")
     parser.add_argument("--model-id", default=MODEL_IDS[family])
     parser.add_argument("--prompt", required=True)
-    fields = ["prompt", "negative_prompt", "width", "height", "num_inference_steps", "guidance_scale", "seed"]
+    fields = ["prompt", "negative_prompt", "width", "height", "num_inference_steps", "seed"]
     parser.add_argument("--negative-prompt", default=argparse.SUPPRESS)
     for flag, dest, kind in (("width", "width", int), ("height", "height", int),
-                             ("steps", "num_inference_steps", int), ("guidance", "guidance_scale", float)):
+                             ("steps", "num_inference_steps", int)):
         parser.add_argument(f"--{flag}", dest=dest, type=kind, default=argparse.SUPPRESS)
+    if family != "qwen_2_1":
+        parser.add_argument("--guidance", dest="guidance_scale", type=float, default=argparse.SUPPRESS)
+        fields.append("guidance_scale")
     parser.add_argument("--seed", type=seed_value, default=argparse.SUPPRESS)
     if video:
         parser.add_argument("--input-image", type=Path, required=True)
@@ -67,13 +71,21 @@ def run_family(family, argv=None):
         fields.extend(("num_videos_per_prompt", "num_frames", "fps", "preserve_aspect_ratio", "enable_vae_tiling"))
     else:
         parser.add_argument("--num-images", dest="num_images_per_prompt", type=int, default=1)
-        if family == "flux":
+        if family in {"flux", "qwen_2_1"}:
             parser.add_argument("--true-cfg-scale", type=float, default=argparse.SUPPRESS)
             fields.append("true_cfg_scale")
-        parser.add_argument("--max-sequence-length", type=int, default=argparse.SUPPRESS)
-        fields.extend(("num_images_per_prompt", "max_sequence_length"))
+        if family == "qwen_2_1":
+            parser.add_argument("--sigmas", type=float, nargs="+", default=argparse.SUPPRESS)
+            parser.add_argument("--kv-cache", dest="use_kv_cache", action=argparse.BooleanOptionalAction,
+                                default=argparse.SUPPRESS)
+            fields.extend(("sigmas", "use_kv_cache"))
+        else:
+            parser.add_argument("--max-sequence-length", type=int, default=argparse.SUPPRESS)
+            fields.append("max_sequence_length")
+        fields.append("num_images_per_prompt")
     samplers = {"wan": ["model_default"], "minimax": ["res_multistep"],
-                "flux": ["flow_match_euler", "model_default"], "krea2": ["flow_match_euler", "model_default"]}
+                "flux": ["flow_match_euler", "model_default"], "krea2": ["flow_match_euler", "model_default"],
+                "qwen_2_1": ["flow_match_euler", "model_default"]}
     parser.add_argument("--sampler", choices=samplers[family])
     if family == "minimax":
         parser.add_argument("--comfyui-dir", type=Path, help="ComfyUI checkout with native H3 support (default: build/ComfyUI)")

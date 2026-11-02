@@ -60,9 +60,9 @@ the Diffusers pipeline's 32-pixel grid. Nearby alternatives are 1184 × 1792 and
   overrides that schedule and determines the number of steps. Exclude the
   terminal zero. Leave `scheduler_config` empty to retain repository settings.
 - Do not copy Krea2/FLUX `max_sequence_length`, SDXL `clip_skip`, or SDXL
-  sampler presets: they are not controls of this Qwen 2.1 notebook.
+  sampler presets: they are not controls of the Qwen 2.1 workflow or notebook.
 - Qwen 2.1 also supports image-conditioned editing and RGBA generation. The
-  current notebook implements text-to-image, so `supported_modes` declares
+  workflow and notebook implement text-to-image, so `supported_modes` declares
   only `txt2img`. For transparency, describe a transparent RGBA image in the
   prompt and preserve the PNG alpha channel; there is no separate transparency
   switch in this pipeline. Editing needs an implementation that passes
@@ -72,8 +72,9 @@ the Diffusers pipeline's 32-pixel grid. Nearby alternatives are 1184 × 1792 and
 
 The generic adapter template suggests strength 0.7 as a starting point; follow
 each adapter author's instructions and compare with a fixed seed. Only adapters
-trained for Qwen **2.1** are assumed candidates, and no local adapter has a
-verified-checkpoint claim.
+trained for Qwen **2.1** are assumed candidates. The local Turbo adapter has a
+loading/inference smoke check recorded against Big Love Qiara1; its training
+provenance remains unknown.
 
 For the local Turbo file, 0.3 is an optional Big Love adjustment suggested
 within the checkpoint notes' -0.3 to 0.5 range. It starts disabled. Its exact
@@ -93,9 +94,23 @@ model. Do not assume the same schedule fits an unverified adapter or custom
 checkpoint. Catalog LoRA recommendations are advisory and never automatically
 merged into model settings.
 
-## Current integration
+## Workflow and web UI
 
-These manifests are catalog preparation. `workflow: "qwen_2_1"` identifies the
-intended workflow, which is not yet implemented in Flask or the worker.
-`QWEN_2_1_Image_Gen.ipynb` still reads its Python configuration cell rather than
-these JSON files. Transfer chosen settings to that cell when testing them.
+`workflow: "qwen_2_1"` uses `Qwen21Workflow` in
+`src/image_generator/workflows/qwen21.py`. The catalog places **QWEN 2.1**
+between FLUX and Krea2. Both checkpoint cards open the shared generation form,
+with true CFG, KV caching, custom sigma schedules, and multiple weighted LoRAs.
+Signed adapter ratios are accepted by the form, saved preferences, and backend.
+The shared notebook/workflow loader splits ComfyUI fused gate/up LoRA weights
+into Diffusers projections and checks all adapter targets before loading them.
+
+Generate submits to the same durable queue as the other image workflows.
+The worker reports loading, LoRA setup, denoising, decoding, and saving; image
+downloads include PNGs and JSON metadata with actual seeds and sigma step counts.
+PNG alpha channels are preserved. Save/reset model settings and shared adapter
+defaults use the existing settings controls and user files.
+
+See the [workflow and validation guide](../../../Documents/Qwen21_Workflow.md)
+for CLI use, fixture forms, and tests. `QWEN_2_1_Image_Gen.ipynb` remains an
+independent experiment and reads its Python configuration rather than these JSON
+files. Transfer chosen settings to that cell when testing the notebook.

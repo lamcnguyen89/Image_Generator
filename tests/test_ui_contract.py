@@ -26,7 +26,7 @@ class UIContractTests(unittest.TestCase):
         return workflow, model, workflow.get_ui_definition(model, workflow.ui_modes[0])
 
     def test_every_workflow_setting_has_a_control_or_lora_selector(self):
-        for family in ("sdxl", "flux", "krea2", "wan", "minimax"):
+        for family in ("sdxl", "flux", "qwen_2_1", "krea2", "wan", "minimax"):
             with self.subTest(family=family):
                 workflow, model, ui = self.definition(family)
                 names = [field.name for field in ui.fields]
