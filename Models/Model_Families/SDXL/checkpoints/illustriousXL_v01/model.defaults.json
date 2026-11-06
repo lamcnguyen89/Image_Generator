@@ -3,6 +3,8 @@
   "id": "model_f99ef398-b00f-493a-8067-addd7c7dc5ef",
   "display_name": "Illustrious XL v0.1",
   "description": "SDXL-based illustration checkpoint: Illustrious XL v0.1.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/795765/illustrious-xl?modelVersionId=889818",

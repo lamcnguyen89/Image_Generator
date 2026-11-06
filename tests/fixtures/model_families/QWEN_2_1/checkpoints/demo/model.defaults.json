@@ -3,6 +3,8 @@
   "id": "fixture-qwen_2_1",
   "display_name": "Qwen 2.1 fixture model",
   "description": "Synthetic model for form and execution tests.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "qwen_2_1",
   "workflow": "qwen_2_1",
   "model_variant": "qwen_image_2_1",

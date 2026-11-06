@@ -3,6 +3,8 @@
   "id": "fixture-wan-unknown",
   "display_name": "WAN unknown adapter",
   "description": "UI fixture adapter with absent weights.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": null,

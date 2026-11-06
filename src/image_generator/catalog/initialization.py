@@ -114,6 +114,8 @@ def initialize_asset(
                 "display_name": directory.name,
                 "family": directory.parent.parent.name.lower(),
                 "description": "Automatically initialized from the family template. Review metadata and settings before generation.",
+                "example_prompts": [],
+                "example_negative_prompts": [],
             })
             for key in ("source_url", "source_model_id", "source_version_id", "sha256", "notes_file", "preview_image"):
                 document[key] = None

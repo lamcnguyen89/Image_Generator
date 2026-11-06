@@ -3,6 +3,8 @@
   "id": "lora_dd83e380-f67d-46ee-b2cb-82cd0d1c2a13",
   "display_name": "WAN DT",
   "description": "Local WAN adapter catalog entry: WAN DT.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1874811/ultimate-deepthroat-i2v-wan22-video-lora-k3nk?modelVersionId=2325788",

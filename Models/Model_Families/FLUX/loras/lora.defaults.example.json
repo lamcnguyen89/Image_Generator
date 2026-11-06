@@ -3,6 +3,8 @@
   "id": "lora_REPLACE_WITH_GENERATED_UUID",
   "display_name": "Example FLUX LoRA",
   "description": "Example FLUX.1-dev adapter configuration. Replace identity, asset paths, and settings before use.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": null,

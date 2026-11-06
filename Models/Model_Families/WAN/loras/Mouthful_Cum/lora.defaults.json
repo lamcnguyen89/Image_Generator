@@ -3,6 +3,8 @@
   "id": "lora_130ff333-219c-43d7-9e1a-f1555da64e7b",
   "display_name": "WAN 2.2 Mouthful High Noise",
   "description": "Local WAN adapter catalog entry: WAN 2.2 Mouthful High Noise.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": null,

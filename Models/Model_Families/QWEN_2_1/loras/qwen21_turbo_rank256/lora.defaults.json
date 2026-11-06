@@ -3,6 +3,8 @@
   "id": "lora_441bc8d4-8d4f-41a6-a737-4e5667a5af61",
   "display_name": "Qwen 2.1 Turbo rank 256 (local)",
   "description": "Local Turbo adapter, offered as an optional Big Love softness/sharpness adjustment. Strength 0.3 is a suggested starting point, not a verified preset.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "qwen_2_1",
   "adapter_type": "lora",
   "source_url": null,

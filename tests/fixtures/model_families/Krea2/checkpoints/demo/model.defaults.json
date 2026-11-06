@@ -3,6 +3,8 @@
   "id": "fixture-krea2",
   "display_name": "Krea 2 RAW fixture model",
   "description": "UI fixture with absent weights; previews require no GPU.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "krea2",
   "workflow": "krea2",
   "model_variant": "krea_2_raw",

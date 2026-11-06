@@ -3,6 +3,8 @@
   "id": "model_6e8d8d55-6a4b-4cf9-b91b-3a4a5beaab1f",
   "display_name": "FLUX NSFW Unlocked v3.0 FP16",
   "description": "Local FLUX.1-dev-based transformer checkpoint: FLUX NSFW Unlocked v3.0 FP16.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "workflow": "flux",
   "model_variant": "flux_1_dev",

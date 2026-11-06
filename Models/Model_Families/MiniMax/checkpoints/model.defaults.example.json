@@ -3,6 +3,8 @@
   "id": "model_REPLACE_WITH_GENERATED_UUID",
   "display_name": "Example MiniMax H3 Checkpoint",
   "description": "Example local ComfyUI-format MiniMax H3 checkpoint. Replace identity, asset paths, source details, and settings before use.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "minimax",
   "workflow": "minimax",
   "model_variant": "minimax_h3",

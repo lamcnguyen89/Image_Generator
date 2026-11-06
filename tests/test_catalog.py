@@ -225,12 +225,37 @@ class CatalogTests(unittest.TestCase):
 
     def test_user_files_cannot_override_metadata(self):
         self.write_model()
-        for field in ("id", "weights", "workflow", "requirements", "supported_modes", "compatibility"):
+        for field in (
+            "id", "weights", "workflow", "requirements", "supported_modes",
+            "compatibility", "example_prompts", "example_negative_prompts",
+        ):
             with self.subTest(field=field):
                 path = self.write("SDXL/checkpoints/test/model.user.json", {
                     "schema_version": 1, "settings": {}, field: "override",
                 })
                 self.assert_invalid(path, field)
+
+    def test_example_prompts_are_metadata_for_models_and_loras(self):
+        for examples in ([], ["A mountain lake at sunrise", "A quiet village in autumn"]):
+            with self.subTest(examples=examples):
+                metadata = {"example_prompts": examples, "example_negative_prompts": examples}
+                self.write_model(**metadata)
+                self.write_lora(**metadata)
+                catalog = discover_catalog(self.root)
+                for asset in (catalog.get_model("model-test"), catalog.get_lora("lora-test")):
+                    for field in metadata:
+                        self.assertEqual(asset.defaults[field], examples)
+                        self.assertNotIn(field, asset.resolve_settings())
+
+    def test_example_prompts_reject_invalid_arrays_and_entries(self):
+        for field in ("example_prompts", "example_negative_prompts"):
+            for write in (self.write_model, self.write_lora):
+                self.write_model()
+                self.write_lora()
+                for examples in (None, "A mountain lake", {}, [42], [None], [""], ["   "]):
+                    with self.subTest(field=field, kind=write.__name__, examples=examples):
+                        path = write(**{field: examples})
+                        self.assert_invalid(path, field)
 
     def test_invalid_user_documents_do_not_fall_back_to_defaults(self):
         self.write_model()

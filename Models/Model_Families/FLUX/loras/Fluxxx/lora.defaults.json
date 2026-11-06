@@ -3,6 +3,8 @@
   "id": "lora_2148a7fe-b285-4dd5-8ee5-c4df93ca00c3",
   "display_name": "FluXXX v4",
   "description": "Local adapter catalog entry: FluXXX v4.",
+  "example_prompts": ["a woman is holding a big sign with the text \"Turn on X and XXX\"  <lora:KREAnsfwLoRAv4:1>", "The image shows a naked woman lying on a white couch with her legs spread wide open. She has blonde hair and is looking directly at the camera with a seductive expression on her face. Her hands are resting on her thighs and her legs are stretched out in front of her. A man's penis is visible in the bottom right corner of the image. The background is a wooden floor." , "The image is a high-resolution photography depicting an explicit sexual act. It shows a nude woman, performing oral sex on a man. The woman is kneeling on a carpet, gazing up at the camera with a neutral expression. Her lips are wrapped around the man's erect penis, which is prominently in the foreground. The man's lower torso and legs are visible, indicating he is standing. His skin tone is light, and he has a muscular build. The lighting is bright, suggesting the photo was taken with professional equipment in a well-lit indoor setting. The image is explicit and intended for adult viewers."],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1546895/fluxxx-nsfw-lora?modelVersionId=2570452",

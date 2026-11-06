@@ -3,6 +3,8 @@
   "id": "lora_eda649cb-4264-4c7c-af44-7d2c0970e1fd",
   "display_name": "WAN Assertive Cowgirl High Noise",
   "description": "Local WAN adapter catalog entry: WAN Assertive Cowgirl High Noise.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1566648/wan-i2v-22-and-21-assertive-cowgirl?modelVersionId=2129122",

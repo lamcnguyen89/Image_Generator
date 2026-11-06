@@ -3,6 +3,8 @@
   "id": "model_REPLACE_WITH_GENERATED_UUID",
   "display_name": "Example SDXL Checkpoint",
   "description": "Example configuration. Replace the identity, asset paths, and settings for the checkpoint being imported.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": null,

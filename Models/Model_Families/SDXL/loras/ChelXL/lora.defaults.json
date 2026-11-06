@@ -3,6 +3,8 @@
   "id": "lora_37faa7cb-a25a-4b78-b920-95e57b750296",
   "display_name": "ChelXL",
   "description": "SDXL character LoRA for Chel.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/327553/chel-nsfwsfw-sdxl-lora-pony?modelVersionId=367106",

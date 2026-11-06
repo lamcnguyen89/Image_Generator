@@ -3,6 +3,8 @@
   "id": "lora_REPLACE_WITH_GENERATED_UUID",
   "display_name": "Example SDXL Style LoRA",
   "description": "Example configuration. Replace the identity, asset paths, and settings for the LoRA being imported.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "adapter_type": "lora",
   "source_url": null,

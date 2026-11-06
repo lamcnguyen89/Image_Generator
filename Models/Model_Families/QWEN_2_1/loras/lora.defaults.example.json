@@ -3,6 +3,8 @@
   "id": "lora_REPLACE_WITH_GENERATED_UUID",
   "display_name": "Example Qwen-Image 2.1 LoRA",
   "description": "Qwen-Image 2.1 adapter template. Replace identity, weights, and compatibility metadata; choose strength from the adapter author.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "qwen_2_1",
   "adapter_type": "lora",
   "source_url": null,

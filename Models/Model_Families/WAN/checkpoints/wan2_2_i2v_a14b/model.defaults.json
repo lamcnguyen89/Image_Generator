@@ -3,6 +3,8 @@
   "id": "model_95f8fb96-fc3b-4cf3-8b6f-e95e8cb5209b",
   "display_name": "WAN 2.2 I2V A14B",
   "description": "Pretrained WAN 2.2 image-to-video pipeline with high-noise and low-noise experts.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "workflow": "wan",
   "model_variant": "wan_2_2_i2v_a14b",

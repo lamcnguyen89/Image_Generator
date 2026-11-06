@@ -3,6 +3,8 @@
   "id": "model_b065ec3d-cd27-4cb3-bcab-48797bee8b6b",
   "display_name": "MiniMax H3",
   "description": "Local ComfyUI-format MiniMax H3 checkpoint for image-to-video generation.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "minimax",
   "workflow": "minimax",
   "model_variant": "minimax_h3",

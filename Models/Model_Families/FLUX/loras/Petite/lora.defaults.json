@@ -3,6 +3,8 @@
   "id": "lora_e8ea03c9-07c1-4d51-a32a-b7fd24a247ea",
   "display_name": "Flux Petite",
   "description": "Local adapter catalog entry: Flux Petite.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/927816/nsfw-flux-petite?modelVersionId=1038569",

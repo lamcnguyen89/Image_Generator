@@ -3,6 +3,8 @@
   "id": "fixture-krea2-style",
   "display_name": "Krea 2 style fixture",
   "description": "Synthetic test adapter.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "krea2",
   "adapter_type": "lora",
   "source_url": null,

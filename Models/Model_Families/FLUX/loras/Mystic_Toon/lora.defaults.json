@@ -3,6 +3,8 @@
   "id": "lora_9bce53e8-c6f6-4d4f-a0ef-104919aaf8cf",
   "display_name": "Mystic Toon v1",
   "description": "Local adapter catalog entry: Mystic Toon v1.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1688726/nsfw-flux-mystic-toon?modelVersionId=1911266",

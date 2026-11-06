@@ -3,6 +3,8 @@
   "id": "lora_051e0555-f49e-45b6-b42e-d527189871ab",
   "display_name": "NSFW Missionnary",
   "description": "Local adapter catalog entry: NSFW Missionnary.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1356153/nsfw-missionnary-zit-flux1d?modelVersionId=2495956",

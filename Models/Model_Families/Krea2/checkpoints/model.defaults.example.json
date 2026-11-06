@@ -3,6 +3,8 @@
   "id": "model_REPLACE_WITH_GENERATED_UUID",
   "display_name": "Example Krea 2 RAW Checkpoint",
   "description": "Krea 2 RAW transformer configuration. Replace identity and asset paths before use.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "krea2",
   "workflow": "krea2",
   "model_variant": "krea_2_raw",

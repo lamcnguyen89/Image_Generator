@@ -172,6 +172,25 @@ catalog metadata and does not establish loading compatibility.
 
 ## Settings precedence
 
+Model and LoRA defaults can store example prompts and example negative prompts
+as top-level metadata fields, beside `description` and outside `settings`:
+
+```json
+"example_prompts": [
+  "A mountain lake at sunrise, soft golden light",
+  "A watercolor painting of a quiet village in autumn"
+],
+"example_negative_prompts": [
+  "blurry, low quality, watermark",
+  "overexposed, washed out colors"
+]
+```
+
+Use an empty array (`[]`) when there are no examples. Each entry must be a
+nonempty string. Both fields are optional for older manifests. Examples are retained
+as metadata and do not change generation settings or insert text into the active
+prompt. Newly initialized assets start with empty arrays for both fields.
+
 ```text
 Workflow defaults → Asset defaults → Saved user overrides → Request overrides
 ```

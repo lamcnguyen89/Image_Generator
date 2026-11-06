@@ -3,6 +3,8 @@
   "id": "model_bed8d383-fd60-49c0-9bc6-92a027b70821",
   "display_name": "Juggernaut XL Ragnarok",
   "description": "SDXL checkpoint: Juggernaut XL Ragnarok.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/133005/juggernaut-xl?modelVersionId=1759168",

@@ -3,6 +3,8 @@
   "id": "model_63590fc5-d0a0-4eed-8da1-223f9075d1c2",
   "display_name": "Pyros SDXL v0.5",
   "description": "SDXL checkpoint: Pyros v0.5.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/133808/pyros-nsfw-sdxl?modelVersionId=324958",

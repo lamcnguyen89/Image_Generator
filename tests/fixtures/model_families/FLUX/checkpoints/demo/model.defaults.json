@@ -3,6 +3,8 @@
   "id": "fixture-flux",
   "display_name": "FLUX fixture model",
   "description": "UI fixture with intentionally absent weights; previews require no GPU.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "workflow": "flux",
   "model_variant": "flux_1_dev",

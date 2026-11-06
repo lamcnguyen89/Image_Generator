@@ -3,6 +3,8 @@
   "id": "fixture-qwen_2_1-style",
   "display_name": "Qwen 2.1 style fixture",
   "description": "Synthetic test adapter.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "qwen_2_1",
   "adapter_type": "lora",
   "source_url": null,

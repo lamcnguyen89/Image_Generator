@@ -3,6 +3,8 @@
   "id": "model_058cd2e3-1853-4b84-b560-23b0d3083295",
   "display_name": "NoobAI XL v-prediction 1.0",
   "description": "SDXL-based v-prediction checkpoint requiring Euler with zero-terminal-SNR configuration.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/833294/noobai-xl-nai-xl?modelVersionId=1190596",

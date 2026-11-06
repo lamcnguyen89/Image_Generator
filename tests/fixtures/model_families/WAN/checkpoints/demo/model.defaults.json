@@ -3,6 +3,8 @@
   "id": "fixture-wan",
   "display_name": "WAN fixture model",
   "description": "UI fixture with intentionally absent weights; previews require no GPU.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "workflow": "wan",
   "model_variant": "wan_2_2_i2v_a14b",

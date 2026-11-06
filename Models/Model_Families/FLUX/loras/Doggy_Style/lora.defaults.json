@@ -3,6 +3,8 @@
   "id": "lora_6a5c5037-c666-43b5-bf60-6e8b6df5c43e",
   "display_name": "NSFW Doggystyle",
   "description": "Local adapter catalog entry: NSFW Doggystyle.",
+  "example_prompts": ["Nsfw Doggystyle, backview of Cinderela fucked from behind. a prince is watching holding his head, he is horrified. in a fantasy castle.", "Nsfw Doggystyle, Snow white holds a red apple and is fucked from behind. A prince holds her in his arms. Surprised faces. in a stable. Horse."],
+  "example_negative_prompts": ["anime, bad hands, pixelated, drawing, CGI, AI, stable diffusion, action figure, 2d, cartoon, sketch, render, 3d, painting, digital art, fan art, 2d art, wax, doll-like, perfect skin, 2.5d, smooth skin, jewelry, hyperrealistic, ultrarealistic, ugly, extra fingers, extra limbs, extra hands, extra body, 6 toes, six toes, 6 fingers, six fingers, supernumerary fingers, watermark, logo, writing, text, title","anime, bad hands, pixelated, drawing, CGI, AI, stable diffusion, action figure, 2d, cartoon, sketch, render, 3d, painting, digital art, fan art, 2d art, wax, doll-like, perfect skin, 2.5d, smooth skin, jewelry, hyperrealistic, ultrarealistic, ugly, extra fingers, extra limbs, extra hands, extra body, 6 toes, six toes, 6 fingers, six fingers, supernumerary fingers, watermark, logo, writing, text, title"],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1363675/nsfw-doggystyle-zit-flux1d?modelVersionId=2493929",
@@ -20,7 +22,7 @@
   },
   "settings": {
     "strength": 0.8,
-    "trigger_words": [],
+    "trigger_words": ["Nsfw Doggystyle", "a woman fucked from behind"],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",

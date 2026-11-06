@@ -3,6 +3,8 @@
   "id": "lora_93a2a4e9-7c4e-428b-8be2-9a391e85ce4f",
   "display_name": "MiniMax H3 Unlocked V2.1",
   "description": "Local MiniMax H3 adapter selected by the MiniMax video notebook.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "minimax",
   "adapter_type": "lora",
   "source_url": null,

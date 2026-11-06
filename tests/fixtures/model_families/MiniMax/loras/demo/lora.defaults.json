@@ -3,6 +3,8 @@
   "id": "fixture-minimax-style",
   "display_name": "MiniMax H3 fixture adapter",
   "description": "UI fixture with intentionally absent model weights.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "minimax",
   "adapter_type": "lora",
   "source_url": null,

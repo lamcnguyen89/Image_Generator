@@ -3,6 +3,8 @@
   "id": "lora_e901a38c-b9f9-4ae1-b4cb-a2508e0613e5",
   "display_name": "WAN Doggy POV v1.1",
   "description": "Local WAN adapter catalog entry: WAN Doggy POV v1.1.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1361228/wan-pov-doggy-style-i2v?modelVersionId=1545040",

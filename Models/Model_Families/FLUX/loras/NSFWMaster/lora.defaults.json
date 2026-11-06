@@ -3,6 +3,8 @@
   "id": "lora_a2deb732-63c7-4b1e-8e60-06af7ca950a1",
   "display_name": "NSFW Master",
   "description": "Local adapter catalog entry: NSFW Master.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/667086/nsfw-master?modelVersionId=746602",

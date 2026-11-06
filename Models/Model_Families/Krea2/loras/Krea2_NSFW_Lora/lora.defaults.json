@@ -3,15 +3,17 @@
   "id": "lora_e4824b82-d4d3-42d8-9b46-b99942bb216d",
   "display_name": "Vérité realism (Krea 2)",
   "description": "Local Vérité realism adapter selected by the working Krea 2 notebook.",
+  "example_prompts": ["A selfie by a hot blonde in a jacuzzi on a cruise showing her tits in one hand. Candid and amateur photo. She is completely nude.", "A selfie by a hot woman.", "A close-up of a woman's face in the middle of an orgasm, her eyes rolled back and half-closed, her mouth open, her cheeks flushed and a strand of hair stuck to her damp forehead, her head tipped back on a pillow, one hand gripping the sheet beside her face. She's a brunette with fair skin and a thin gold necklace, and her shoulders are bare, a man's shoulder and arm just visible at the edge of the frame. White Instagram-style caption text across the bottom of the image reads: \"your wife cumming on another's cock\". Amateur phone photo, shot from above.", "A POV shot of a man pulling his thick cock out of a woman's mouth, a long string of saliva and cum stretching from the swollen head to her stretched lower lip, her mouth full of thick white cum pooled on her tongue and spilling at the corners. She looks up at him with watery eyes, her lips parted. She's a blonde with fair skin, her hair pushed back by his hand, her fingers wrapped around the base of his cock. Mascara slightly smudged. Close-up on her face from above, bright even lighting. Candid flash photo.","A candid shot of three women standing in a train carriage, holding the overhead handrail with one hand each, the brunette and the blonde kissing while the redhead beside them looks at the camera, smiling, with her free hand raised in a middle finger. Their bodies are pressed close together. They are completely nude. Rows of empty seats, windows and a metal pole behind them. Amateur phone photo, shot from the aisle at eye level.","A POV shot looking down at a woman kneeling in front of the man as he pulls his cock out of her mouth, cum overflowing from her lips and running down her chin onto her chest, her eyes locked on his. Her hands rest on his thighs. She's a redhead with long wavy hair and freckles, wearing a thin gold necklace. A plain bedroom wall behind her. Medium close-up from above, soft natural lighting. Candid amateur photo.","A thick cock is slowly pulling out of a creampied pussy, thick white cum overflowing from her shaved entrance and dripping from his swollen tip down her labia. She's shaved smooth with delicate inner lips visible between her outer labia, skin flushed pink across her mound and inner thighs. He has a veiny rigid shaft, with one hand gripping the base firmly. Extreme close-up on genitalia, front angle, bright even lighting, blurred plain background.", " candid shot of two women sitting at a window table in a cafe. The blonde with a messy bun leans forward on her elbows holding a cup in both hands, and the brunette with long wavy hair sits back with one leg crossed over the other, a phone in her hand. Menus and a plate of pastries on the table, cafe chairs and a counter behind them. They are completely nude. Amateur phone photo."],
+  "example_negative_prompts": [],
   "family": "krea2",
   "adapter_type": "lora",
-  "source_url": null,
+  "source_url": "https://civitai.red/models/2725430/krea-2-nsfw-v5?modelVersionId=3431552",
   "source_model_id": null,
   "source_version_id": null,
   "weights": "Verite_realism.safetensors",
   "sha256": null,
   "notes_file": "Krea2_NSFW.md",
-  "preview_image": null,
+  "preview_image": "Example.png",
   "compatibility": {
     "model_variant": "krea_2_raw",
     "trained_on": null,
@@ -20,10 +22,20 @@
   },
   "settings": {
     "strength": 0.8,
-    "trigger_words": [],
+    "trigger_words": ["candid", "amateur", "selfies"],
     "positive_prefix": "",
-    "positive_suffix": "",
+    "positive_suffix": "photo",
     "negative_prompt": "",
-    "recommended_generation": {}
+    "recommended_generation": {
+      "width": 1024,
+    "height": 1536,
+    "num_inference_steps": 8,
+    "guidance_scale": 1,
+    "max_sequence_length": 512,
+    "sampling": {
+    "sampler": "euler",
+    "noise_schedule": "default"
+  }
+    }
   }
 }

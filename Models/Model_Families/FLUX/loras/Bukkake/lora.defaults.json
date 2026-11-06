@@ -3,6 +3,8 @@
   "id": "lora_7a74eee0-23d2-41b1-a547-599a7f79ff52",
   "display_name": "NSFW Bukkake",
   "description": "Local adapter catalog entry: NSFW Bukkake.",
+  "example_prompts": ["<lora:Vi:1> vi, short hair, red jacket, pink hair, tattoo, breasts. steampunk background <lora:Nsfw_Bukkake:0.9> nsfw bukkake, woman has the face covered with cum.", "<lora:Rebecca_Cyberpunk:1> rebecca cyberpunk,  cyborg, tattoo, twintails, hair bun, cyberpunk, neck tattoo, mechanical eye, artificial eye <lora:Nsfw_Bukkake:0.9> nsfw bukkake, woman has the face covered with cum.","<lora:Rei_Ayanami:1> short hair, rey ayanami, blue hair, breasts, red eyes, in a spaceship <lora:Nsfw_Bukkake:0.9> nsfw bukkake, woman has the face covered with cum.", "<lora:AtomEve (1):1> atomeve, redhead, dressed in a pink bodysuit outfit costume <lora:Nsfw_Bukkake:0.9> nsfw bukkake, woman has the face covered with cum.", "<lora:Mirabel_Garlick:1> mirabel garlick, hat, long hair twin braids, breasts, in a garden <lora:Nsfw_Bukkake:0.9> nsfw bukkake, woman has the face covered with cum."],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1462396/nsfw-bukkake-flux1d?modelVersionId=1653847",
@@ -19,8 +21,8 @@
     "notes": "Weight metadata declares a FLUX.1-dev LoRA. trained_on preserves the training model name or local filename from weight metadata; it is not a verified repository URL. Checkpoint compatibility has not been tested. Live source metadata could not be retrieved: the linked CivitAI version pages were unavailable through the browsing tools; values here come from local notes and weight headers. Initial strength 0.8 is the existing FLUX notebook fallback, not a verified creator recommendation. Undocumented trigger words and generation recommendations are left empty."
   },
   "settings": {
-    "strength": 0.8,
-    "trigger_words": [],
+    "strength": 0.9,
+    "trigger_words": ["nsfw bukkake", "woman has the face covered with cum."],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",

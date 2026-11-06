@@ -3,6 +3,8 @@
   "id": "lora_aeaaa64f-bcb0-445e-bb2d-2b93498ab199",
   "display_name": "illustriousxl_nipple_lora",
   "description": "Automatically initialized from the family template. Review metadata and settings before generation.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "adapter_type": "lora",
   "source_url": null,

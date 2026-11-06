@@ -3,6 +3,8 @@
   "id": "model_d19de06c-fb5f-4ad1-bfc4-fbdb8dc71eaa",
   "display_name": "Big Lust v1.6",
   "description": "SDXL checkpoint: Big Lust v1.6.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/575395/big-lust?modelVersionId=1081768",

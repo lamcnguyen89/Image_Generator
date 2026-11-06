@@ -3,6 +3,8 @@
   "id": "lora_229ba20c-2d80-4d92-b833-2a94afb32b34",
   "display_name": "NSFW Gloryhole",
   "description": "Local adapter catalog entry: NSFW Gloryhole.",
+  "example_prompts": ["in  a wall in a eerie manor <lora:Velma:0.9> glasses, velma, brown hair, short hair, orange sweater  <lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole", "<lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole in a tree in a forest.   <lora:Tinkerbell:0.9> tinker, tinkerbell, woman, dressed, fairy, green, dress"],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1479042/nsfw-gloryhole-flux1d?modelVersionId=1672956",
@@ -20,7 +22,7 @@
   },
   "settings": {
     "strength": 0.8,
-    "trigger_words": [],
+    "trigger_words": ["nsfw gloryhole", "a woman licking a cock through a hole"],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",

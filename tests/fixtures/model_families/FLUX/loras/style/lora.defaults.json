@@ -3,6 +3,8 @@
   "id": "fixture-flux-style",
   "display_name": "FLUX style adapter",
   "description": "UI fixture adapter with absent weights.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": null,

@@ -3,6 +3,8 @@
   "id": "fixture-wan-high",
   "display_name": "WAN high adapter",
   "description": "UI fixture adapter with absent weights.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": null,

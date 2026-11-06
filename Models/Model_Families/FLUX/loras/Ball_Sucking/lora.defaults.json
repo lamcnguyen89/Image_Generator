@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "lora_aaa4d79e-abb2-4650-b41d-cd4234570943",
+  "display_name": "NSFW Balls Sucking",
+  "description": "Local adapter catalog entry: NSFW Balls Sucking.",
+  "example_prompts": ["<lora:Nsfw_Balls_Sucking:0.9> penis, oral, hetero, 1boy, testicles, uncensored. A white woman with dreadlocks and glasses sucking a man testicles.", "<lora:Nsfw_Balls_Sucking:0.9> penis, oral, hetero, 1boy, testicles, uncensored. A redhead woman with curly hair sucking a man testicles.",  "<lora:Nsfw_Balls_Sucking:0.9> penis, oral, hetero, 1boy, testicles, uncensored. A woman is sucking a man testicles.  <lora:Tinkerbell:0.9> tinker, tinkerbell, woman, dressed, fairy, green, dress", "<lora:Nsfw_Balls_Sucking:0.9> penis, oral, hetero, 1boy, testicles, uncensored. A woman is sucking a man testicles.  <lora:Tinkerbell:0.9> tinker, tinkerbell, woman, dressed, fairy, green, dress", "<lora:Nsfw_Balls_Sucking:0.9> penis, oral, hetero, 1boy, testicles, uncensored. A woman is sucking a man testicles.  <lora:Tyrande_Whisperwind:0.9> tyrande whisperwind, pointy ears, elf, long hair, jewelry, breasts, green hair, earrings, colored skin, armor", "<lora:Nsfw_Balls_Sucking:0.9> penis, oral, hetero, 1boy, testicles, uncensored. A woman is sucking a man testicles. <lora:SnowWhite:0.9> 1girl, black hair, snow white, dress, bow, hair bow, puffy sleeves, short sleeves", "<lora:Nsfw_Balls_Sucking:0.9> penis, oral, hetero, 1boy, testicles, uncensored. A woman is sucking a man testicles.  <lora:Nami:0.9> nami, orange hair, tattoo, bikini top only, long hair, beach" ],
+  "example_negative_prompts": [],
+  "family": "flux",
+  "adapter_type": "lora",
+  "source_url": "https://civitai.red/models/1429798/nsfw-balls-sucking-flux1d?modelVersionId=1616098",
+  "source_model_id": "1429798",
+  "source_version_id": "1616098",
+  "weights": "Ball.safetensors",
+  "sha256": null,
+  "notes_file": "BallNotes.md",
+  "preview_image": null,
+  "compatibility": {
+    "model_variant": "flux_1_dev",
+    "trained_on": "691639.safetensors",
+    "verified_checkpoint_ids": [],
+    "notes": "Weight metadata declares a FLUX.1-dev LoRA. trained_on preserves the training model name or local filename from weight metadata; it is not a verified repository URL. Checkpoint compatibility has not been tested. Live source metadata could not be retrieved: the linked CivitAI version pages were unavailable through the browsing tools; values here come from local notes and weight headers. Initial strength 0.8 is the existing FLUX notebook fallback, not a verified creator recommendation. Undocumented trigger words and generation recommendations are left empty."
+  },
+  "settings": {
+    "strength": 0.8,
+    "trigger_words": [],
+    "positive_prefix": "",
+    "positive_suffix": "",
+    "negative_prompt": "",
+    "recommended_generation": {}
+  }
+}

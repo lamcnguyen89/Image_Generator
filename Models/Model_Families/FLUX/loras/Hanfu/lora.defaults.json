@@ -3,6 +3,8 @@
   "id": "lora_5e31a08b-192e-4f4d-802d-9b26e4628456",
   "display_name": "Hanfu NSFW",
   "description": "Local adapter catalog entry: Hanfu NSFW.",
+  "example_prompts": ["<lora:Ranni:0.9> 1girl, ranni, large witch hat, blue skin, extra arms, blue hair, blue eyes, one eye closed, cracked skin, large breasts, fur cloak  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored", "<lora:Alcina_Dimitrescu:0.9> alcina dimitrescu, hat, jewelry, 1girl, necklace,  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored", "<lora:Aloy:0.9> aloy, long hair, freckles, brown hair, green eyes, braid  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored"],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1337782/nsfw-titfuck-flux1d?modelVersionId=1510703",
@@ -20,7 +22,7 @@
   },
   "settings": {
     "strength": 0.8,
-    "trigger_words": [],
+    "trigger_words": ["titfuck style", "breasts", "penis", "hetero", "1girl", "1boy", "uncensored"],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",

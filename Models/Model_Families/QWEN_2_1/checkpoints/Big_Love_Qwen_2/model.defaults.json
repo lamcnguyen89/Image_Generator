@@ -3,6 +3,8 @@
   "id": "model_2937e2ae-3021-41ed-a67c-44ad8e11bb29",
   "display_name": "Big Love Qiara1 (Qwen-Image 2.1 BF16)",
   "description": "Local Qwen-Image 2.1 fine-tune. Conservative 40-step baseline from the notebook; the author's custom 6/10-step sampler has not been reproduced or verified here.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "qwen_2_1",
   "workflow": "qwen_2_1",
   "model_variant": "qwen_image_2_1",

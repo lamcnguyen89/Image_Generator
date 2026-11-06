@@ -3,6 +3,8 @@
   "id": "model_8396b3c5-d9d8-4cdf-b061-2d48c524151f",
   "display_name": "WAI Illustrious SDXL v17.0",
   "description": "SDXL-based checkpoint: WAI Illustrious v17.0.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/827184/wai-illustrious-sdxl?modelVersionId=2883731",

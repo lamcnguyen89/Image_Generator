@@ -3,6 +3,8 @@
   "id": "model_43359779-6bc0-4f45-8b70-39a2edff93fa",
   "display_name": "Krea 2 RAW",
   "description": "Undistilled Krea 2 RAW, using the local transformer and the notebook’s 52-step CFG 3.5 preset.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "krea2",
   "workflow": "krea2",
   "model_variant": "krea_2_raw",

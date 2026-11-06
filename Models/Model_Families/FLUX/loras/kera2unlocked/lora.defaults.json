@@ -3,6 +3,8 @@
   "id": "lora_509422a9-a7f3-40c2-8545-bd45b465c1b2",
   "display_name": "NSFW Unlocked v2",
   "description": "Local adapter catalog entry: NSFW Unlocked v2 (target unconfirmed).",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/2063193/nsfw-unlocked-lora-flux-flux2-klein-zimage-krea2?modelVersionId=3422539",

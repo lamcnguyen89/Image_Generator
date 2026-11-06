@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "lora_6035d610-50ae-4b13-9fb9-db9fe3c8ef80",
+  "display_name": "BJStyle",
+  "description": "Local adapter catalog entry: BJStyle.",
+  "example_prompts": ["<lora:BJStyle:0.9> blowjob style, pov, penis, hetero, fellatio, oral, uncensored, looking at the viewer     <lora:Medusa:0.9> medusa, 1girl, breasts, dreadlocks, monster girl, snake hair, medium breasts", "<lora:BJStyle:0.9> blowjob style, penis, hetero, fellatio, oral, uncensored, looking at the viewer  <lora:Rogue:0.9> Rogue, a woman wearing yellow and green superhero costume. She wears gloves. Front strands of white hair. Redhead. She wears a brown leather jacket.", "<lora:BJStyle:0.9> blowjob style, penis, hetero, fellatio, oral, uncensored  <lora:Cinderella:0.9> cinderella, 1girl, blonde hair, dress, elbow gloves, choker. In a princess castle", "<lora:BJStyle:0.9> blowjob style, pov, penis, hetero, fellatio, oral, uncensored, looking at the viewer  <lora:Gemma:0.9> gemma, blonde hair, 1girl, long hair, braid, freckles, goggles around neck, breasts, jacket, blue eyes", "<lora:BJStyle:0.9> blowjob style, pov, penis, hetero, fellatio, oral, uncensored, looking at the viewer  <lora:Tyrande_Whisperwind:0.9> 1girl, tyrande whisperwind, pointy ears, elf, long hair, jewelry, breasts, green hair, earrings, colored skin, armor", "<lora:BJStyle:0.9> blowjob style, penis, hetero, fellatio, oral, uncensored    <lora:April:0.9> 1girl, april, breasts, brown hair, cleavage, belt, yellow jumpsuit", "<lora:BJStyle:0.9> blowjob style, penis, hetero, fellatio, oral, uncensored, looking at the viewer   <lora:Ranni:0.9> 1girl, ranni, large witch hat, blue skin, extra arms, blue hair, blue eyes, one eye closed, cracked skin, large breasts, fur cloak","<lora:BJStyle:0.9> blowjob style, pov, penis, hetero, fellatio, oral, uncensored, looking at the viewer     <lora:Medusa:0.9> medusa, 1girl, breasts, dreadlocks, monster girl, snake hair, medium breasts"],
+  "example_negative_prompts": [],
+  "family": "flux",
+  "adapter_type": "lora",
+  "source_url": "https://civitai.red/models/1331411/nsfw-blowjob-flux1d?modelVersionId=1503204",
+  "source_model_id": "1331411",
+  "source_version_id": "1503204",
+  "weights": "BJStyle.safetensors",
+  "sha256": null,
+  "notes_file": "BJ_Notes.md",
+  "preview_image": null,
+  "compatibility": {
+    "model_variant": "flux_1_dev",
+    "trained_on": "691639.safetensors",
+    "verified_checkpoint_ids": [],
+    "notes": "Weight metadata declares a FLUX.1-dev LoRA. trained_on preserves the training model name or local filename from weight metadata; it is not a verified repository URL. Checkpoint compatibility has not been tested. Live source metadata could not be retrieved: the linked CivitAI version pages were unavailable through the browsing tools; values here come from local notes and weight headers. Initial strength 0.8 is the existing FLUX notebook fallback, not a verified creator recommendation. Undocumented trigger words and generation recommendations are left empty."
+  },
+  "settings": {
+    "strength": 0.8,
+    "trigger_words": ["blowjob style", "penis", "hetero", "fellatio", "oral", "uncensored", "looking at the viewer", "POV" ],
+    "positive_prefix": "",
+    "positive_suffix": "",
+    "negative_prompt": "",
+    "recommended_generation": {}
+  }
+}

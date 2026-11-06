@@ -3,6 +3,8 @@
   "id": "model_a4278bb0-94f4-4960-ada0-39ca89cec194",
   "display_name": "Stable Diffusion XL Base 1.0",
   "description": "Official SDXL 1.0 base model loaded from its pretrained repository.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",

@@ -3,6 +3,8 @@
   "id": "model_86b44c16-e58f-4fcf-845f-b0d04d21b888",
   "display_name": "Pony Diffusion V6 XL",
   "description": "SDXL checkpoint: Pony Diffusion V6 XL.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": null,

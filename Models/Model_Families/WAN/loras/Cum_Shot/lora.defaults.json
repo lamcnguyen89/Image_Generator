@@ -3,6 +3,8 @@
   "id": "lora_c3c3b683-e6e9-41af-a7ba-c2a6eb82a5d1",
   "display_name": "WAN CS",
   "description": "Local WAN adapter catalog entry: WAN CS.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/2148595/mouthfull-cumshot-i2v-wan-22-video-lora-k3nk?modelVersionId=2430424",

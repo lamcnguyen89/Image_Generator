@@ -3,6 +3,8 @@
   "id": "fixture-sdxl",
   "display_name": "SDXL fixture model",
   "description": "UI fixture with intentionally absent weights; previews require no GPU.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": null,

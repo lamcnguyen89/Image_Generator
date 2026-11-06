@@ -59,6 +59,8 @@ class InitializationTests(unittest.TestCase):
                 self.assertTrue(asset.asset_paths["weights"].exists())
                 self.assertEqual(json.loads(asset.user_path.read_text()), {"schema_version": 1, "settings": {}})
                 self.assertEqual(asset.defaults["settings"]["trigger_words"], [])
+                self.assertEqual(asset.defaults["example_prompts"], [])
+                self.assertEqual(asset.defaults["example_negative_prompts"], [])
                 if asset.kind == "model":
                     self.assertEqual(asset.defaults["settings"]["loras"], [])
                     self.assertEqual(asset.defaults["settings"]["prompt"], "")
@@ -69,6 +71,30 @@ class InitializationTests(unittest.TestCase):
                     self.assertEqual(asset.defaults["compatibility"]["verified_checkpoint_ids"], [])
         self.assertEqual(len({asset.id for asset in (*catalog.models.values(), *catalog.loras.values())}), 6)
         self.assertEqual(before_templates, {path: path.read_bytes() for path in self.root.rglob("*.example.json")})
+
+    def test_template_example_prompts_are_cleared_unless_metadata_supplies_them(self):
+        for folder, kind in (("checkpoints", "model"), ("loras", "lora")):
+            with self.subTest(kind=kind):
+                directory = self.asset(folder=folder)
+                template_path = directory.parent / f"{kind}.defaults.example.json"
+                template = json.loads(template_path.read_text())
+                template["example_prompts"] = ["An illustrative template prompt"]
+                template["example_negative_prompts"] = ["An illustrative negative prompt"]
+                template_path.write_text(json.dumps(template), encoding="utf-8")
+                initialize_asset(directory)
+                defaults_path = directory / f"{kind}.defaults.json"
+                self.assertEqual(json.loads(defaults_path.read_text())["example_prompts"], [])
+                self.assertEqual(json.loads(defaults_path.read_text())["example_negative_prompts"], [])
+
+                uploaded = self.asset(folder=folder, name="uploaded")
+                examples = ["A prompt for this uploaded asset"]
+                negative_examples = ["blurry, low quality"]
+                initialize_asset(uploaded, metadata={
+                    "example_prompts": examples, "example_negative_prompts": negative_examples,
+                })
+                uploaded_path = uploaded / f"{kind}.defaults.json"
+                self.assertEqual(json.loads(uploaded_path.read_text())["example_prompts"], examples)
+                self.assertEqual(json.loads(uploaded_path.read_text())["example_negative_prompts"], negative_examples)
 
     def test_repeated_loading_preserves_ids_and_all_existing_bytes(self):
         directory = self.asset()
