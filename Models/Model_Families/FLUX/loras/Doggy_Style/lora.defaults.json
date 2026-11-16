@@ -5,7 +5,13 @@
   "description": "Local adapter catalog entry: NSFW Doggystyle.",
   "example_prompts": [
     "Nsfw Doggystyle, backview of Cinderela fucked from behind. a prince is watching holding his head, he is horrified. in a fantasy castle.",
-    "Nsfw Doggystyle, Snow white holds a red apple and is fucked from behind. A prince holds her in his arms. Surprised faces. in a stable. Horse."
+    "Nsfw Doggystyle, Snow white holds a red apple and is fucked from behind. A prince holds her in his arms. Surprised faces. in a stable. Horse.",
+    "Nsfw Doggystyle, Spidergwen with blond hair and a hood. She is fucked from behind. Spiderman stands next to her and is holding his head. on top of a building in new york",
+    "Nsfw Doggystyle, Wonderwoman is fucked from behind. Batman stands next to her and his hands are attached by glowing yellow rope. in the bat cave.",
+    "Nsfw Doggystyle, an ugly old witch with a witch hat, holding a red apple and fucked from behind. Snow white is standing holding her head horrified. In a medieval wooden house.",
+    "Nsfw Doggystyle, Velma Dinkley, a woman with straight bob with bangs that frame her face, large square oversize blackframed glasses. She wears a baggy, long-sleeved orange turtleneck sweater, a short pleated red skirt, knee-high orange socks, and red strap-on Mary Jane shoes. Her skin is fair with a few freckles across her cheeks. She is fucked from behind by a man. haunted house. ghosts, zombies,Eerie scenery",
+    "Nsfw Doggystyle, backview of woman dressed as a police woman, fucked from behind. surrounded by men prisoners clapping and cheering. In jail.",
+    "Nsfw Doggystyle, Cleopatra is fucked from behind. in front of the pyramids in egypt"
   ],
   "example_negative_prompts": [
     "anime, bad hands, pixelated, drawing, CGI, AI, stable diffusion, action figure, 2d, cartoon, sketch, render, 3d, painting, digital art, fan art, 2d art, wax, doll-like, perfect skin, 2.5d, smooth skin, jewelry, hyperrealistic, ultrarealistic, ugly, extra fingers, extra limbs, extra hands, extra body, 6 toes, six toes, 6 fingers, six fingers, supernumerary fingers, watermark, logo, writing, text, title",

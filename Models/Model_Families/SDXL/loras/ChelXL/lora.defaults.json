@@ -4,7 +4,11 @@
   "display_name": "ChelXL",
   "description": "SDXL character LoRA for Chel.",
   "example_prompts": [
-    "score_9, score_8_up, score_7_up, source_anime BREAK 1girl, solo,  <lora:ChelXL:0.8> cheldorado, 1girl, solo, long hair, breasts, bangs, black hair, navel, bare shoulders, jewelry, earrings, midriff, dark skin, blunt bangs, bracelet, dark-skinned female, lips, crop top, hand on hip, strapless, makeup, pelvic curtain, tube top, loincloth, from behind, ass, looking back,"
+    "score_9, score_8_up, score_7_up, source_anime BREAK 1girl, solo,  <lora:ChelXL:0.8> cheldorado, 1girl, solo, long hair, breasts, bangs, black hair, navel, bare shoulders, jewelry, earrings, midriff, dark skin, blunt bangs, bracelet, dark-skinned female, lips, crop top, hand on hip, strapless, makeup, pelvic curtain, tube top, loincloth, from behind, ass, looking back,",
+    "score_9, score_8_up, score_7_up, source_anime BREAK 1girl, solo,  <lora:ChelXL:0.8> cheldorado, 1girl, solo, long hair, breasts, smile, bangs, black hair, navel, bare shoulders, jewelry, earrings, midriff, dark skin, blunt bangs, bracelet, dark-skinned female, lips, crop top, hand on hip, strapless, makeup, pelvic curtain, tube top, loincloth cowboy shot,",
+    "score_9, score_8_up, score_7_up, source_anime BREAK 1girl, solo,  <lora:ChelXL:0.8> cheldorado, 1girl, solo, long hair, breasts, bangs, black hair, navel, bare shoulders, jewelry, earrings, midriff, dark skin, blunt bangs, bracelet, dark-skinned female, lips, crop top, hand on hip, strapless, makeup, pelvic curtain, tube top, loincloth cowboy shot, showing the ass, from behind,",
+    "score_9, score_8_up, score_7_up, source_anime BREAK 1girl, solo,  <lora:ChelXL:0.8> cheldorado, 1girl, solo, long hair, breasts, bangs, black hair, navel, bare shoulders, jewelry, earrings, midriff, dark skin, blunt bangs, bracelet, dark-skinned female, lips, crop top, hand on hip, strapless, makeup, pelvic curtain, tube top, loincloth cowboy shot,",
+    "score_9, score_8_up, score_7_up, source_anime BREAK 1girl, solo,  <lora:ChelXL:0.8> cheldorado, 1girl, solo, long hair, breasts, bangs, black hair, navel, bare shoulders, jewelry, earrings, midriff, dark skin, blunt bangs, bracelet, dark-skinned female, lips, crop top, hand on hip, strapless, makeup, pelvic curtain, tube top, loincloth, sitting,"
   ],
   "example_negative_prompts": [
     "watermark, signature, artist name, patreon username, text, monochrome"

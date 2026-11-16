@@ -5,11 +5,34 @@
   "description": "SDXL checkpoint: Pyros v0.5.",
   "example_prompts": [
     "((head grab)), pov, deepthroat, penis, a pretty e-girl is sucking a very big penis, very skinny, at home, instagram post, photo by iPhone",
-    "foot focus, penis, solo focus, penis, footjob, two-footed footjob, a man is giving a woman a big cock, global illumination, (vivid, plasticity, lifelike) photo by iPhone"
+    "foot focus, penis, solo focus, penis, footjob, two-footed footjob, a man is giving a woman a big cock, global illumination, (vivid, plasticity, lifelike) photo by iPhone",
+    "potrait of a pretty e-girl in a bikini, skinny, at home, instagram post, photo by iPhone",
+    "prone bone, penis, pussy, vaginal, a pretty woman is getting her ass fucked, instagram post, photo by iPhone",
+    "looking at viewer, breasts, deepthroat, penis, blowjob, head grab, a skinny 18-year-old e-girl in a bikini is sucking a (very big penis), instagram post, photo by iPhone",
+    "((facial, cum, multiple penises)), large soft breasts, e-girl completely covered in cum, skinny, very petite and very cute, ((very tight waist)), art by Oleg Oprisco",
+    "((mouth wide open)), deepthroat, penis, blowjob, head grab, a skinny princess zelda sucking a (very big penis), highly textured skin, ring-light, anti-aliasing, color-graded, potrait, sony a7, 50 mm",
+    "potrait of a pretty e-girl in a bikini, skinny, cat ears, plain white background, (thick lines, video game concept art, digital illustration, masterpiece, high quality art by Aaron Jasinski)",
+    "penis, pussy, vaginal, pov, medium breasts, nipples, a very skinny e-girl is laying with a man, digital art trending on artstation, professional illustration, cell shading, marvel comic style",
+    "(ass grab:2), vaginal, penis, pussy, a beautiful 18-year-old swedish nurse getting fucked by a huge penis, highly textured skin, cinematic lighting, anti-aliasing, color-graded, sony a7, in a hospital",
+    "penis, pussy, vaginal, pov, ass, a very skinny swedish girl is laying with a man, digital art trending on artstation, professional illustration, cell shading, marvel comic style",
+    "potrait of a pretty e-girl in a bikini, skinny, at home, (thick lines, video game concept art, digital illustration, masterpiece, high quality art by Aaron Jasinski)",
+    "looking at viewer, from front, deepthroat, penis, blowjob, head grab, a skinny german girl is sucking a (very big penis), man standing at side, instagram post, photo by iPhone",
+    "potrait of a pretty e-girl in a bikini, large breasts, arms up, tight waist, skinny, muscular, plain white background, (thick lines, video game concept art, digital illustration, masterpiece, high quality art by Aaron Jasinski)",
+    "vaginal, pussy, pov, breasts, pretty face, a 20-year-old woman is riding a huge penis, red hair, skinny, muscular, color graded photo in the style of Alessio Albi",
+    "pov, (deepthroat), penis, a pretty e-girl is sucking a very big penis, cleavage, very skinny, plain white background, (thick lines, video game concept art, digital illustration, masterpiece, high quality art by Aaron Jasinski)",
+    "((facial, cum, full body, pussy, large breasts)), a skinny german topmodel completely covered in cum, photo in the style of Alessio Albi",
+    "potrait of a pretty anime girl in a victorian outfit, ((tight waist)), very skinny, art by Jean - baptiste monge, unreal engine, greg rutkowski, loish, rhads, beeple, makoto shinkai and lois van baarle, ilya kuvshinov, rossdraws, tom bagshaw, alphonse mucha, global illumination, detailed and intricate environment",
+    "penis, pussy, vaginal, pov, medium breasts, nipples, a very skinny e-girl is laying with a man, digital art trending on artstation, professional illustration, cell shading, minimalistic vector style"
   ],
   "example_negative_prompts": [
     "(asian),zoomed in, low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution",
-    "zoomed in, low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution"
+    "zoomed in, low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution",
+    "(asian, pink), ((penis)), zoomed in, low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution",
+    "(pov, asian), ((zoomed in)), low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution",
+    "blush, blush cheeks, ((photo)), ((3d)), (disfigured), (bad art), (deformed), (poorly drawn), (extra limbs), strange colours, blurry, boring, sketch, lacklustre, repetitive, cropped, hands",
+    "(photo), 3d, render, low res, low resolution",
+    "((ass)), (photo), 3d, render, low res, low resolution",
+    "(cartoon, 3d, (disfigured), (bad art), (deformed), (poorly drawn), (extra limbs), strange colours, blurry, boring, sketch, lacklustre, repetitive, cropped, hands, (cartoon), 3d, render, low res, low resolution"
   ],
   "family": "sdxl",
   "workflow": "sdxl",

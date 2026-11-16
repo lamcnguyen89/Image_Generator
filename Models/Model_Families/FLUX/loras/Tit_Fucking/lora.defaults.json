@@ -4,7 +4,15 @@
   "display_name": "Titfuck Style",
   "description": "Local adapter catalog entry: Titfuck Style.",
   "example_prompts": [
-    "<lora:Ranni:0.9> 1girl, ranni, large witch hat, blue skin, extra arms, blue hair, blue eyes, one eye closed, cracked skin, large breasts, fur cloak  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored"
+    "<lora:Ranni:0.9> 1girl, ranni, large witch hat, blue skin, extra arms, blue hair, blue eyes, one eye closed, cracked skin, large breasts, fur cloak  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored",
+    "<lora:Alcina_Dimitrescu:0.9> alcina dimitrescu, hat, jewelry, 1girl, necklace,  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored",
+    "<lora:Aloy:0.9> aloy, long hair, freckles, brown hair, green eyes, braid  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored",
+    "<lora:Velma:0.9> glasses, velma, brown hair, short hair  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored",
+    "<lora:Cinderella:0.9> cinderella, 1girl, blonde hair, dress, elbow gloves, choker  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored",
+    "<lora:Tracer:0.9> tracer, a woman, short hair, goggles, harness, brown hair,  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored",
+    "<lora:Rogue:0.9> Rogue, a woman. She wears gloves. Front strands of white hair. Redhead.  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored",
+    "<lora:April:0.9> 1girl, april, breasts, brown hair,  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored",
+    "<lora:StellarBlade:0.9> eve, stellarblade, black hair, long hair, ponytail, large breasts  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored"
   ],
   "example_negative_prompts": [],
   "family": "flux",

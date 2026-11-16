@@ -5,7 +5,16 @@
   "description": "Local adapter catalog entry: NSFW Gloryhole.",
   "example_prompts": [
     "in  a wall in a eerie manor <lora:Velma:0.9> glasses, velma, brown hair, short hair, orange sweater  <lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole",
-    "<lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole in a tree in a forest.   <lora:Tinkerbell:0.9> tinker, tinkerbell, woman, dressed, fairy, green, dress"
+    "<lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole in a tree in a forest.   <lora:Tinkerbell:0.9> tinker, tinkerbell, woman, dressed, fairy, green, dress",
+    "<lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole in a wall.  <lora:SnowWhite:0.9> black hair, snow white, dress, bow, hair bow, puffy sleeves, short sleeves",
+    "in a rusty wall in a steampunk scenery <lora:Gemma:0.9> gemma, blonde hair, long hair, braid, freckles, goggles around neck, breasts, jacket, blue eyes  <lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole",
+    "in a wall in a chinese house    <lora:Yamato:0.9> horns, yamato, japanese clothes, breasts, multicolored hair, hair stick, oni, rope  <lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole",
+    "<lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole in a wall.  <lora:Emma_Frost:0.9>  emma frost, gloves, blonde hair, breasts, thighhighs, long hair, blue eyes, cape, corset",
+    "in a wall of an eerie manor <lora:Alcina_Dimitrescu:0.9> alcina dimitrescu, hat, jewelry,  necklace, dress  <lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole",
+    "in a wall in a witch house <lora:Ranni:0.9> ranni, large witch hat, blue skin, extra arms, blue hair, blue eyes, one eye closed, cracked skin, large breasts, fur cloak  <lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole",
+    "<lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole in a wall.   <lora:Brunehilde:0.9> long hair, brunehilde, black hair, gloves, hair ornament, fingerless gloves",
+    "in a wall in a spaceship <lora:Powergirl:0.9> powergirl, breasts, cleavage cutout, gloves, cape, blonde hair, short hair, blue eyes  <lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole",
+    "in a rock in a forest  <lora:Tyrande_Whisperwind:0.9> 1girl, tyrande whisperwind, pointy ears, elf, long hair, jewelry, breasts, green hair, earrings, colored skin, armor  <lora:Nsfw Gloryhole:0.9> nsfw gloryhole, a woman licking a cock through a hole"
   ],
   "example_negative_prompts": [],
   "family": "flux",
