@@ -27,6 +27,8 @@ def create_app(config=None):
         INPUT_MAX_BYTES=20 * 1024 * 1024,
         INPUT_MAX_PIXELS=25_000_000,
         SESSION_COOKIE_SAMESITE="Lax",
+        # This local UI is edited in place while the long-running worker runs.
+        TEMPLATES_AUTO_RELOAD=True,
     )
     app.config.from_prefixed_env(prefix="IMAGE_GENERATOR")
     # Passwords such as "1234" or "false" must stay strings, not parsed JSON.

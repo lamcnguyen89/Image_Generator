@@ -1,8 +1,10 @@
 """Read-only catalog routes. Browsing never imports generation workflows."""
 
-from flask import Blueprint, abort, current_app, g, render_template
+from flask import Blueprint, abort, current_app, g, render_template, send_file, url_for
 
 from image_generator.catalog import CatalogValidationError, discover_catalog
+
+from .previews import MEDIA_TYPES, example_media
 
 
 catalog_bp = Blueprint(
@@ -23,6 +25,28 @@ def get_catalog():
     if "model_catalog" not in g:
         g.model_catalog = discover_catalog(current_app.config["CATALOG_ROOT"])
     return g.model_catalog
+
+
+@catalog_bp.app_template_filter("asset_preview")
+def asset_preview(asset):
+    path = example_media(asset)
+    if path is None:
+        return None
+    mimetype = MEDIA_TYPES[path.suffix.lower()]
+    return {"url": url_for("catalog.preview", asset_id=asset.id),
+            "kind": mimetype.split("/")[0], "mimetype": mimetype}
+
+
+@catalog_bp.get("/assets/<asset_id>/preview")
+def preview(asset_id):
+    try:
+        asset = get_catalog().get_asset(asset_id)
+    except KeyError:
+        abort(404)
+    path = example_media(asset)
+    if path is None:
+        abort(404)
+    return send_file(path, mimetype=MEDIA_TYPES[path.suffix.lower()], conditional=True)
 
 
 @catalog_bp.app_template_filter("mode_label")

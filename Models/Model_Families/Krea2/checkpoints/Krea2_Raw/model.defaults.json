@@ -16,7 +16,7 @@
   "sha256": null,
   "base_model_id": "krea/Krea-2-Raw",
   "notes_file": "Krea2_Raw.md",
-  "preview_image": null,
+  "preview_image": "example.mp4",
   "supported_modes": [
     "txt2img"
   ],

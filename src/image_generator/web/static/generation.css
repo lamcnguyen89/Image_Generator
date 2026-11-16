@@ -23,14 +23,21 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-
 .field-error { color: #ffc0b8; font-size: .85rem; margin-block: .4rem; }
 .form-errors { padding: 1.4rem; margin-bottom: 1.5rem; border-color: #a55e56; }
 .form-errors ul { margin-bottom: 0; padding-left: 1.2rem; }
-.adapter-card { background: var(--background); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+.adapter-card { background: var(--background); border: 1px solid var(--border); border-radius: 8px; margin: 1rem 0; }
+.adapter-card .asset-preview { border-radius: 7px 7px 0 0; }
+.adapter-body { padding: 1rem; }
 .adapter-card .section-heading { align-items: center; }
 .adapter-card .checkbox-label { margin-bottom: 0; }
 .adapter-card input[type=number] { max-width: 160px; }
-.adapter-card > label { margin-top: .7rem; }
+.adapter-body > label { margin-top: .7rem; }
 .adapter-button { color: var(--accent); background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: .6rem .8rem; margin-top: .7rem; cursor: pointer; }
 .adapter-defaults { margin-top: 1rem; }
 .adapter-defaults label { margin-top: .7rem; }
+.example-menus { margin-top: .8rem; }
+.example-editor > label { margin-top: .7rem; }
+.example-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.example-actions button:disabled { opacity: .5; cursor: default; }
+.example-editor [data-example-status][data-error="true"] { color: #ffc0b8; }
 .adapter-group { margin: 1.2rem 0; padding: .75rem; border-radius: 8px; }
 .adapter-group legend { font-size: .9rem; }
 .primary-button { display: block; width: 100%; border: 0; border-radius: 6px; background: var(--accent); color: #10251f; padding: .8rem 1rem; font-weight: 700; cursor: pointer; }

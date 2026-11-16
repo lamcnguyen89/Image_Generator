@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "controls/asset_preview.html" import asset_preview %}
 {% block content %}
 <div class="page-heading">
   <p class="eyebrow">Your library</p>
@@ -15,14 +16,16 @@
   <div class="model-grid">
     {% for model in family.models %}
     <article class="card model-card">
+      {{ asset_preview(model, url_for('generation.configure', model_id=model.id)) }}
+      <div class="asset-card-body">
       <div class="badges">
         {% for mode in model.defaults.supported_modes %}<span class="badge">{{ mode | mode_label }}</span>{% endfor %}
       </div>
-      <h3><a href="{{ url_for('generation.configure', model_id=model.id) }}">{{ model.display_name }}</a></h3>
       <p class="muted description">{{ model.defaults.get('description', '') }}</p>
       <div class="model-actions">
       <a class="action-link" href="{{ url_for('catalog.model_settings', model_id=model.id) }}" aria-label="View settings for {{ model.display_name }}">View settings <span aria-hidden="true">→</span></a>
       <a class="action-link" href="{{ url_for('generation.configure', model_id=model.id) }}" aria-label="Configure generation for {{ model.display_name }}">Configure generation <span aria-hidden="true">→</span></a>
+      </div>
       </div>
     </article>
     {% endfor %}

@@ -1,8 +1,12 @@
+{% from "controls/asset_preview.html" import asset_preview %}
+{% from "controls/examples.html" import example_menus %}
 {% macro adapter_cards(items, errors) %}
 {% for item in items %}
 <article class="adapter-card" data-lora-id="{{ item.asset.id }}">
+  {{ asset_preview(item.asset) }}
+  <div class="adapter-body">
   <div class="section-heading">
-    <label class="checkbox-label" for="lora-{{ item.asset.id }}"><input type="checkbox" id="lora-{{ item.asset.id }}" name="lora" value="{{ item.asset.id }}"{% if item.enabled %} checked{% endif %}{% if not item.eligible %} disabled{% endif %}>{{ item.asset.display_name }}</label>
+    <label class="checkbox-label" for="lora-{{ item.asset.id }}"><input type="checkbox" id="lora-{{ item.asset.id }}" name="lora" value="{{ item.asset.id }}"{% if item.enabled %} checked{% endif %}{% if not item.eligible %} disabled{% endif %}>Enable {{ item.asset.display_name }}</label>
     <span class="badge {{ 'accent' if item.verified else '' }}">{{ 'Verified for checkpoint' if item.verified else 'Unverified' }}</span>
   </div>
   {% if item.reason %}<p class="field-help">{{ item.reason }}</p>{% endif %}
@@ -17,6 +21,7 @@
   <input type="number" id="strength-{{ item.asset.id }}" name="strength:{{ item.asset.id }}" value="{{ item.strength }}" {% if item.minimum_strength is not none %}min="{{ item.minimum_strength }}" {% endif %}step="any"{% if errors.get('strength:' ~ item.asset.id) %} aria-invalid="true" aria-describedby="strength-error-{{ item.asset.id }}"{% endif %}>
   {% if errors.get('strength:' ~ item.asset.id) %}<p class="field-error" id="strength-error-{{ item.asset.id }}">{{ errors['strength:' ~ item.asset.id] }}</p>{% endif %}
   <p class="field-help">Trigger words: {{ item.settings.get('trigger_words', []) | join(', ') or 'None recorded' }}</p>
+  {{ example_menus(item.asset) }}
   {% if item.settings.get('recommended_generation') %}<details><summary>Recommended settings</summary><pre class="json-block">{{ item.settings.recommended_generation | tojson(indent=2) }}</pre><button type="button" class="adapter-button" data-apply-recommendations='{{ item.settings.recommended_generation | tojson }}'>Apply recommended settings</button><p class="field-help">Applies supported generation fields to this form. Save model settings to keep them.</p><p class="field-help" data-recommendation-status role="status"></p></details>{% endif %}
   <details class="adapter-defaults">
     <summary>Edit shared adapter defaults</summary>
@@ -28,6 +33,7 @@
     <button type="submit" name="action" value="save_adapter" formaction="{{ url_for('settings.adapter_settings', adapter_id=item.asset.id) }}" formnovalidate class="adapter-button">Save adapter defaults</button>
     <button type="submit" name="action" value="reset_adapter" formaction="{{ url_for('settings.adapter_settings', adapter_id=item.asset.id) }}" formnovalidate class="adapter-button">Reset adapter defaults</button>
   </details>
+  </div>
 </article>
 {% else %}<p class="muted">No adapters in this group.</p>{% endfor %}
 {% endmacro %}

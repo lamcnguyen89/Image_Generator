@@ -1,0 +1,20 @@
+{% macro asset_preview(asset, href=none) %}
+{% set media = asset | asset_preview %}
+<div class="asset-preview{{ ' asset-preview-empty' if not media else '' }}">
+  {% if media %}
+    {% if media.kind == 'video' %}
+    <video class="asset-media" controls muted playsinline preload="metadata" aria-label="Example video for {{ asset.display_name }}">
+      <source src="{{ media.url }}" type="{{ media.mimetype }}">
+      <a href="{{ media.url }}">Open example video</a>
+    </video>
+    {% else %}
+    {% if href %}<a class="asset-media-link" href="{{ href }}" aria-label="Open {{ asset.display_name }}">{% endif %}
+    <img class="asset-media" src="{{ media.url }}" alt="Example image for {{ asset.display_name }}" loading="lazy" decoding="async">
+    {% if href %}</a>{% endif %}
+    {% endif %}
+  {% else %}
+  <p class="asset-preview-placeholder muted">No example media available</p>
+  {% endif %}
+  <h3 class="asset-preview-title">{% if href %}<a href="{{ href }}">{{ asset.display_name }}</a>{% else %}{{ asset.display_name }}{% endif %}</h3>
+</div>
+{% endmacro %}

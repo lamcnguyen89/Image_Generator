@@ -11,7 +11,7 @@ import tempfile
 
 from .discovery import discover_catalog
 from .settings import lora_strength_minimum, resolve_settings
-from .validation import CatalogValidationError, validate_user
+from .validation import CatalogValidationError, validate_defaults, validate_user
 
 
 class SettingsConflict(ValueError):
@@ -91,22 +91,55 @@ def _write(asset, overrides):
     issues = validate_user(document, asset.user_path)
     if issues:
         raise CatalogValidationError(issues)
+    return _write_document(asset.user_path, document)
+
+
+def _write_document(path, document):
     content = json.dumps(document, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
     temporary = None
     try:
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=asset.user_path.parent,
-                                         prefix=f".{asset.user_path.name}.", delete=False) as handle:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         prefix=f".{path.name}.", delete=False) as handle:
             temporary = Path(handle.name)
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
-        if asset.user_path.exists():
-            temporary.chmod(asset.user_path.stat().st_mode & 0o777)
-        os.replace(temporary, asset.user_path)
+        if path.exists():
+            temporary.chmod(path.stat().st_mode & 0o777)
+        os.replace(temporary, path)
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
     return document
+
+
+def update_examples(catalog, asset_id, field, action, *, expected_revision, text=None, index=None):
+    """Edit one example list in defaults while preserving all other metadata."""
+    if not isinstance(field, str) or field not in {"example_prompts", "example_negative_prompts"}:
+        raise ValueError("Choose example prompts or example negative prompts.")
+    if not isinstance(action, str) or action not in {"add", "remove"}:
+        raise ValueError("Choose add or remove example.")
+    with _locked_catalog(catalog, expected_revision) as current:
+        asset = current.get_asset(asset_id)
+        document = deepcopy(asset.defaults)
+        examples = document.setdefault(field, [])
+        if action == "add":
+            if not isinstance(text, str) or not text.strip():
+                raise ValueError("Enter a nonempty example prompt.")
+            text = text.strip()
+            if text in examples:
+                raise ValueError("This example is already saved.")
+            examples.append(text)
+        else:
+            if type(index) is not int or not 0 <= index < len(examples):
+                raise ValueError("Select a saved example to remove.")
+            examples.pop(index)
+        issues = validate_defaults(document, asset.manifest_path, asset.kind)
+        if issues:
+            raise CatalogValidationError(issues)
+        _write_document(asset.manifest_path, document)
+        asset.defaults[field] = examples
+        return {"examples": examples, "settings_revision": settings_revision(current)}
 
 
 def save_model_settings(catalog, model_id, desired, *, scope, expected_revision, mode=None, remove=()):

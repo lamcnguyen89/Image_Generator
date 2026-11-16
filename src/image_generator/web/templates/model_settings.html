@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "controls/asset_preview.html" import asset_preview %}
 {% block title %}{{ model.display_name }}{% endblock %}
 {% block content %}
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('catalog.index') }}">Model catalog</a><span aria-hidden="true"> / </span><span aria-current="page">{{ model.display_name }}</span></nav>
@@ -32,10 +33,13 @@
   <div class="section-heading"><h2 id="loras-heading">Linked LoRAs</h2><span class="muted">{{ linked_loras | length }} linked</span></div>
   {% for item in linked_loras %}
   <article class="card lora-card">
-    <div class="section-heading"><h3>{{ item.asset.display_name }}</h3><span class="badge {{ 'accent' if item.enabled else '' }}">{{ 'Enabled' if item.enabled else 'Disabled' }}</span></div>
+    {{ asset_preview(item.asset) }}
+    <div class="asset-card-body">
+    <div class="section-heading"><span class="badge {{ 'accent' if item.enabled else '' }}">{{ 'Enabled' if item.enabled else 'Disabled' }}</span></div>
     <p>Saved strength: <code>{{ item.strength | tojson }}</code></p>
     <p class="muted">{{ 'Compatibility recorded for this checkpoint.' if item.verified else 'Compatibility has not been verified for this checkpoint.' }}</p>
     <details><summary>Adapter settings</summary><pre class="json-block">{{ item.settings | tojson(indent=2) }}</pre></details>
+    </div>
   </article>
   {% else %}<div class="card empty-state"><p>No LoRAs are linked to this model.</p><p class="muted">Links appear here when saved in the model’s user settings.</p></div>{% endfor %}
 </section>

@@ -1,9 +1,10 @@
 """Save/reset model and shared adapter preferences, independently of generation."""
 
-from flask import Blueprint, abort, redirect, render_template, request, url_for
+from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
 
 from image_generator.catalog.persistence import (
     SettingsConflict, reset_settings, save_adapter_settings, save_model_settings, settings_revision,
+    update_examples,
 )
 from .security import valid_csrf
 from .web import get_catalog
@@ -14,6 +15,28 @@ settings_bp = Blueprint("settings", __name__)
 
 def _error(error, status=422):
     return render_template("error.html", title="Settings were not saved", message=str(error)), status
+
+
+@settings_bp.post("/api/assets/<asset_id>/examples")
+def examples(asset_id):
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify(error="Submit an example prompt change as JSON."), 400
+    if not valid_csrf(data.get("csrf_token")):
+        return jsonify(error="Form expired. Reload the page before saving examples."), 400
+    catalog = get_catalog()
+    if asset_id not in catalog.models and asset_id not in catalog.loras:
+        return jsonify(error="Unknown checkpoint or LoRA."), 404
+    try:
+        result = update_examples(
+            catalog, asset_id, data.get("field"), data.get("action"),
+            expected_revision=data.get("settings_revision"), text=data.get("text"), index=data.get("index"),
+        )
+    except SettingsConflict as error:
+        return jsonify(error=str(error)), 409
+    except (ValueError, OSError) as error:
+        return jsonify(error=str(error)), 422
+    return jsonify(result)
 
 
 @settings_bp.post("/settings/models/<model_id>")

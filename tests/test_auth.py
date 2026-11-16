@@ -41,6 +41,7 @@ class PasswordTests(unittest.TestCase):
 
     def test_pages_media_and_unknown_routes_require_login(self):
         for path in ("/", "/models/fixture-sdxl", "/generate/fixture-sdxl", "/jobs",
+                     "/assets/fixture-sdxl/preview",
                      "/jobs/example", "/jobs/example/source",
                      "/jobs/example/outputs/1/media?download=1",
                      "/jobs/example/outputs/1/metadata", "/missing", "/catalog-assets/memory.js"):
@@ -58,6 +59,7 @@ class PasswordTests(unittest.TestCase):
             for method, path in (("get", "/api/system/memory"),
                                  ("get", "/api/jobs/example"),
                                  ("post", "/api/system/models/unload"),
+                                 ("post", "/api/assets/fixture-sdxl/examples"),
                                  ("get", "/api/system/models/unload/example")):
                 response = getattr(self.client, method)(path)
                 self.assertEqual(response.status_code, 401)

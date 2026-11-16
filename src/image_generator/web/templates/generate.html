@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "controls/field.html" import render_field %}
 {% from "controls/loras.html" import adapter_cards %}
+{% from "controls/examples.html" import example_menus %}
 {% block title %}Configure {{ model.display_name }}{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('catalog.static', filename='generation.css') }}">{% endblock %}
 {% block content %}
@@ -24,6 +25,10 @@
   <div class="generation-layout">
     <div class="generation-controls">
       <section class="card form-section"><label for="generation-mode">Generation mode</label><select id="generation-mode" name="mode">{% for mode in ui.supported_modes %}<option value="{{ mode }}"{% if mode == ui.mode %} selected{% endif %}>{{ mode | mode_label }}</option>{% endfor %}</select></section>
+      <section class="card form-section" aria-labelledby="checkpoint-examples-heading">
+        <h2 id="checkpoint-examples-heading">Checkpoint examples</h2>
+        {{ example_menus(model) }}
+      </section>
       {% for group, fields in ui.groups.items() %}
         {% if group == 'Advanced' %}<details class="card form-section"><summary>Advanced settings</summary><div class="field-grid">{% for field in fields %}{{ render_field(field, values, errors) }}{% endfor %}</div></details>
         {% else %}<fieldset class="card form-section"><legend>{{ group }}</legend><div class="field-grid">{% for field in fields %}{{ render_field(field, values, errors) }}{% endfor %}</div>{% if group == 'Sampling' and ui.workflow in ['flux', 'qwen_2_1'] %}<p class="field-help" id="cfg-status" aria-live="polite">Negative prompting requires true CFG above 1.</p>{% elif group == 'Sampling' and ui.workflow == 'krea2' %}<p class="field-help" id="krea2-cfg-status" aria-live="polite">Negative prompting requires guidance above 0.</p>{% endif %}</fieldset>{% endif %}
@@ -56,4 +61,7 @@
   </div>
 </form>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('catalog.static', filename='generation.js') }}" defer></script>{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('catalog.static', filename='generation.js') }}" defer></script>
+<script src="{{ url_for('catalog.static', filename='examples.js') }}" defer></script>
+{% endblock %}

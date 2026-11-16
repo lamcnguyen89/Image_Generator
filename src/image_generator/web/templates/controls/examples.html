@@ -1,0 +1,25 @@
+{% macro example_menus(asset) %}
+<div class="example-menus">
+  {% for key, label, target in [('example_prompts', 'Example prompts', 'prompt'), ('example_negative_prompts', 'Example negative prompts', 'negative_prompt')] %}
+  {% set editor_id = 'examples-' ~ asset.id ~ '-' ~ key %}
+  {% set examples = asset.defaults.get(key, []) %}
+  <details class="example-editor" data-example-editor data-examples-url="{{ url_for('settings.examples', asset_id=asset.id) }}" data-example-field="{{ key }}" data-prompt-target="{{ target }}">
+    <summary>{{ label }} <span class="muted" data-example-count>({{ examples | length }})</span></summary>
+    <label for="{{ editor_id }}-select">Saved examples</label>
+    <select id="{{ editor_id }}-select" data-example-select>
+      <option value="">{{ 'Choose an example' if examples else 'No saved examples' }}</option>
+      {% for example in examples %}<option value="{{ loop.index0 }}" data-example-text="{{ example }}">{{ example }}</option>{% endfor %}
+    </select>
+    <label for="{{ editor_id }}-text">Example text</label>
+    <textarea id="{{ editor_id }}-text" rows="3" data-example-text placeholder="Select a saved example or type a new one"></textarea>
+    <div class="example-actions">
+      <button type="button" class="adapter-button" data-example-use disabled>{{ 'Use as prompt' if target == 'prompt' else 'Use as negative prompt' }}</button>
+      <button type="button" class="adapter-button" data-example-add disabled>Add example</button>
+      <button type="button" class="adapter-button" data-example-remove disabled>Remove selected</button>
+    </div>
+    <p class="field-help">Add and remove save immediately for this {{ 'checkpoint' if asset.kind == 'model' else 'LoRA' }}. Use copies the text into the generation field.</p>
+    <p class="field-help" data-example-status role="status" aria-live="polite"></p>
+  </details>
+  {% endfor %}
+</div>
+{% endmacro %}

@@ -2,6 +2,7 @@
 
 from html.parser import HTMLParser
 import json
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -90,6 +91,87 @@ class WebTests(unittest.TestCase):
         self.assertIn("1 model", html)
         self.assertIn("1 registered LoRA", html)
         self.assertNotIn("<form", html)
+
+    def test_example_images_and_videos_render_above_card_details(self):
+        (self.model_path.parent / "Example.PNG").write_bytes(b"example image")
+        lora = self.write_lora()
+        (lora.parent / "example.mp4").write_bytes(b"example video")
+        self.write_user({"loras": [{"id": "demo-lora", "enabled": False}]})
+
+        html = self.client.get("/").text
+        self.assertIn('<img class="asset-media" src="/assets/demo-model/preview"', html)
+        self.assertRegex(html, r'<a class="asset-media-link" href="/generate/demo-model"[^>]*>\s*<img ')
+        self.assertIn('<h3 class="asset-preview-title"><a href="/generate/demo-model">', html)
+        self.assertLess(html.index('class="asset-preview-title"'), html.index('class="asset-card-body"'))
+        self.assertLess(html.index('class="asset-card-body"'), html.index("A local test model."))
+        for url, body_class in (("/models/demo-model", "asset-card-body"),
+                                ("/generate/demo-model", "adapter-body")):
+            with self.subTest(url=url):
+                html = self.client.get(url).text
+                self.assertIn('<video class="asset-media" controls muted playsinline preload="metadata"', html)
+                self.assertIn('<source src="/assets/demo-lora/preview" type="video/mp4">', html)
+                self.assertLess(html.index('class="asset-preview-title"'), html.index(f'class="{body_class}"'))
+        self.assertIn('name="lora" value="demo-lora"', html)
+        self.assertIn('name="strength:demo-lora"', html)
+
+    def test_template_edits_appear_without_restarting_the_app(self):
+        from jinja2 import ChoiceLoader, FileSystemLoader
+
+        template = self.root / "templates/controls/asset_preview.html"
+        template.parent.mkdir(parents=True)
+        template.write_text('{% macro asset_preview(asset, href=none) %}Original preview{% endmacro %}')
+        self.app.jinja_env.loader = ChoiceLoader([
+            FileSystemLoader(self.root / "templates"), self.app.jinja_env.loader,
+        ])
+        self.assertIn("Original preview", self.client.get("/").text)
+        previous_mtime = template.stat().st_mtime
+        template.write_text('{% macro asset_preview(asset, href=none) %}Updated preview{% endmacro %}')
+        os.utime(template, (previous_mtime + 2, previous_mtime + 2))
+        html = self.client.get("/").text
+        self.assertIn("Updated preview", html)
+        self.assertNotIn("Original preview", html)
+
+    def test_preview_prefers_configured_media_and_supports_video_byte_ranges(self):
+        self.write(self.model_path, {**self.model, "preview_image": "chosen.webm"})
+        (self.model_path.parent / "example.png").write_bytes(b"fallback image")
+        video = bytes(range(128))
+        (self.model_path.parent / "chosen.webm").write_bytes(video)
+        response = self.client.get("/assets/demo-model/preview")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "video/webm")
+        self.assertEqual(response.data, video)
+        response.close()
+        response = self.client.get("/assets/demo-model/preview", headers={"Range": "bytes=8-15"})
+        self.assertEqual(response.status_code, 206)
+        self.assertEqual(response.data, video[8:16])
+        response.close()
+
+    def test_missing_configured_preview_falls_back_to_existing_example_extension(self):
+        self.write(self.model_path, {**self.model, "preview_image": "example.png"})
+        (self.model_path.parent / "example.jpeg").write_bytes(b"existing jpeg")
+        response = self.client.get("/assets/demo-model/preview")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "image/jpeg")
+        self.assertEqual(response.data, b"existing jpeg")
+        response.close()
+
+    def test_assets_without_media_keep_titles_and_show_placeholder(self):
+        html = self.client.get("/").text
+        self.assertIn("No example media available", html)
+        self.assertIn("Demo checkpoint", html)
+        self.assertNotIn('<img class="asset-media"', html)
+        self.assertEqual(self.client.get("/assets/demo-model/preview").status_code, 404)
+        self.assertEqual(self.client.get("/assets/missing/preview").status_code, 404)
+
+    def test_preview_does_not_serve_unrelated_files_or_symlink_targets(self):
+        outside = self.root / "private.png"
+        outside.write_bytes(b"private image")
+        for configured in (str(outside), "../../../private.png", "model.defaults.json", "weights.safetensors"):
+            with self.subTest(configured=configured):
+                self.write(self.model_path, {**self.model, "preview_image": configured})
+                self.assertEqual(self.client.get("/assets/demo-model/preview").status_code, 404)
+        (self.model_path.parent / "example.png").symlink_to(outside)
+        self.assertEqual(self.client.get("/assets/demo-model/preview").status_code, 404)
 
     def test_settings_page_displays_resolved_values_and_sources(self):
         self.write_user({"width": 768, "seed": None, "sampling": {"sampler": "custom"}})

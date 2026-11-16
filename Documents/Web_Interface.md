@@ -10,6 +10,40 @@ This starts the web server and generation worker together using `.venv`. Logs
 appear in the same terminal. Ctrl+C stops both, allowing active generation to
 finish. See [launcher options and GPU testing](SDXL_UI_Execution.md).
 
+## Example media on cards
+
+Model catalog cards, linked LoRA cards, and generation-form LoRA cards show
+centered example media, with the asset title overlaid near the top and settings
+and actions below. Images and videos fill the card width at their original
+aspect ratio, so cards grow taller for portrait media without cropping. Model
+cards use wider columns when space allows. Videos have playback controls and
+load metadata only until played.
+
+Set `preview_image` in an asset's defaults manifest to an image or video path
+inside that asset's directory. When it is unset or the file is missing, the UI
+uses the first supported `example.*` file in filename order, ignoring case.
+Supported extensions are PNG, JPG/JPEG, WebP, GIF, AVIF, MP4, WebM, and MOV/QT;
+video playback depends on browser codec support. Assets without media keep their
+title and show a placeholder. Media uses the same sign-in protection as the UI.
+Model card images link to the same generation page as their titles. Template
+edits reload on the next request; Python code changes still require a restart.
+
+## Example prompt menus
+
+Each generation page has separate **Example prompts** and **Example negative
+prompts** menus for the checkpoint and every LoRA. Expand a menu, select a saved
+example, and use the text area to review it or type a new example. **Use as
+prompt** and **Use as negative prompt** copy the text into the corresponding
+generation field. Selecting an example alone does not change the active prompt.
+
+**Add example** saves the text as a new entry. **Remove selected** deletes the
+selected saved entry. Changes save immediately to `example_prompts` or
+`example_negative_prompts` in that asset's defaults JSON, shared wherever that
+asset is used. Other metadata and settings are preserved, and the form stays
+open with its unsaved edits intact. Concurrent edits are detected; reload the
+page if the saved catalog changed in another editor. Empty or duplicate examples
+cannot be added.
+
 ## Local Wi-Fi hostname
 
 Set these values in the project's `.env` file:
