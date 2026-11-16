@@ -60,6 +60,7 @@ class PasswordTests(unittest.TestCase):
                                  ("get", "/api/jobs/example"),
                                  ("post", "/api/system/models/unload"),
                                  ("post", "/api/assets/fixture-sdxl/examples"),
+                                 ("post", "/api/models/fixture-sdxl/settings/field"),
                                  ("get", "/api/system/models/unload/example")):
                 response = getattr(self.client, method)(path)
                 self.assertEqual(response.status_code, 401)

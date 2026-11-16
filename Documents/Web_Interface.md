@@ -10,6 +10,21 @@ This starts the web server and generation worker together using `.venv`. Logs
 appear in the same terminal. Ctrl+C stops both, allowing active generation to
 finish. See [launcher options and GPU testing](SDXL_UI_Execution.md).
 
+## Editing saved settings
+
+Open a checkpoint's **View settings** page and select **Edit** on the right of
+any resolved setting. Prompts use plain text; numbers and booleans have simple
+controls. Lists and nested objects, such as sampling settings or LoRA links,
+use JSON editors. **Save** writes only that setting to the checkpoint's user
+overrides; **Cancel** or Escape discards the unsaved row edit. Saving a value
+equal to its inherited default removes the unnecessary override.
+
+Workflow constraints, types, sampler choices, and adapter compatibility are
+validated before saving. Errors leave the editor open with its entered value.
+Concurrent changes produce a conflict instead of overwriting another editor's
+settings. Editing LoRA links reloads the page to update linked adapter cards.
+These controls require JavaScript, and Python changes require an app restart.
+
 ## Example media on cards
 
 Model catalog cards, linked LoRA cards, and generation-form LoRA cards show

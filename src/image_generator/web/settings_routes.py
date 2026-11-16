@@ -1,5 +1,7 @@
 """Save/reset model and shared adapter preferences, independently of generation."""
 
+import json
+
 from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
 
 from image_generator.catalog.persistence import (
@@ -15,6 +17,59 @@ settings_bp = Blueprint("settings", __name__)
 
 def _error(error, status=422):
     return render_template("error.html", title="Settings were not saved", message=str(error)), status
+
+
+@settings_bp.post("/api/models/<model_id>/settings/field")
+def model_setting_field(model_id):
+    from image_generator.workflows.registry import create_workflow
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify(error="Submit a setting change as JSON."), 400
+    if not valid_csrf(data.get("csrf_token")):
+        return jsonify(error="Form expired. Reload the page before saving settings."), 400
+    catalog = get_catalog()
+    model = catalog.models.get(model_id)
+    if model is None:
+        return jsonify(error="Unknown checkpoint."), 404
+    field = data.get("field")
+    resolved = model.resolve_settings()
+    if not isinstance(field, str) or field not in resolved or "." in field:
+        return jsonify(error="Choose an existing setting from this page."), 422
+    raw = data.get("value_text")
+    if not isinstance(raw, str):
+        return jsonify(error="Enter a setting value."), 422
+    try:
+        # Text prompts stay plain text, including quotes and line breaks. Other
+        # controls submit JSON text so large integer seeds retain full precision.
+        value = raw if isinstance(resolved[field], str) else json.loads(raw)
+        previous = resolved[field]
+        if (isinstance(previous, dict) and not isinstance(value, dict)
+                or isinstance(previous, list) and not isinstance(value, list)):
+            raise ValueError("Keep the setting's object or list structure.")
+        workflow = create_workflow(model.defaults["workflow"])
+        mode = next((mode for mode in workflow.ui_modes if mode in model.defaults["supported_modes"]), None)
+        if mode is None:
+            raise ValueError("This checkpoint has no editable workflow mode.")
+        desired = model.resolve_settings(workflow_defaults=workflow.defaults)
+        desired[field] = value
+        saved = save_model_settings(catalog, model_id, desired, scope=[field], mode=mode,
+                                    expected_revision=data.get("settings_revision"))
+        # Derive the next revision from the exact snapshot we saved, without a
+        # second read that could include another editor's subsequent changes.
+        model.user_overrides.clear()
+        model.user_overrides.update(saved)
+        updated = model.resolve_settings()
+        result = updated.get(field, desired[field])
+        display = json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False)
+        return jsonify(field=field, display_value=display, removed=field not in updated,
+                       editor_value=result if isinstance(result, str) else display,
+                       settings_revision=settings_revision(catalog),
+                       overrides_json=json.dumps(saved["settings"], indent=2, ensure_ascii=False, allow_nan=False))
+    except SettingsConflict as error:
+        return jsonify(error=str(error)), 409
+    except (ValueError, OSError, OverflowError) as error:
+        return jsonify(error=str(error)), 422
 
 
 @settings_bp.post("/api/assets/<asset_id>/examples")

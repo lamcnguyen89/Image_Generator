@@ -2,10 +2,11 @@
 {% from "controls/asset_preview.html" import asset_preview %}
 {% from "controls/source_link.html" import source_link %}
 {% block title %}{{ model.display_name }}{% endblock %}
+{% block head %}<script src="{{ url_for('catalog.static', filename='settings.js') }}" defer></script>{% endblock %}
 {% block content %}
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('catalog.index') }}">Model catalog</a><span aria-hidden="true"> / </span><span aria-current="page">{{ model.display_name }}</span></nav>
 <div class="page-heading">
-  <div class="badges"><span class="badge">{{ model.family | family_label }}</span><span class="badge accent">Read only</span></div>
+  <div class="badges"><span class="badge">{{ model.family | family_label }}</span><span class="badge accent">Saved settings</span></div>
   <h1>{{ model.display_name }}</h1>
   <p class="muted">{{ model.defaults.get('description', '') }}</p>
   <div class="model-actions">
@@ -21,14 +22,37 @@
     <div><dt>Weight source</dt><dd>{{ model.defaults.weights or model.defaults.base_model_id }}</dd></div>
   </dl>
 </section>
-<section class="card settings-panel" aria-labelledby="settings-heading">
-  <div class="panel-heading"><h2 id="settings-heading">Resolved settings</h2><p class="muted">Model defaults combined with saved user overrides.</p></div>
+<section class="card settings-panel" aria-labelledby="settings-heading" data-settings-panel
+         data-save-url="{{ url_for('settings.model_setting_field', model_id=model.id) }}"
+         data-csrf-token="{{ system_csrf_token }}" data-settings-revision="{{ settings_revision }}">
+  <div class="panel-heading"><h2 id="settings-heading">Resolved settings</h2><p class="muted">Model defaults combined with saved user overrides. Edit a value to save it for this checkpoint.</p><p class="setting-status" data-setting-status role="status" aria-live="polite"></p></div>
   {% if settings %}
   <div class="table-scroll">
-    <table>
+    <table class="editable-settings">
       <caption class="sr-only">Resolved model settings as JSON values</caption>
-      <thead><tr><th scope="col">Setting</th><th scope="col">Value</th></tr></thead>
-      <tbody>{% for key, value in settings.items() %}<tr><th scope="row"><code>{{ key }}</code></th><td><pre class="setting-value">{{ value | tojson(indent=2) }}</pre></td></tr>{% endfor %}</tbody>
+      <thead><tr><th scope="col">Setting</th><th scope="col">Value</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody>{% for key, value in settings.items() %}
+        <tr data-setting-row data-field="{{ key }}">
+          <th scope="row"><code>{{ key }}</code></th>
+          <td>
+            <pre class="setting-value" data-setting-display>{{ value | tojson(indent=2) }}</pre>
+            <form class="setting-editor" data-setting-editor hidden>
+              <label class="sr-only" for="setting-input-{{ loop.index }}">{{ key }}</label>
+              {% if value is boolean %}
+              <select id="setting-input-{{ loop.index }}" data-setting-input><option value="true"{% if value %} selected{% endif %}>True</option><option value="false"{% if not value %} selected{% endif %}>False</option></select>
+              {% elif value is number %}
+              <input id="setting-input-{{ loop.index }}" type="text" inputmode="{{ 'numeric' if value is integer else 'decimal' }}" value="{{ value | tojson }}" data-setting-input>
+              {% else %}
+              <textarea id="setting-input-{{ loop.index }}" rows="{{ 4 if value is string else 6 }}" data-setting-input spellcheck="false">{{ value if value is string else value | tojson(indent=2) }}</textarea>
+              {% if value is not string %}<p class="setting-help">Enter valid JSON. Use <code>null</code> for an unset value.</p>{% endif %}
+              {% endif %}
+              <p class="setting-error" data-setting-error role="alert"></p>
+              <div class="setting-actions"><button type="submit">Save</button><button type="button" data-setting-cancel>Cancel</button></div>
+            </form>
+          </td>
+          <td class="setting-edit-cell"><button type="button" data-setting-edit aria-label="Edit {{ key }}" title="Edit {{ key }}" aria-expanded="false" aria-controls="setting-input-{{ loop.index }}" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 3 5 5M3 21l5-1L21 7a2.1 2.1 0 0 0-5-5L3 15z"/></svg></button></td>
+        </tr>
+      {% endfor %}</tbody>
     </table>
   </div>
   {% else %}<p class="panel-body muted">No settings are defined for this model.</p>{% endif %}
@@ -50,7 +74,7 @@
 <section class="card source-panel" aria-labelledby="sources-heading">
   <h2 id="sources-heading">Configuration sources</h2>
   <details><summary>Model defaults</summary><pre class="json-block">{{ model.defaults.settings | tojson(indent=2) }}</pre></details>
-  <details><summary>Saved user overrides</summary><pre class="json-block">{{ model.user_overrides.settings | tojson(indent=2) }}</pre></details>
+  <details><summary>Saved user overrides</summary><pre class="json-block" data-user-overrides>{{ model.user_overrides.settings | tojson(indent=2) }}</pre></details>
   <details><summary>Pipeline requirements</summary><pre class="json-block">{{ model.defaults.requirements | tojson(indent=2) }}</pre></details>
   <details>
     <summary>Manifest details</summary>

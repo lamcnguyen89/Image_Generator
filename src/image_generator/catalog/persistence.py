@@ -187,6 +187,8 @@ def save_model_settings(catalog, model_id, desired, *, scope, expected_revision,
         mode = mode or workflow.ui_modes[0]
         ui = workflow.get_ui_definition(model, mode)
         allowed = {field.name for field in ui.fields if field.scope == "settings"} | {"loras"}
+        # The settings table also edits existing top-level objects/lists as JSON.
+        allowed.update(model.resolve_settings())
         if (set(scope) | set(remove)) - allowed:
             raise ValueError("The editor cannot change these settings.")
         inherited = resolve_settings(model.defaults["settings"], workflow_defaults=workflow.defaults)

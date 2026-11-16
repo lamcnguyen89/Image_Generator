@@ -86,6 +86,8 @@ def index():
 
 @catalog_bp.get("/models/<model_id>")
 def model_settings(model_id):
+    from image_generator.catalog.persistence import settings_revision
+
     catalog = get_catalog()
     try:
         model = catalog.get_model(model_id)
@@ -104,6 +106,7 @@ def model_settings(model_id):
         })
     return render_template(
         "model_settings.html", model=model, settings=settings, linked_loras=linked_loras,
+        settings_revision=settings_revision(catalog),
     )
 
 

@@ -32,7 +32,7 @@ class SettingsTable(HTMLParser):
             self.key, self.value = [], []
         elif tag == "th" and dict(attrs).get("scope") == "row":
             self.cell = self.key
-        elif tag == "td":
+        elif tag == "pre" and "setting-value" in dict(attrs).get("class", "").split():
             self.cell = self.value
 
     def handle_data(self, data):
@@ -40,7 +40,7 @@ class SettingsTable(HTMLParser):
             self.cell.append(data)
 
     def handle_endtag(self, tag):
-        if tag in ("th", "td"):
+        if tag in ("th", "pre"):
             self.cell = None
         elif tag == "tr" and self.key:
             self.values["".join(self.key)] = json.loads("".join(self.value))
@@ -284,10 +284,10 @@ class WebTests(unittest.TestCase):
         self.assertEqual(settings["height"], 1024)
         self.assertIsNone(settings["seed"])
         self.assertEqual(settings["sampling"], {"sampler": "custom", "noise_schedule": "default"})
-        for text in ("Read only", "Saved user overrides", "Pipeline requirements", "example/pretrained", str(self.model_path)):
+        for text in ("Saved settings", "Saved user overrides", "Pipeline requirements", "example/pretrained", str(self.model_path)):
             self.assertIn(text, html)
-        self.assertNotIn("<form", html)
-        self.assertNotIn("<input", html)
+        self.assertEqual(html.count('data-setting-edit aria-label="Edit '), len(settings))
+        self.assertIn('/catalog-assets/settings.js', html)
 
     def test_linked_loras_show_saved_selection_and_checkpoint_strength(self):
         lora = self.write_lora()
