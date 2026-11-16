@@ -3,8 +3,15 @@
   "id": "lora_f13bd20e-7488-4d66-8579-ec65211202ce",
   "display_name": "WAN 2.2 I2V Missionary High Noise v1.0",
   "description": "Local WAN adapter catalog entry: WAN 2.2 I2V Missionary High Noise v1.0.",
-  "example_prompts": ["A woman is lying on her back with her legs spread looking up at the viewer. The man's penis is above her between her legs. The nude man  inserts his penis into the woman's vagina. He then starts to thrust back and forth inside her vagina. Movements are fast with bouncing breasts. The view is POV from above.", "A woman is lying on her back with her legs spread looking up at the viewer having sex with a man. She is moaning with pleasure. The nude man rapidly thrusts his penis back and forth inside her vagina. Movements are fast with bouncing breasts. The view is POV from above.", "A woman is lying on her back with her legs spread looking up at the viewer. A light-skinned man enters the frame from the bottom and slowly inserts his penis into the woman's vagina with his hand on his penis. He then starts thrusting back and forth inside the woman's vagina. Movements are fast with bouncing breasts. The view is POV from above.", "A woman is lying on her back with her legs spread looking up at the viewer. The man's penis is above her between her legs. The man quickly inserts his penis into the woman's vagina. He then starts rapidly thrusting his penis back and forth inside her vagina. The view is POV from above."],
-  "example_negative_prompts": ["色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"],
+  "example_prompts": [
+    "A woman is lying on her back with her legs spread looking up at the viewer. The man's penis is above her between her legs. The nude man  inserts his penis into the woman's vagina. He then starts to thrust back and forth inside her vagina. Movements are fast with bouncing breasts. The view is POV from above.",
+    "A woman is lying on her back with her legs spread looking up at the viewer having sex with a man. She is moaning with pleasure. The nude man rapidly thrusts his penis back and forth inside her vagina. Movements are fast with bouncing breasts. The view is POV from above.",
+    "A woman is lying on her back with her legs spread looking up at the viewer. A light-skinned man enters the frame from the bottom and slowly inserts his penis into the woman's vagina with his hand on his penis. He then starts thrusting back and forth inside the woman's vagina. Movements are fast with bouncing breasts. The view is POV from above.",
+    "A woman is lying on her back with her legs spread looking up at the viewer. The man's penis is above her between her legs. The man quickly inserts his penis into the woman's vagina. He then starts rapidly thrusting his penis back and forth inside her vagina. The view is POV from above."
+  ],
+  "example_negative_prompts": [
+    "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  ],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1331682/wan-2221-pov-missionary?modelVersionId=2098405",
@@ -23,10 +30,18 @@
   },
   "settings": {
     "strength": 0.8,
-    "trigger_words": ["with her legs spread having sex with a man", "A man is thrusting his penis back and forth inside her vagina at the bottom of the screen", "{Movement is fast with bouncing breasts|Movement is slow}","Her breasts are {small|medium sized|large}"],
+    "trigger_words": [
+      "with her legs spread having sex with a man",
+      "A man is thrusting his penis back and forth inside her vagina at the bottom of the screen",
+      "{Movement is fast with bouncing breasts|Movement is slow}",
+      "Her breasts are {small|medium sized|large}"
+    ],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.mp4"
+  ]
 }

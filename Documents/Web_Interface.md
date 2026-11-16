@@ -14,14 +14,26 @@ finish. See [launcher options and GPU testing](SDXL_UI_Execution.md).
 
 Model catalog cards, linked LoRA cards, and generation-form LoRA cards show
 centered example media, with the asset title overlaid near the top and settings
-and actions below. Images and videos fill the card width at their original
-aspect ratio, so cards grow taller for portrait media without cropping. Model
-cards use wider columns when space allows. Videos have playback controls and
-load metadata only until played.
+and actions below. Single examples retain their original aspect ratio;
+carousels use a fixed frame that contains each example without cropping. Cards
+fit their own content rather than stretching to match taller neighbors.
+
+With JavaScript enabled, only the selected slide in each visible carousel has
+an active media source. Other slides keep URLs in data attributes so the browser
+cannot prefetch them. Navigating away removes image sources and pauses and
+resets video elements to discard playback buffers. Scrolling the carousel out
+of view, collapsing its section, or hiding/leaving the page releases its active
+media; returning restores the selected slide without autoplay. Browser-managed
+caches and the timing of memory reclamation remain under the browser's control.
+Without JavaScript, a link opens the first example. Single-example cards retain
+native image lazy loading or video metadata preloading.
 
 Set `preview_image` in an asset's defaults manifest to an image or video path
 inside that asset's directory. When it is unset or the file is missing, the UI
-uses the first supported `example.*` file in filename order, ignoring case.
+uses supported media files in filename order, ignoring case. Any filename
+works, and refreshing automatically synchronizes the defaults JSON's
+`example_media` list with files in the folder. Multiple examples form a carousel
+with arrows, a counter, swipe/scroll, and keyboard navigation.
 Supported extensions are PNG, JPG/JPEG, WebP, GIF, AVIF, MP4, WebM, and MOV/QT;
 video playback depends on browser codec support. Assets without media keep their
 title and show a placeholder. Media uses the same sign-in protection as the UI.

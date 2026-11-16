@@ -10,8 +10,9 @@ from pathlib import Path
 import tempfile
 
 from .discovery import discover_catalog
+from .media import example_media
 from .settings import lora_strength_minimum, resolve_settings
-from .validation import CatalogValidationError, validate_defaults, validate_user
+from .validation import CatalogValidationError, ValidationIssue, validate_defaults, validate_user
 
 
 class SettingsConflict(ValueError):
@@ -20,8 +21,10 @@ class SettingsConflict(ValueError):
 
 def settings_revision(catalog):
     # Include defaults and adapters: their inheritance/compatibility can change
-    # the meaning of an unchanged model user file as well.
-    documents = [(asset.id, asset.defaults, asset.user_overrides)
+    # the meaning of an unchanged model user file as well. The generated media
+    # list only changes previews and must not invalidate an open settings form.
+    documents = [(asset.id, {key: value for key, value in asset.defaults.items() if key != "example_media"},
+                  asset.user_overrides)
                  for asset in sorted([*catalog.models.values(), *catalog.loras.values()], key=lambda a: a.id)]
     return hashlib.sha256(json.dumps(documents, sort_keys=True, allow_nan=False).encode()).hexdigest()
 
@@ -111,6 +114,39 @@ def _write_document(path, document):
         if temporary is not None:
             temporary.unlink(missing_ok=True)
     return document
+
+
+def _media_names(asset):
+    directory = asset.manifest_path.parent.resolve()
+    return [path.relative_to(directory).as_posix() for path in example_media(asset)]
+
+
+def sync_example_media(catalog):
+    """Refresh generated media lists, preserving concurrent settings edits.
+
+    Share the settings writers' lock and reload before writing. Stable lists
+    leave manifest bytes and mtimes intact; assets without media need no field.
+    Read-only discovery never calls this function.
+    """
+    assets = [*catalog.models.values(), *catalog.loras.values()]
+    if all(asset.defaults.get("example_media", []) == _media_names(asset) for asset in assets):
+        return catalog
+    with (catalog.root / ".settings.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        current = discover_catalog(catalog.root, initialize_missing=False)
+        for asset in [*current.models.values(), *current.loras.values()]:
+            names = _media_names(asset)
+            if asset.defaults.get("example_media", []) == names:
+                continue
+            document = {**asset.defaults, "example_media": names}
+            try:
+                _write_document(asset.manifest_path, document)
+            except OSError as exc:
+                raise CatalogValidationError([ValidationIssue(
+                    asset.manifest_path, "example_media", f"Cannot synchronize example media: {exc}",
+                )]) from exc
+            asset.defaults["example_media"] = names
+        return current
 
 
 def update_examples(catalog, asset_id, field, action, *, expected_revision, text=None, index=None):

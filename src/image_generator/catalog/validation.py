@@ -171,7 +171,7 @@ def validate_defaults(document: object, path: Path, kind: AssetKind) -> list[Val
     for field in ("id", "display_name", "family"):
         if not _nonempty_string(document.get(field)):
             error(field, "must be a nonempty string")
-    for field in ("example_prompts", "example_negative_prompts"):
+    for field in ("example_prompts", "example_negative_prompts", "example_media"):
         if field in document and not _string_list(document[field]):
             error(field, "must be a list of nonempty strings")
     for field in (

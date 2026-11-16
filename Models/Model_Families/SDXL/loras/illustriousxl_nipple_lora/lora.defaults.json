@@ -3,8 +3,12 @@
   "id": "lora_aeaaa64f-bcb0-445e-bb2d-2b93498ab199",
   "display_name": "illustriousxl_nipple_lora",
   "description": "Automatically initialized from the family template. Review metadata and settings before generation.",
-  "example_prompts": ["explicit, masterpiece, best quality, anime screenshot, 1girl, solo, perky breasts, natural breasts, breasts out, breast focus, nipples, upper body, straight-on, <lora:IL20-NP52i_16_8_v1:0.6>"],
-  "example_negative_prompts": ["worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, username, watermark, source_pony, source_furry, source_cartoon, 3d, realistic, facepaint, head out of frame, greyscale, censored, (pubic hair:1.2), (clothed male:1.2)"],
+  "example_prompts": [
+    "explicit, masterpiece, best quality, anime screenshot, 1girl, solo, perky breasts, natural breasts, breasts out, breast focus, nipples, upper body, straight-on, <lora:IL20-NP52i_16_8_v1:0.6>"
+  ],
+  "example_negative_prompts": [
+    "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, sepia, username, watermark, source_pony, source_furry, source_cartoon, 3d, realistic, facepaint, head out of frame, greyscale, censored, (pubic hair:1.2), (clothed male:1.2)"
+  ],
   "family": "sdxl",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/827482/illustrious-xl-nipple-lora-for-adetailer-adetailerlora",
@@ -28,5 +32,8 @@
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.webp"
+  ]
 }

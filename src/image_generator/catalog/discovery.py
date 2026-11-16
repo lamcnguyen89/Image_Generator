@@ -91,6 +91,7 @@ def discover_catalog(root: str | Path, *, initialize_missing: bool = True) -> Ca
     """Index <family>/{checkpoints,loras}/<asset> manifests by permanent ID.
 
     Missing manifests are initialized from family examples before discovery.
+    Existing media files are synchronized to defaults' example_media lists.
     Assets without defaults that cannot yet be initialized are skipped with a
     warning, so an unfinished family does not prevent loading configured assets.
     Set initialize_missing=False for strictly read-only inspection, where a
@@ -157,4 +158,8 @@ def discover_catalog(root: str | Path, *, initialize_missing: bool = True) -> Ca
                     ))
     if issues:
         raise CatalogValidationError(issues)
+    if initialize_missing:
+        from .persistence import sync_example_media
+
+        return sync_example_media(catalog)
     return catalog

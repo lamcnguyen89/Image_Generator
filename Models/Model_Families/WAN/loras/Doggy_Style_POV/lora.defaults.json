@@ -3,8 +3,14 @@
   "id": "lora_e901a38c-b9f9-4ae1-b4cb-a2508e0613e5",
   "display_name": "WAN Doggy POV v1.1",
   "description": "Local WAN adapter catalog entry: WAN Doggy POV v1.1.",
-  "example_prompts": ["POVdog. a professionally shot POV video showing man having sex doggy style sex with a woman in outer space on a space ship. Space slowly moving in background. The man has his penis in her pussy and is moving his penis in her pussy rhythmically. Her ass's movement and bounce is emphasized as his penis strokes her. She is looking back at the man in pleasure. The camera's view is a steady shot.", "POVdog. A POV video showing a man having sex doggy style sex with a woman. Ass movement and bounce is emphasized.", "POVdog. A POV video showing a man having sex doggy style sex with a woman. Ass movement and bounce is emphasized." ],
-  "example_negative_prompts": ["Default wan neg prompt"],
+  "example_prompts": [
+    "POVdog. a professionally shot POV video showing man having sex doggy style sex with a woman in outer space on a space ship. Space slowly moving in background. The man has his penis in her pussy and is moving his penis in her pussy rhythmically. Her ass's movement and bounce is emphasized as his penis strokes her. She is looking back at the man in pleasure. The camera's view is a steady shot.",
+    "POVdog. A POV video showing a man having sex doggy style sex with a woman. Ass movement and bounce is emphasized.",
+    "POVdog. A POV video showing a man having sex doggy style sex with a woman. Ass movement and bounce is emphasized."
+  ],
+  "example_negative_prompts": [
+    "Default wan neg prompt"
+  ],
   "family": "wan",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/1361228/wan-pov-doggy-style-i2v?modelVersionId=1545040",
@@ -24,11 +30,15 @@
   "settings": {
     "strength": 0.8,
     "trigger_words": [
-      "POVdog","A POV video showing a man having sex doggy style sex with a woman."
+      "POVdog",
+      "A POV video showing a man having sex doggy style sex with a woman."
     ],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.mp4"
+  ]
 }

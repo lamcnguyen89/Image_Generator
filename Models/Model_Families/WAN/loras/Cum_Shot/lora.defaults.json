@@ -3,7 +3,10 @@
   "id": "lora_c3c3b683-e6e9-41af-a7ba-c2a6eb82a5d1",
   "display_name": "WAN CS",
   "description": "Local WAN adapter catalog entry: WAN CS.",
-  "example_prompts": ["m0u7hfu11, the scene begins with the camera zooming in onto the woman's face while the man's hand holding his penis near her mouth, with her mouth open wide. The focus is on the act of oral ejaculation, with the man's hand holding the penis near her mouth. The woman appears to be in a state of arousal, with her eyes closed and lips parted. Seminal fluid being ejaculate from the penis is visible as it fills her mouth, dripping from her lips and pooling on her tongue. The camera angle is an extreme close-up, focusing on the open mouth and the action of swallowing. There are no other other participants or significant background details visible in the frame.", "m0u7hfu11, the scene begins with the camera zooming in onto the woman's face with her mouth open wide while a man's hand holding a penis appear from the left side and starts ejaculating inside the woman's mouth. The focus is on the act of oral ejaculation, with the men hands holding the penis near her mouth. The woman appears to be in a state of arousal, with her eyes closed and lips parted. Seminal fluid being ejaculate from the penis is visible as it fills her mouth, dripping from her lips and pooling on her tongue. The camera angle is an extreme close-up, focusing on the open mouth and the action of swallowing. There are no other other participants or significant background details visible in the frame."],
+  "example_prompts": [
+    "m0u7hfu11, the scene begins with the camera zooming in onto the woman's face while the man's hand holding his penis near her mouth, with her mouth open wide. The focus is on the act of oral ejaculation, with the man's hand holding the penis near her mouth. The woman appears to be in a state of arousal, with her eyes closed and lips parted. Seminal fluid being ejaculate from the penis is visible as it fills her mouth, dripping from her lips and pooling on her tongue. The camera angle is an extreme close-up, focusing on the open mouth and the action of swallowing. There are no other other participants or significant background details visible in the frame.",
+    "m0u7hfu11, the scene begins with the camera zooming in onto the woman's face with her mouth open wide while a man's hand holding a penis appear from the left side and starts ejaculating inside the woman's mouth. The focus is on the act of oral ejaculation, with the men hands holding the penis near her mouth. The woman appears to be in a state of arousal, with her eyes closed and lips parted. Seminal fluid being ejaculate from the penis is visible as it fills her mouth, dripping from her lips and pooling on her tongue. The camera angle is an extreme close-up, focusing on the open mouth and the action of swallowing. There are no other other participants or significant background details visible in the frame."
+  ],
   "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
@@ -30,5 +33,8 @@
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.mp4"
+  ]
 }

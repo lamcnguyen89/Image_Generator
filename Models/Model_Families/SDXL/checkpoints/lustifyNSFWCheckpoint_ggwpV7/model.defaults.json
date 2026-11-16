@@ -3,8 +3,15 @@
   "id": "model_11e4fbbd-5637-4022-a3c0-57059993b22d",
   "display_name": "Lustify GGWP v7",
   "description": "SDXL checkpoint: Lustify GGWP v7.",
-  "example_prompts": ["egirl, 1girl, grey hair, underwear, looking at viewer, lying on side, black thighhighs, latex, thong, black gloves, ass, black tube top, sexy, amateur photo, dim lighting, plush toys, curvy, (dim lighting, purple lighting:1.2), fairy lights,","selfie, young woman, alt style, looking at viewer, lifted shirt, medium breasts, hard nipples, bedroom, amateur photo, thong, ", "1girl, punk, (dildo, anal:1.15), black hair, thighhighs, pussy, long hair, crop top, black thighhighs, parted lips, looking at viewer, dark, night, dim lighting, moan, squatting, from side, boots, high platform heels"],
-  "example_negative_prompts": ["phone, old, ugly,", "a woman straddling a man, black lace bra and black skirt, vaginal, open mouth, moan, lips, face out of frame, long brown hair, dim purple and blue lighting, indoor setting, night, medium breasts, high angle shot"],
+  "example_prompts": [
+    "egirl, 1girl, grey hair, underwear, looking at viewer, lying on side, black thighhighs, latex, thong, black gloves, ass, black tube top, sexy, amateur photo, dim lighting, plush toys, curvy, (dim lighting, purple lighting:1.2), fairy lights,",
+    "selfie, young woman, alt style, looking at viewer, lifted shirt, medium breasts, hard nipples, bedroom, amateur photo, thong, ",
+    "1girl, punk, (dildo, anal:1.15), black hair, thighhighs, pussy, long hair, crop top, black thighhighs, parted lips, looking at viewer, dark, night, dim lighting, moan, squatting, from side, boots, high platform heels"
+  ],
+  "example_negative_prompts": [
+    "phone, old, ugly,",
+    "a woman straddling a man, black lace bra and black skirt, vaginal, open mouth, moan, lips, face out of frame, long brown hair, dim purple and blue lighting, indoor setting, night, medium breasts, high angle shot"
+  ],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/573152/lustify-nsfw-checkpoint?modelVersionId=2155386",
@@ -40,5 +47,22 @@
       "noise_schedule": "karras"
     },
     "loras": []
-  }
+  },
+  "example_media": [
+    "example.png",
+    "223V2Y7QH76NV2X6VP8QV24BW0.png",
+    "27TBC8MF00PDPSR6BKGG38K6G0.png",
+    "2VRJHSKY70K3S98ZQ2Z6XB2S60.png",
+    "3RBXMTRM13CFV0JF7FWEFB5FS0.png",
+    "6110PRK0RQ1TB7P2H7WSDBWRH0.png",
+    "A15T9TW31BEFJVWAXQ2XEGDTX0.png",
+    "A8KMKPJRHD1HEGRMW5FZFZDWS0.png",
+    "C9FPTW83ZAG2Z80E1JXFA31EQ0.png",
+    "DBFBQ612ZMK7H7G2VJM3RZZEG0.png",
+    "DGVMSKM5537WT3P2MXX5YKK0C0.mp4",
+    "EBD612W5C42H7GQ8P8GPMC90H0.png",
+    "N0CQ62RWRA490C7DZZFCXRCJ90.png",
+    "S4KMA3GN8NVDSJ39SKEZNDBH30.png",
+    "SHTCR40KC9FJ3X6796E9NRJWA0.png"
+  ]
 }

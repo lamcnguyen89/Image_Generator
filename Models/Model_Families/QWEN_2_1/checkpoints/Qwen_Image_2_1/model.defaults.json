@@ -3,7 +3,7 @@
   "id": "model_73c73d8d-ba6e-462f-b3da-ac775c627979",
   "display_name": "Qwen-Image 2.1 (Hugging Face)",
   "description": "Official Qwen-Image 2.1 model with a 40-step, guidance-free starting preset.",
-  "example_prompts": [ ],
+  "example_prompts": [],
   "example_negative_prompts": [],
   "family": "qwen_2_1",
   "workflow": "qwen_2_1",
@@ -52,5 +52,10 @@
       "noise_schedule": "default"
     },
     "loras": []
-  }
+  },
+  "example_media": [
+    "example.jpeg",
+    "Example_02.png",
+    "Example_03.png"
+  ]
 }

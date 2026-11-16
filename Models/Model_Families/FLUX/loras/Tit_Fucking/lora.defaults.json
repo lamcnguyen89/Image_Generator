@@ -3,7 +3,9 @@
   "id": "lora_6ee3d167-20dc-4390-84a4-5faf8b079431",
   "display_name": "Titfuck Style",
   "description": "Local adapter catalog entry: Titfuck Style.",
-  "example_prompts": ["<lora:Ranni:0.9> 1girl, ranni, large witch hat, blue skin, extra arms, blue hair, blue eyes, one eye closed, cracked skin, large breasts, fur cloak  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored"],
+  "example_prompts": [
+    "<lora:Ranni:0.9> 1girl, ranni, large witch hat, blue skin, extra arms, blue hair, blue eyes, one eye closed, cracked skin, large breasts, fur cloak  <lora:Titfuck_Style:0.9> titfuck style, breasts, penis, hetero, 1girl, 1boy, uncensored"
+  ],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -27,5 +29,8 @@
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

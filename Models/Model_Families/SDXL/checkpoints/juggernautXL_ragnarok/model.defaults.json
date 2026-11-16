@@ -3,7 +3,14 @@
   "id": "model_bed8d383-fd60-49c0-9bc6-92a027b70821",
   "display_name": "Juggernaut XL Ragnarok",
   "description": "SDXL checkpoint: Juggernaut XL Ragnarok.",
-  "example_prompts": ["beautiful woman, (freckles), smug grin, brown hazel eyes, undercut hairstyle, bold makeup, soft cinematic lighting, head and shoulders portrait, ultra detailed,", "A surreal double exposure portrait of a man with a forest growing inside his silhouette. Deep green tones, metaphorical visual.", "photograph close up portrait of Female boxer training, serious, stoic cinematic 4k epic detailed 4k epic detailed photograph shot on kodak detailed bokeh cinematic hbo dark moody", "A stylized sketch of a woman in motion, captured mid-twirl, flowing ink lines and minimal color â like a fashion illustration.","transform the living room into an enchanted forest by hanging sheer, green fabric from the ceiling to create a canopy effect, adding potted plants and trees, and using earthy tones and natural materials for the furniture and decor.","A fine-art nude of a woman lying sideways on silk sheets, soft light across her back, her curves highlighted gently. Inspired by Helmut Newton and Petra Collins."],
+  "example_prompts": [
+    "beautiful woman, (freckles), smug grin, brown hazel eyes, undercut hairstyle, bold makeup, soft cinematic lighting, head and shoulders portrait, ultra detailed,",
+    "A surreal double exposure portrait of a man with a forest growing inside his silhouette. Deep green tones, metaphorical visual.",
+    "photograph close up portrait of Female boxer training, serious, stoic cinematic 4k epic detailed 4k epic detailed photograph shot on kodak detailed bokeh cinematic hbo dark moody",
+    "A stylized sketch of a woman in motion, captured mid-twirl, flowing ink lines and minimal color â like a fashion illustration.",
+    "transform the living room into an enchanted forest by hanging sheer, green fabric from the ceiling to create a canopy effect, adding potted plants and trees, and using earthy tones and natural materials for the furniture and decor.",
+    "A fine-art nude of a woman lying sideways on silk sheets, soft light across her back, her curves highlighted gently. Inspired by Helmut Newton and Petra Collins."
+  ],
   "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
@@ -40,5 +47,18 @@
       "noise_schedule": "default"
     },
     "loras": []
-  }
+  },
+  "example_media": [
+    "example.png",
+    "7T2NVTNBNMYBAG1BXK7XNAXKP0.png",
+    "AKMDWB3CRNP49VWS4YQ47CTJJ0.png",
+    "ECCXTGTDES5VFQK2A56W13Z1R0.png",
+    "EMS11PP77KZP36SD97B8B584Y0.png",
+    "F3RX166RCG3VHS2Y1NW2MZ0770.png",
+    "JEWZ1GWHJA90H8RHWBZEHB0Q90.png",
+    "KXB8VS0ABXFPT2RR3D3F6J9G50.png",
+    "P9H2TWNB20870VHB9QBF879BE0.mp4",
+    "T69P3JKJTCTV5JG8R3634SZB30.png",
+    "XK4Z9SFHAH95AYYG4X5MQ7MBW0.png"
+  ]
 }

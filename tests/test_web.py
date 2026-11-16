@@ -163,6 +163,107 @@ class WebTests(unittest.TestCase):
         self.assertEqual(self.client.get("/assets/demo-model/preview").status_code, 404)
         self.assertEqual(self.client.get("/assets/missing/preview").status_code, 404)
 
+    def test_carousels_render_for_checkpoints_and_both_lora_card_locations(self):
+        lora = self.write_lora()
+        self.write_user({"loras": [{"id": "demo-lora", "enabled": True}]})
+        for manifest in (self.model_path, lora):
+            (manifest.parent / "example-01.png").write_bytes(b"first image")
+            (manifest.parent / "example-02.webp").write_bytes(b"second image")
+            (manifest.parent / "example-03.mp4").write_bytes(b"third video")
+
+        for url, asset in (("/", "demo-model"), ("/models/demo-model", "demo-lora"),
+                           ("/generate/demo-model", "demo-lora")):
+            with self.subTest(url=url):
+                html = self.client.get(url).text
+                self.assertEqual(html.count('data-asset-carousel role="group"'), 1)
+                self.assertEqual(html.count('aria-roledescription="slide"'), 3)
+                self.assertIn(f'data-media-src="/assets/{asset}/preview"', html)
+                self.assertIn(f'data-media-src="/assets/{asset}/preview/1"', html)
+                self.assertIn(f'data-media-src="/assets/{asset}/preview/2"', html)
+                self.assertIn('type="button" data-carousel-previous', html)
+                self.assertIn('type="button" data-carousel-next', html)
+                self.assertIn('aria-atomic="true">1 / 3</span>', html)
+                self.assertIn('/catalog-assets/carousel.js', html)
+                self.assertIn('preload="none"', html)
+        response = self.client.get("/catalog-assets/carousel.js")
+        self.assertEqual(response.status_code, 200)
+        response.close()
+
+    def test_carousel_markup_cannot_prefetch_images_or_videos(self):
+        (self.model_path.parent / "video.webm").write_bytes(b"video")
+        self.write(self.model_path, {**self.model, "preview_image": "video.webm"})
+        for index in range(20):
+            (self.model_path.parent / f"photo-{index:02}.png").write_bytes(b"photo")
+
+        class MediaElements(HTMLParser):
+            def __init__(self, html):
+                super().__init__()
+                self.elements = []
+                self.feed(html)
+
+            def handle_starttag(self, tag, attrs):
+                if tag in {"img", "video", "source"}:
+                    self.elements.append((tag, dict(attrs)))
+
+        html = self.client.get("/").text
+        elements = MediaElements(html).elements
+        self.assertEqual(len(elements), 22)  # 20 images, one video and its source.
+        for tag, attrs in elements:
+            self.assertFalse({"src", "srcset", "poster"} & attrs.keys())
+            if tag == "video":
+                self.assertEqual(attrs["preload"], "none")
+            else:
+                self.assertIn("data-media-src", attrs)
+        self.assertIn("Enable JavaScript to browse examples.", html)
+
+    def test_single_preview_does_not_show_carousel_controls(self):
+        (self.model_path.parent / "example.png").write_bytes(b"single image")
+        html = self.client.get("/").text
+        self.assertIn('src="/assets/demo-model/preview"', html)
+        self.assertNotIn('data-asset-carousel', html)
+        self.assertNotIn('data-carousel-next', html)
+
+    def test_carousel_media_order_deduplication_and_video_ranges(self):
+        self.write(self.model_path, {**self.model, "preview_image": "example.png"})
+        (self.model_path.parent / "example.png").write_bytes(b"chosen image")
+        (self.model_path.parent / "EXAMPLE-01.JPG").write_bytes(b"second image")
+        video = bytes(range(128))
+        (self.model_path.parent / "example-02.webm").write_bytes(video)
+        # An alias of the chosen preview must not add a duplicate slide.
+        (self.model_path.parent / "example-03.png").symlink_to("example.png")
+        for suffix, mimetype, payload in (("", "image/png", b"chosen image"),
+                                          ("/1", "image/jpeg", b"second image"),
+                                          ("/2", "video/webm", video)):
+            response = self.client.get(f"/assets/demo-model/preview{suffix}")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.mimetype, mimetype)
+            self.assertEqual(response.data, payload)
+            response.close()
+        self.assertEqual(self.client.get("/assets/demo-model/preview/3").status_code, 404)
+        response = self.client.get("/assets/demo-model/preview/2", headers={"Range": "bytes=8-15"})
+        self.assertEqual(response.status_code, 206)
+        self.assertEqual(response.data, video[8:16])
+        response.close()
+
+    def test_carousel_excludes_nonmedia_hidden_files_directories_and_escaping_symlinks(self):
+        outside = self.root / "private.png"
+        outside.write_bytes(b"private image")
+        directory = self.model_path.parent
+        self.write(self.model_path, {**self.model, "preview_image": str(outside)})
+        (directory / "example-01.png").symlink_to(outside)
+        (directory / "example-02.jpg").mkdir()
+        (directory / "example-03.safetensors").write_bytes(b"weights")
+        (directory / "notes.txt").write_bytes(b"unrelated text")
+        (directory / ".hidden.png").write_bytes(b"hidden image")
+        (directory / "example-04.png").write_bytes(b"safe image")
+        response = self.client.get("/assets/demo-model/preview")
+        self.assertEqual(response.data, b"safe image")
+        response.close()
+        for suffix in ("/1", "/-1", "/999", "/example-01.png", "/../model.defaults.json"):
+            with self.subTest(suffix=suffix):
+                self.assertEqual(self.client.get(f"/assets/demo-model/preview{suffix}").status_code, 404)
+        self.assertNotIn("data-asset-carousel", self.client.get("/").text)
+
     def test_preview_does_not_serve_unrelated_files_or_symlink_targets(self):
         outside = self.root / "private.png"
         outside.write_bytes(b"private image")

@@ -55,5 +55,15 @@
       "noise_schedule": "default"
     },
     "loras": []
-  }
+  },
+  "example_media": [
+    "example.webp",
+    "example_02.mp4",
+    "example_03.png",
+    "example_04.png",
+    "example_05.png",
+    "example_06.png",
+    "example_07.png",
+    "examploe_08.png"
+  ]
 }

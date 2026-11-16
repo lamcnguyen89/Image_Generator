@@ -3,7 +3,9 @@
   "id": "lora_5e31a08b-192e-4f4d-802d-9b26e4628456",
   "display_name": "Hanfu NSFW",
   "description": "Local adapter catalog entry: Hanfu NSFW.",
-  "example_prompts": ["an asian woamn, after a completely black screen,the camera quickly switches and focuses on his face, 69 position blowjob, she is giving him a deepthroat blowjob,  she was on top of the man, his testicles and large penis facing the camera, and his legs were spread open. she kept one hand gripping the man's penis, The man's buttocks are fully visible. Her eyes remained open, looking at the camera. They were on their bed in the bedroom.  She wore the same clothes and kept the same hairstyle."],
+  "example_prompts": [
+    "an asian woamn, after a completely black screen,the camera quickly switches and focuses on his face, 69 position blowjob, she is giving him a deepthroat blowjob,  she was on top of the man, his testicles and large penis facing the camera, and his legs were spread open. she kept one hand gripping the man's penis, The man's buttocks are fully visible. Her eyes remained open, looking at the camera. They were on their bed in the bedroom.  She wore the same clothes and kept the same hairstyle."
+  ],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -22,10 +24,21 @@
   },
   "settings": {
     "strength": 0.8,
-    "trigger_words": ["titfuck style", "breasts", "penis", "hetero", "1girl", "1boy", "uncensored"],
+    "trigger_words": [
+      "titfuck style",
+      "breasts",
+      "penis",
+      "hetero",
+      "1girl",
+      "1boy",
+      "uncensored"
+    ],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

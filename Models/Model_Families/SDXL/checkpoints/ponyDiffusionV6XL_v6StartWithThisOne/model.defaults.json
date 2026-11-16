@@ -3,7 +3,12 @@
   "id": "model_86b44c16-e58f-4fcf-845f-b0d04d21b888",
   "display_name": "Pony Diffusion V6 XL",
   "description": "SDXL checkpoint: Pony Diffusion V6 XL.",
-  "example_prompts": ["score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, feral pony, show accurate","score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, pixel art, toriel from undertale", "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_safe, Zipp Storm, ((cute, little, fuzzy pony, fur)), (high quality, detailed, beautiful), shiny, adorable face, detailed beautiful eyes, diadema, sunlight, realistic, outstanding, countershading, detailed soft lighting, ear fluff, hoof on face, cinematic vintage photography", "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rei ayanami from evangelion hugging asuka langley from evangelion, duo"],
+  "example_prompts": [
+    "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, feral pony, show accurate",
+    "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, pixel art, toriel from undertale",
+    "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_safe, Zipp Storm, ((cute, little, fuzzy pony, fur)), (high quality, detailed, beautiful), shiny, adorable face, detailed beautiful eyes, diadema, sunlight, realistic, outstanding, countershading, detailed soft lighting, ear fluff, hoof on face, cinematic vintage photography",
+    "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rei ayanami from evangelion hugging asuka langley from evangelion, duo"
+  ],
   "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
@@ -40,5 +45,8 @@
       "noise_schedule": "default"
     },
     "loras": []
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

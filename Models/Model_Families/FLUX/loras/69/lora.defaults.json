@@ -3,7 +3,15 @@
   "id": "lora_b0be57d8-45f1-46b0-8741-c03ec96dbd9b",
   "display_name": "NSFW 69",
   "description": "Local adapter catalog entry: NSFW 69.",
-  "example_prompts": ["<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man penis.  eves, short sleeves. in a forest <lora:Tinkerbell:0.9> tinker, tinkerbell, green dress, fairy wings", "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man. She is a redhead with glasseswears a hardhat on a construction site. Surrounded by people", "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man. She wears a mcdonald uniform in a mcdonalds. Surrounded by people", "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man. She is a blond walmart worker in a walmart. Surrounded by people", "<lora:Nsfw_69:0.9> nsfw 69, a black naked woman performs a 69 oral fellatio to a man. On the road in a street in new york", "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man penis.   <lora:SnowWhite:0.9> black hair, snow white, dress, bow, hair bow, puffy sleeves, short sleeves. red apples. in a wood house.", "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man. She is a redhead with glasses"],
+  "example_prompts": [
+    "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man penis.  eves, short sleeves. in a forest <lora:Tinkerbell:0.9> tinker, tinkerbell, green dress, fairy wings",
+    "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man. She is a redhead with glasseswears a hardhat on a construction site. Surrounded by people",
+    "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man. She wears a mcdonald uniform in a mcdonalds. Surrounded by people",
+    "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man. She is a blond walmart worker in a walmart. Surrounded by people",
+    "<lora:Nsfw_69:0.9> nsfw 69, a black naked woman performs a 69 oral fellatio to a man. On the road in a street in new york",
+    "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man penis.   <lora:SnowWhite:0.9> black hair, snow white, dress, bow, hair bow, puffy sleeves, short sleeves. red apples. in a wood house.",
+    "<lora:Nsfw_69:0.9> nsfw 69, a woman performs a 69 oral fellatio to a man. She is a redhead with glasses"
+  ],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -22,10 +30,16 @@
   },
   "settings": {
     "strength": 0.9,
-    "trigger_words": ["nsfw 69", "a woman performs a 69 oral fellatio to a man penis."],
+    "trigger_words": [
+      "nsfw 69",
+      "a woman performs a 69 oral fellatio to a man penis."
+    ],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.webp"
+  ]
 }

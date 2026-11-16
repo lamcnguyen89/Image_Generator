@@ -33,5 +33,8 @@
     "recommended_generation": {
       "num_inference_steps": 20
     }
-  }
+  },
+  "example_media": [
+    "example.jpeg"
+  ]
 }

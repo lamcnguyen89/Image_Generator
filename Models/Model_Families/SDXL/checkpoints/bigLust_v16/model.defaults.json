@@ -3,8 +3,19 @@
   "id": "model_d19de06c-fb5f-4ad1-bfc4-fbdb8dc71eaa",
   "display_name": "Big Lust v1.6",
   "description": "SDXL checkpoint: Big Lust v1.6.",
-  "example_prompts": ["(score_9,score_8_up,score_7_up:0.5), photo (medium), 1girl, naked, cameltoe, r/godpussy, looking at viewer, hand on ass, lying down on bed, thighhighs", "(score_9,score_8_up,score_7_up:0.5), photo (medium), cinematic, 1girl, from side, dark skin, lying down on sand, looking at viewer, naked, breasts, anus, afro hair", "photo (medium), selfie, 8k, high quality, from above, 1girl, lying down, spread legs, thong, underboob, wedgie, cameltoe, nsfw","photo (medium), 8k, high quality, cinematic, from above, 1girl, blowjob, huge cock, cum on face, big breasts, nipples, pussy", "photo (medium), 8k, high quality, cinematic, from above, 1girl, blowjob, huge cock, cum on face, big breasts, nipples, pussy" , "(score_9,score_8_up,score_7_up:0.5), photo (medium), cinematic, 1girl, from side, dark skin, lying down on sand, looking at viewer, naked, breasts, anus, afro hair", "photo (medium), selfie, 8k, high quality, from above, 1girl, lying down, spread legs, thong, underboob, wedgie, cameltoe, nsfw", "photo (medium), cinematic, analog, 8k, depth of field, 8k, portrait, full body, 1girl, slim, green eyes, braids, (freckles:0.8), sitting in bed, shy, hands, pussy, on thighs, cameltoe, tight top, underboob, breasts, bangs, blush" ], 
-  "example_negative_prompts": ["score_1,score_2,score_3"],
+  "example_prompts": [
+    "(score_9,score_8_up,score_7_up:0.5), photo (medium), 1girl, naked, cameltoe, r/godpussy, looking at viewer, hand on ass, lying down on bed, thighhighs",
+    "(score_9,score_8_up,score_7_up:0.5), photo (medium), cinematic, 1girl, from side, dark skin, lying down on sand, looking at viewer, naked, breasts, anus, afro hair",
+    "photo (medium), selfie, 8k, high quality, from above, 1girl, lying down, spread legs, thong, underboob, wedgie, cameltoe, nsfw",
+    "photo (medium), 8k, high quality, cinematic, from above, 1girl, blowjob, huge cock, cum on face, big breasts, nipples, pussy",
+    "photo (medium), 8k, high quality, cinematic, from above, 1girl, blowjob, huge cock, cum on face, big breasts, nipples, pussy",
+    "(score_9,score_8_up,score_7_up:0.5), photo (medium), cinematic, 1girl, from side, dark skin, lying down on sand, looking at viewer, naked, breasts, anus, afro hair",
+    "photo (medium), selfie, 8k, high quality, from above, 1girl, lying down, spread legs, thong, underboob, wedgie, cameltoe, nsfw",
+    "photo (medium), cinematic, analog, 8k, depth of field, 8k, portrait, full body, 1girl, slim, green eyes, braids, (freckles:0.8), sitting in bed, shy, hands, pussy, on thighs, cameltoe, tight top, underboob, breasts, bangs, blush"
+  ],
+  "example_negative_prompts": [
+    "score_1,score_2,score_3"
+  ],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/575395/big-lust?modelVersionId=1081768",
@@ -40,5 +51,20 @@
       "noise_schedule": "default"
     },
     "loras": []
-  }
+  },
+  "example_media": [
+    "example.png",
+    "1QNGTKN9NXB3V1N4CQ2ADQ3J00.png",
+    "378BNBFKM6G9R6ZNWC87TH98Q0.png",
+    "5F422HN6DMG90NN4WK4DA02YV0.png",
+    "CEKJH0Y3N08TRN38X1DB337J40.png",
+    "CM07XEZ2A8Q9VWQR4MYPX2YMT0.png",
+    "DK0T5NRB3FG715AH2FFVD0P170.png",
+    "H72SRSQ0HAVFVQ4JYMQ155P770.png",
+    "JT9E66TQ15VQ120SM4JVX35CN0.png",
+    "KGY3G1C99B8RMXKMB1JT2MQSN0.png",
+    "SVQVPSTM9GHGMVZKZA24F2ZZJ0.png",
+    "W32EEZDWDD4KP85DRD6G78R550.png",
+    "X61NTW1B3D6W51QFQ82X9ANV10.png"
+  ]
 }

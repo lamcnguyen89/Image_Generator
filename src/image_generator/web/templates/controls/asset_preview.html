@@ -1,17 +1,32 @@
 {% macro asset_preview(asset, href=none) %}
-{% set media = asset | asset_preview %}
-<div class="asset-preview{{ ' asset-preview-empty' if not media else '' }}">
-  {% if media %}
+{% set examples = asset | asset_previews %}
+{% set carousel = examples | length > 1 %}
+<div class="asset-preview{{ ' asset-preview-empty' if not examples else '' }}"{% if carousel %} data-asset-carousel role="group" aria-roledescription="carousel" aria-label="Examples for {{ asset.display_name }}"{% endif %}>
+  {% if examples %}
+  {% if carousel %}<div class="asset-carousel-track" data-carousel-track tabindex="0" aria-label="Example media; use left and right arrow keys">{% endif %}
+  {% for media in examples %}
+    {% if carousel %}<div class="asset-carousel-slide" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ examples | length }}">{% endif %}
     {% if media.kind == 'video' %}
-    <video class="asset-media" controls muted playsinline preload="metadata" aria-label="Example video for {{ asset.display_name }}">
-      <source src="{{ media.url }}" type="{{ media.mimetype }}">
+    <video class="asset-media" controls muted playsinline preload="{{ 'none' if carousel else 'metadata' }}" aria-label="Example video for {{ asset.display_name }}{% if carousel %} ({{ loop.index }} of {{ examples | length }}){% endif %}">
+      <source {{ 'data-media-src' if carousel else 'src' }}="{{ media.url }}" type="{{ media.mimetype }}">
       <a href="{{ media.url }}">Open example video</a>
     </video>
     {% else %}
     {% if href %}<a class="asset-media-link" href="{{ href }}" aria-label="Open {{ asset.display_name }}">{% endif %}
-    <img class="asset-media" src="{{ media.url }}" alt="Example image for {{ asset.display_name }}" loading="lazy" decoding="async">
+    <img class="asset-media" {{ 'data-media-src' if carousel else 'src' }}="{{ media.url }}" alt="Example image for {{ asset.display_name }}{% if carousel %} ({{ loop.index }} of {{ examples | length }}){% endif %}" loading="{{ 'eager' if carousel else 'lazy' }}" decoding="async">
     {% if href %}</a>{% endif %}
     {% endif %}
+    {% if carousel %}</div>{% endif %}
+  {% endfor %}
+  {% if carousel %}
+  </div>
+  <div class="asset-carousel-controls" data-carousel-controls hidden>
+    <button type="button" data-carousel-previous aria-label="Previous example for {{ asset.display_name }}"><span aria-hidden="true">←</span></button>
+    <span class="asset-carousel-counter" data-carousel-counter role="status" aria-live="polite" aria-atomic="true">1 / {{ examples | length }}</span>
+    <button type="button" data-carousel-next aria-label="Next example for {{ asset.display_name }}"><span aria-hidden="true">→</span></button>
+  </div>
+  <noscript><p class="asset-carousel-help">Enable JavaScript to browse examples. <a href="{{ examples[0].url }}">Open first example</a>.</p></noscript>
+  {% endif %}
   {% else %}
   <p class="asset-preview-placeholder muted">No example media available</p>
   {% endif %}

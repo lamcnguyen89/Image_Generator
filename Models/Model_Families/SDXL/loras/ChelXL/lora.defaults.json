@@ -3,8 +3,12 @@
   "id": "lora_37faa7cb-a25a-4b78-b920-95e57b750296",
   "display_name": "ChelXL",
   "description": "SDXL character LoRA for Chel.",
-  "example_prompts": ["score_9, score_8_up, score_7_up, source_anime BREAK 1girl, solo,  <lora:ChelXL:0.8> cheldorado, 1girl, solo, long hair, breasts, bangs, black hair, navel, bare shoulders, jewelry, earrings, midriff, dark skin, blunt bangs, bracelet, dark-skinned female, lips, crop top, hand on hip, strapless, makeup, pelvic curtain, tube top, loincloth, from behind, ass, looking back,"],
-  "example_negative_prompts": ["watermark, signature, artist name, patreon username, text, monochrome"],
+  "example_prompts": [
+    "score_9, score_8_up, score_7_up, source_anime BREAK 1girl, solo,  <lora:ChelXL:0.8> cheldorado, 1girl, solo, long hair, breasts, bangs, black hair, navel, bare shoulders, jewelry, earrings, midriff, dark skin, blunt bangs, bracelet, dark-skinned female, lips, crop top, hand on hip, strapless, makeup, pelvic curtain, tube top, loincloth, from behind, ass, looking back,"
+  ],
+  "example_negative_prompts": [
+    "watermark, signature, artist name, patreon username, text, monochrome"
+  ],
   "family": "sdxl",
   "adapter_type": "lora",
   "source_url": "https://civitai.red/models/327553/chel-nsfwsfw-sdxl-lora-pony?modelVersionId=367106",
@@ -28,5 +32,8 @@
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

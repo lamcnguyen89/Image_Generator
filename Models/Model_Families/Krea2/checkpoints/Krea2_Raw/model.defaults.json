@@ -56,5 +56,8 @@
         "strength": 0.8
       }
     ]
-  }
+  },
+  "example_media": [
+    "example.jpeg"
+  ]
 }

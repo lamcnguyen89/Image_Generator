@@ -3,7 +3,9 @@
   "id": "lora_051e0555-f49e-45b6-b42e-d527189871ab",
   "display_name": "NSFW Missionnary",
   "description": "Local adapter catalog entry: NSFW Missionnary.",
-  "example_prompts": ["Nsfw Missionnary, Old Hollywood glamour, Jessica Rabbit, voluptuous hourglass figure, long wavy red hair, strapless shiny red satin gown with thigh-high slit, long red opera gloves, fair skin, sultry expression, smoky eye makeup, red lips. She is laying on her back and legs spreads and is fucked by a man. on a red silk bed. She holds a champagne glass."],
+  "example_prompts": [
+    "Nsfw Missionnary, Old Hollywood glamour, Jessica Rabbit, voluptuous hourglass figure, long wavy red hair, strapless shiny red satin gown with thigh-high slit, long red opera gloves, fair skin, sultry expression, smoky eye makeup, red lips. She is laying on her back and legs spreads and is fucked by a man. on a red silk bed. She holds a champagne glass."
+  ],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -27,5 +29,8 @@
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

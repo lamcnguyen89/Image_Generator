@@ -3,7 +3,9 @@
   "id": "lora_4289b6b4-fa39-4b47-8dbf-1c995888a7fb",
   "display_name": "Mystic Hentai v1",
   "description": "Local adapter catalog entry: Mystic Hentai v1.",
-  "example_prompts": ["A nude woman with light blonde hair, medium breast size, and pink nipples sits at a wooden table, writing on a piece of white paper with a black pen the word: \"Hentai\". A white lace bra lies on the table beside her. She has a fair skin tone and a slight smile, looking at the camera. The background includes a white wall and a staircase with metal railings. The camera angle is slightly above eye level, capturing her from the waist up. The lighting is natural, coming from the right side, and there is a slight shadow on her left side."],
+  "example_prompts": [
+    "A nude woman with light blonde hair, medium breast size, and pink nipples sits at a wooden table, writing on a piece of white paper with a black pen the word: \"Hentai\". A white lace bra lies on the table beside her. She has a fair skin tone and a slight smile, looking at the camera. The background includes a white wall and a staircase with metal railings. The camera angle is slightly above eye level, capturing her from the waist up. The lighting is natural, coming from the right side, and there is a slight shadow on her left side."
+  ],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -29,5 +31,8 @@
     "recommended_generation": {
       "num_inference_steps": 35
     }
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

@@ -3,7 +3,10 @@
   "id": "lora_eda649cb-4264-4c7c-af44-7d2c0970e1fd",
   "display_name": "WAN Assertive Cowgirl High Noise",
   "description": "Local WAN adapter catalog entry: WAN Assertive Cowgirl High Noise.",
-  "example_prompts": ["c0wg1rl, a nude woman with light skin long blonde hair and small breasts straddling a man who is lying on his back. The woman's legs are spread wide and she is sitting on top of the man in the cowgirl position with his erect penis penetrating her vagina. She has a navel piercing and a focused expression on her face. The man's lower body and erect penis are visible while his upper body is out of frame. They are in a dimly lit room with a fireplace in the background casting warm light and shadows. Logs are stacked in the fireplace and there is a wooden shelf with various items on the right side of the frame. The perspective is from a slightly low angle looking up at the woman. The lighting emphasizes the contours of their bodies and the texture of their skin.", "r3v3rs3_c0wg1rl, a digital animation of a nude woman with red shoulder-length hair straddling a man from behind in a Reverse Cowgirl position. Her eyes are closed and her head is tilted back in an expression of pleasure. She has a slim toned physique with small to medium-sized breasts and visible nipples. Her skin is shiny and wet with droplets of sweat covering her body. The man's erect penis is visible thrusting into her vagina with her hands resting on his chest behind her as she bounces on him. The background is a dimly lit room with purple and black tones featuring neon lights on the walls. The perspective is from a low angle focusing on her upper body and face. The lighting highlights her wet skin creating a glossy texture. The woman's body is slightly arched and the man is lying beneath her with only his lower body and hands visible."],
+  "example_prompts": [
+    "c0wg1rl, a nude woman with light skin long blonde hair and small breasts straddling a man who is lying on his back. The woman's legs are spread wide and she is sitting on top of the man in the cowgirl position with his erect penis penetrating her vagina. She has a navel piercing and a focused expression on her face. The man's lower body and erect penis are visible while his upper body is out of frame. They are in a dimly lit room with a fireplace in the background casting warm light and shadows. Logs are stacked in the fireplace and there is a wooden shelf with various items on the right side of the frame. The perspective is from a slightly low angle looking up at the woman. The lighting emphasizes the contours of their bodies and the texture of their skin.",
+    "r3v3rs3_c0wg1rl, a digital animation of a nude woman with red shoulder-length hair straddling a man from behind in a Reverse Cowgirl position. Her eyes are closed and her head is tilted back in an expression of pleasure. She has a slim toned physique with small to medium-sized breasts and visible nipples. Her skin is shiny and wet with droplets of sweat covering her body. The man's erect penis is visible thrusting into her vagina with her hands resting on his chest behind her as she bounces on him. The background is a dimly lit room with purple and black tones featuring neon lights on the walls. The perspective is from a low angle focusing on her upper body and face. The lighting highlights her wet skin creating a glossy texture. The woman's body is slightly arched and the man is lying beneath her with only his lower body and hands visible."
+  ],
   "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
@@ -32,5 +35,8 @@
     "recommended_generation": {
       "guidance_scale": 6.0
     }
-  }
+  },
+  "example_media": [
+    "example.mp4"
+  ]
 }

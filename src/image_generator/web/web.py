@@ -4,7 +4,7 @@ from flask import Blueprint, abort, current_app, g, render_template, send_file, 
 
 from image_generator.catalog import CatalogValidationError, discover_catalog
 
-from .previews import MEDIA_TYPES, example_media
+from image_generator.catalog.media import MEDIA_TYPES, example_media
 
 
 catalog_bp = Blueprint(
@@ -29,23 +29,31 @@ def get_catalog():
 
 @catalog_bp.app_template_filter("asset_preview")
 def asset_preview(asset):
-    path = example_media(asset)
-    if path is None:
-        return None
-    mimetype = MEDIA_TYPES[path.suffix.lower()]
-    return {"url": url_for("catalog.preview", asset_id=asset.id),
-            "kind": mimetype.split("/")[0], "mimetype": mimetype}
+    return next(iter(asset_previews(asset)), None)
 
 
-@catalog_bp.get("/assets/<asset_id>/preview")
-def preview(asset_id):
+@catalog_bp.app_template_filter("asset_previews")
+def asset_previews(asset):
+    media = []
+    for index, path in enumerate(example_media(asset)):
+        mimetype = MEDIA_TYPES[path.suffix.lower()]
+        values = {"media_index": index} if index else {}
+        media.append({"url": url_for("catalog.preview", asset_id=asset.id, **values),
+                      "kind": mimetype.split("/")[0], "mimetype": mimetype})
+    return media
+
+
+@catalog_bp.get("/assets/<asset_id>/preview", defaults={"media_index": 0})
+@catalog_bp.get("/assets/<asset_id>/preview/<int:media_index>")
+def preview(asset_id, media_index):
     try:
         asset = get_catalog().get_asset(asset_id)
     except KeyError:
         abort(404)
-    path = example_media(asset)
-    if path is None:
+    media = example_media(asset)
+    if media_index >= len(media):
         abort(404)
+    path = media[media_index]
     return send_file(path, mimetype=MEDIA_TYPES[path.suffix.lower()], conditional=True)
 
 

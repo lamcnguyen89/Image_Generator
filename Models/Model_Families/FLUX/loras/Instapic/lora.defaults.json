@@ -3,7 +3,9 @@
   "id": "lora_5e31a08b-192e-4f4d-802d-9z26e4628456",
   "display_name": "The Midnight Lab Series - INSTAPIC [NANO BANANA KILLER]",
   "description": "Local adapter catalog entry: Hanfu NSFW.",
-  "example_prompts": ["women"],
+  "example_prompts": [
+    "women"
+  ],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -22,10 +24,19 @@
   },
   "settings": {
     "strength": 1.0,
-    "trigger_words": ["selfie", "mirror selfie", "flash photography", "candid", "phone camera."],
+    "trigger_words": [
+      "selfie",
+      "mirror selfie",
+      "flash photography",
+      "candid",
+      "phone camera."
+    ],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

@@ -40,5 +40,8 @@
       "noise_schedule": "default"
     },
     "loras": []
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

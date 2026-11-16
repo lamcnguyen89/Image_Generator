@@ -3,7 +3,7 @@
   "id": "model_REPLACE_WITH_GENERATED_UUID",
   "display_name": "Example FLUX.1-dev Checkpoint",
   "description": "Example FLUX.1-dev transformer configuration. Replace identity, asset paths, and settings before use.",
-  "example_prompts": ["woman with lusty expression ", "women", ],
+  "example_prompts": ["woman with lusty expression ", "women"],
   "example_negative_prompts": [],
   "family": "flux",
   "workflow": "flux",

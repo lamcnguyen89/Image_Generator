@@ -3,7 +3,9 @@
   "id": "lora_ef7ff312-c901-4629-ac81-e9e2116d44d1",
   "display_name": "FC Flux Perfect Busts",
   "description": "Local adapter catalog entry: FC Flux Perfect Busts.",
-  "example_prompts": ["Shadow Muse, A soft-focus, hyper-realistic shot of a 29-year-old supermodel with ivory skin, ash-blonde hair in a low bun, green eyes sultry with intent. She wears a sheer black lace bustier, revealing her busty figure, paired with a velvet choker. Leaning against a frosted glass partition in a dimly lit penthouse, city lights blurred, her gaze piercing, ultra-detailed, mysterious allure."],
+  "example_prompts": [
+    "Shadow Muse, A soft-focus, hyper-realistic shot of a 29-year-old supermodel with ivory skin, ash-blonde hair in a low bun, green eyes sultry with intent. She wears a sheer black lace bustier, revealing her busty figure, paired with a velvet choker. Leaning against a frosted glass partition in a dimly lit penthouse, city lights blurred, her gaze piercing, ultra-detailed, mysterious allure."
+  ],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -27,5 +29,8 @@
     "positive_suffix": "",
     "negative_prompt": "",
     "recommended_generation": {}
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }

@@ -3,8 +3,14 @@
   "id": "model_63590fc5-d0a0-4eed-8da1-223f9075d1c2",
   "display_name": "Pyros SDXL v0.5",
   "description": "SDXL checkpoint: Pyros v0.5.",
-  "example_prompts": ["((head grab)), pov, deepthroat, penis, a pretty e-girl is sucking a very big penis, very skinny, at home, instagram post, photo by iPhone", "foot focus, penis, solo focus, penis, footjob, two-footed footjob, a man is giving a woman a big cock, global illumination, (vivid, plasticity, lifelike) photo by iPhone"],
-  "example_negative_prompts": ["(asian),zoomed in, low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution","zoomed in, low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution"],
+  "example_prompts": [
+    "((head grab)), pov, deepthroat, penis, a pretty e-girl is sucking a very big penis, very skinny, at home, instagram post, photo by iPhone",
+    "foot focus, penis, solo focus, penis, footjob, two-footed footjob, a man is giving a woman a big cock, global illumination, (vivid, plasticity, lifelike) photo by iPhone"
+  ],
+  "example_negative_prompts": [
+    "(asian),zoomed in, low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution",
+    "zoomed in, low-res, deformed, ((make-up)), extra fingers, low quality, moire, overexposure, poor quality, jpeg artifacts, cgi, cartoon, censored, (cartoon), 3d, render, low res, low resolution"
+  ],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/133808/pyros-nsfw-sdxl?modelVersionId=324958",
@@ -27,7 +33,13 @@
     "negative_prompt": "",
     "positive_prefix": "",
     "positive_suffix": "",
-    "trigger_words": ["pov", "small breasts", "Looking at viewer", "Penis", "Pussy"],
+    "trigger_words": [
+      "pov",
+      "small breasts",
+      "Looking at viewer",
+      "Penis",
+      "Pussy"
+    ],
     "width": 832,
     "height": 1216,
     "num_images_per_prompt": 1,
@@ -40,5 +52,8 @@
       "noise_schedule": "default"
     },
     "loras": []
-  }
+  },
+  "example_media": [
+    "example.png"
+  ]
 }
