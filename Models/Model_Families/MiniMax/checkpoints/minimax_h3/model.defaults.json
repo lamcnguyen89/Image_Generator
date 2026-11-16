@@ -9,14 +9,14 @@
   "workflow": "minimax",
   "model_variant": "minimax_h3",
   "weights_component": "transformer",
-  "source_url": null,
+  "source_url": "https://civitai.red/models/2821932/minimax-h3",
   "source_model_id": null,
   "source_version_id": null,
   "weights": "minimaxH3_comfy_3086249.safetensors",
   "sha256": null,
   "base_model_id": null,
   "notes_file": "../../README.md",
-  "preview_image": null,
+  "preview_image": "example.mp4",
   "supported_modes": [
     "img2vid"
   ],

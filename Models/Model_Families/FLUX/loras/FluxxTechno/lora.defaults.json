@@ -13,7 +13,7 @@
   "weights": "Flux Realistic x Techno Waler.TA_trained.safetensors",
   "sha256": null,
   "notes_file": "FluxxTechno_waler_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": null,

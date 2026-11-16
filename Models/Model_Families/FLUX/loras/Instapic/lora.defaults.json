@@ -3,7 +3,7 @@
   "id": "lora_5e31a08b-192e-4f4d-802d-9z26e4628456",
   "display_name": "The Midnight Lab Series - INSTAPIC [NANO BANANA KILLER]",
   "description": "Local adapter catalog entry: Hanfu NSFW.",
-  "example_prompts": [],
+  "example_prompts": ["women"],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -13,7 +13,7 @@
   "weights": "Hanfu_NSFW_epoch_18.safetensors",
   "sha256": null,
   "notes_file": "Hanfu_NSFW_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "691639.safetensors",

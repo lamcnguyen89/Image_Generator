@@ -13,7 +13,7 @@
   "weights": "Cowgirl.safetensors",
   "sha256": null,
   "notes_file": "Cowgirl_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": null,

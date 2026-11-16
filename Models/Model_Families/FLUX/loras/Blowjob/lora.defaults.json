@@ -13,7 +13,7 @@
   "weights": "BJStyle.safetensors",
   "sha256": null,
   "notes_file": "BJ_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "691639.safetensors",

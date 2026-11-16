@@ -3,8 +3,8 @@
   "id": "model_11e4fbbd-5637-4022-a3c0-57059993b22d",
   "display_name": "Lustify GGWP v7",
   "description": "SDXL checkpoint: Lustify GGWP v7.",
-  "example_prompts": [],
-  "example_negative_prompts": [],
+  "example_prompts": ["egirl, 1girl, grey hair, underwear, looking at viewer, lying on side, black thighhighs, latex, thong, black gloves, ass, black tube top, sexy, amateur photo, dim lighting, plush toys, curvy, (dim lighting, purple lighting:1.2), fairy lights,","selfie, young woman, alt style, looking at viewer, lifted shirt, medium breasts, hard nipples, bedroom, amateur photo, thong, ", "1girl, punk, (dildo, anal:1.15), black hair, thighhighs, pussy, long hair, crop top, black thighhighs, parted lips, looking at viewer, dark, night, dim lighting, moan, squatting, from side, boots, high platform heels"],
+  "example_negative_prompts": ["phone, old, ugly,", "a woman straddling a man, black lace bra and black skirt, vaginal, open mouth, moan, lips, face out of frame, long brown hair, dim purple and blue lighting, indoor setting, night, medium breasts, high angle shot"],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/573152/lustify-nsfw-checkpoint?modelVersionId=2155386",
@@ -14,7 +14,7 @@
   "sha256": null,
   "base_model_id": "stabilityai/stable-diffusion-xl-base-1.0",
   "notes_file": "Lustify_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "supported_modes": [
     "txt2img"
   ],
@@ -28,16 +28,16 @@
     "positive_prefix": "",
     "positive_suffix": "",
     "trigger_words": [],
-    "width": 1024,
-    "height": 1024,
+    "width": 832,
+    "height": 1216,
     "num_images_per_prompt": 1,
-    "guidance_scale": 5.0,
-    "num_inference_steps": 50,
+    "guidance_scale": 3.5,
+    "num_inference_steps": 35,
     "seed": null,
     "clip_skip": null,
     "sampling": {
-      "sampler": "model_default",
-      "noise_schedule": "default"
+      "sampler": "DPM++ 2M SDE Karras",
+      "noise_schedule": "karras"
     },
     "loras": []
   }

@@ -3,8 +3,8 @@
   "id": "model_d19de06c-fb5f-4ad1-bfc4-fbdb8dc71eaa",
   "display_name": "Big Lust v1.6",
   "description": "SDXL checkpoint: Big Lust v1.6.",
-  "example_prompts": [],
-  "example_negative_prompts": [],
+  "example_prompts": ["(score_9,score_8_up,score_7_up:0.5), photo (medium), 1girl, naked, cameltoe, r/godpussy, looking at viewer, hand on ass, lying down on bed, thighhighs", "(score_9,score_8_up,score_7_up:0.5), photo (medium), cinematic, 1girl, from side, dark skin, lying down on sand, looking at viewer, naked, breasts, anus, afro hair", "photo (medium), selfie, 8k, high quality, from above, 1girl, lying down, spread legs, thong, underboob, wedgie, cameltoe, nsfw","photo (medium), 8k, high quality, cinematic, from above, 1girl, blowjob, huge cock, cum on face, big breasts, nipples, pussy", "photo (medium), 8k, high quality, cinematic, from above, 1girl, blowjob, huge cock, cum on face, big breasts, nipples, pussy" , "(score_9,score_8_up,score_7_up:0.5), photo (medium), cinematic, 1girl, from side, dark skin, lying down on sand, looking at viewer, naked, breasts, anus, afro hair", "photo (medium), selfie, 8k, high quality, from above, 1girl, lying down, spread legs, thong, underboob, wedgie, cameltoe, nsfw", "photo (medium), cinematic, analog, 8k, depth of field, 8k, portrait, full body, 1girl, slim, green eyes, braids, (freckles:0.8), sitting in bed, shy, hands, pussy, on thighs, cameltoe, tight top, underboob, breasts, bangs, blush" ], 
+  "example_negative_prompts": ["score_1,score_2,score_3"],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/575395/big-lust?modelVersionId=1081768",
@@ -14,7 +14,7 @@
   "sha256": null,
   "base_model_id": "stabilityai/stable-diffusion-xl-base-1.0",
   "notes_file": "bigLust_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "supported_modes": [
     "txt2img"
   ],
@@ -24,19 +24,19 @@
   },
   "settings": {
     "prompt": "",
-    "negative_prompt": "",
+    "negative_prompt": "score_1,score_2,score_3",
     "positive_prefix": "",
     "positive_suffix": "",
     "trigger_words": [],
-    "width": 1024,
-    "height": 1024,
+    "width": 832,
+    "height": 1216,
     "num_images_per_prompt": 1,
-    "guidance_scale": 5.0,
+    "guidance_scale": 7.0,
     "num_inference_steps": 50,
     "seed": null,
-    "clip_skip": null,
+    "clip_skip": 2,
     "sampling": {
-      "sampler": "model_default",
+      "sampler": "dpmpp_2m_sde",
       "noise_schedule": "default"
     },
     "loras": []

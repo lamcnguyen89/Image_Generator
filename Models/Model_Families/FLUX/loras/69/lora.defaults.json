@@ -13,7 +13,7 @@
   "weights": "69.safetensors",
   "sha256": null,
   "notes_file": "69_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.webp",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "691639.safetensors",

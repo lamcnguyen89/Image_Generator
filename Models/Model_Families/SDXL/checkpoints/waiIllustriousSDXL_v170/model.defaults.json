@@ -3,8 +3,12 @@
   "id": "model_8396b3c5-d9d8-4cdf-b061-2d48c524151f",
   "display_name": "WAI Illustrious SDXL v17.0",
   "description": "SDXL-based checkpoint: WAI Illustrious v17.0.",
-  "example_prompts": [],
-  "example_negative_prompts": [],
+  "example_prompts": [
+  "1girl, hatsune miku, dress, long hair, jewelry, white dress, blue eyes, necklace, bubble, solo, underwater, hair between eyes, looking at viewer, bangs, blue hair, bow, reaching towards viewer, blue theme, air bubble, hair bow, collarbone, floating hair, frills, twintails, blurry foreground, frilled dress, off-shoulder dress, bare shoulders, blurry, very long hair,masterpiece,best quality,amazing quality,",
+  "(aged up:2.0),1girl,shishiro botan, animal ears,lion ears, hand to own mouth, spread fingers, white hair,kimono,camellia, floral print, black clothing, black kimono,face focus, close-up, serious,looking at viewer, light frown, gradient background,masterpiece,best quality,amazing quality,",
+  "rella,konya karasue,an yasuri kieed,ruoganzhao,yolanda,dutch angle,magical,evocative,depth of field,1girl,pointy ears,dragon horns,white hair,blue eyes,water,sitting in water,show cleavage,large breasts,masterpiece,best quality,amazing quality,"
+],
+  "example_negative_prompts": ["bad quality,worst quality,worst detail,sketch,censor,"],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/827184/wai-illustrious-sdxl?modelVersionId=2883731",
@@ -14,7 +18,7 @@
   "sha256": null,
   "base_model_id": "stabilityai/stable-diffusion-xl-base-1.0",
   "notes_file": "WAI_Illustrious.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "supported_modes": [
     "txt2img"
   ],

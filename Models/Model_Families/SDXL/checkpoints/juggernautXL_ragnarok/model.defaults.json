@@ -3,7 +3,7 @@
   "id": "model_bed8d383-fd60-49c0-9bc6-92a027b70821",
   "display_name": "Juggernaut XL Ragnarok",
   "description": "SDXL checkpoint: Juggernaut XL Ragnarok.",
-  "example_prompts": [],
+  "example_prompts": ["beautiful woman, (freckles), smug grin, brown hazel eyes, undercut hairstyle, bold makeup, soft cinematic lighting, head and shoulders portrait, ultra detailed,", "A surreal double exposure portrait of a man with a forest growing inside his silhouette. Deep green tones, metaphorical visual.", "photograph close up portrait of Female boxer training, serious, stoic cinematic 4k epic detailed 4k epic detailed photograph shot on kodak detailed bokeh cinematic hbo dark moody", "A stylized sketch of a woman in motion, captured mid-twirl, flowing ink lines and minimal color â like a fashion illustration.","transform the living room into an enchanted forest by hanging sheer, green fabric from the ceiling to create a canopy effect, adding potted plants and trees, and using earthy tones and natural materials for the furniture and decor.","A fine-art nude of a woman lying sideways on silk sheets, soft light across her back, her curves highlighted gently. Inspired by Helmut Newton and Petra Collins."],
   "example_negative_prompts": [],
   "family": "sdxl",
   "workflow": "sdxl",
@@ -14,7 +14,7 @@
   "sha256": null,
   "base_model_id": "stabilityai/stable-diffusion-xl-base-1.0",
   "notes_file": "juggernautXL_notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "supported_modes": [
     "txt2img"
   ],

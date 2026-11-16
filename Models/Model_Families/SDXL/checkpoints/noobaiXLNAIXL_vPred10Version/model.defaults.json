@@ -14,7 +14,7 @@
   "sha256": null,
   "base_model_id": "stabilityai/stable-diffusion-xl-base-1.0",
   "notes_file": "noobAIXL_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "supported_modes": [
     "txt2img"
   ],
@@ -37,8 +37,8 @@
     "positive_prefix": "masterpiece, best quality, newest, absurdres, highres, safe,",
     "positive_suffix": "",
     "trigger_words": [],
-    "width": 1024,
-    "height": 1024,
+    "width": 832,
+    "height": 1216,
     "num_images_per_prompt": 1,
     "guidance_scale": 4.5,
     "num_inference_steps": 30,

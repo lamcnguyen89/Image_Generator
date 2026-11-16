@@ -3,7 +3,7 @@
   "id": "lora_a2deb732-63c7-4b1e-8e60-06af7ca950a1",
   "display_name": "NSFW Master",
   "description": "Local adapter catalog entry: NSFW Master.",
-  "example_prompts": [],
+   "example_prompts": ["an asian girl in a red outfit with headphones on, 1girl, long hair, breasts, looking at viewer, blonde hair, 1boy, navel, animal ears, twintails, brown eyes, medium breasts, nipples, hetero, parted lips, penis, pussy, solo focus, spread legs, sex, stomach, blurry, vaginal, shiny skin, blurry background, fake animal ears, bottomless, headphones, headset"],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -13,7 +13,7 @@
   "weights": "master.safetensors",
   "sha256": null,
   "notes_file": "Master_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": null,

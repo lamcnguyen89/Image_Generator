@@ -13,7 +13,7 @@
   "weights": "Glory_H.safetensors",
   "sha256": null,
   "notes_file": "Glory_H_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "flux1-dev.safetensors",

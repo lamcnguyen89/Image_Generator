@@ -3,8 +3,8 @@
   "id": "model_f99ef398-b00f-493a-8067-addd7c7dc5ef",
   "display_name": "Illustrious XL v0.1",
   "description": "SDXL-based illustration checkpoint: Illustrious XL v0.1.",
-  "example_prompts": [],
-  "example_negative_prompts": [],
+  "example_prompts": ["Hatsune Miku,limited palette,black background,colorful,vibrant,glowing outline,neon,blacklight,looking at viewer, masterpiece, very aesthetic"],
+  "example_negative_prompts": ["worst quality,bad quality,bad hands,very displeasing,extra digit,fewer digits,jpeg artifacts,signature,username,reference,mutated,lineup,manga,comic,disembodied,futanari,yaoi,dickgirl,turnaround,2koma,4koma,monster,cropped,amputee,text,bad foreshortening,what,guro,logo,bad anatomy,bad perspective,bad proportions,artistic error,anatomical nonsense,amateur,out of frame,multiple views,", "1girl,tokoyami towa,mesugaki,devil,amane kanata,angel,split theme,stylish,artist, closed mouth", "stylish,no humans,city light,black theme,dim lighting,high contrast,night sky,matserpiece,absurdres,depth of field,butterflies,extremely aesthetic,violet theme,absurdres,wallpaper,panorama,","1girl,looking at viewer,full body shot,sleeves,full body,:d,glitch art,glitching,glitch,scanlines,monochrome,outdoors,power lines,wide shot,reddish sky,grass,hill,expressionless,x hair ornament,city lights in background,city in background,skyscraper in background,skyline,stylish,dark theme,","1girl, masterpiece, general, lineart, white background, simple background"],
   "family": "sdxl",
   "workflow": "sdxl",
   "source_url": "https://civitai.red/models/795765/illustrious-xl?modelVersionId=889818",
@@ -14,7 +14,7 @@
   "sha256": null,
   "base_model_id": "stabilityai/stable-diffusion-xl-base-1.0",
   "notes_file": "lllustriousxl_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "supported_modes": [
     "txt2img"
   ],
@@ -28,15 +28,15 @@
     "positive_prefix": "",
     "positive_suffix": "",
     "trigger_words": [],
-    "width": 1024,
-    "height": 1024,
+    "width": 832,
+    "height": 1216,
     "num_images_per_prompt": 1,
-    "guidance_scale": 5.0,
-    "num_inference_steps": 50,
+    "guidance_scale": 7.5,
+    "num_inference_steps": 28,
     "seed": null,
     "clip_skip": null,
     "sampling": {
-      "sampler": "model_default",
+      "sampler": "dpmpp_2m_sde",
       "noise_schedule": "default"
     },
     "loras": []

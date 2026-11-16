@@ -3,7 +3,7 @@
   "id": "lora_dd83e380-f67d-46ee-b2cb-82cd0d1c2a13",
   "display_name": "WAN DT",
   "description": "Local WAN adapter catalog entry: WAN DT.",
-  "example_prompts": [],
+  "example_prompts": ["a woman in front of a penis, she engages in a deep throat blowjob, she swallows the penis all the way. Her lips touches the mans groin. Her nose smashes against the man's hips.", "a woman on top of an erected penis, she widely opens her mouth and swallows the entire penis, sucks the cock deep throat, she opens her mouth and she moves her head over the erected penis, she sucks it from tip to base, she has her tongue sticking out, her mouth keeps open to accommodate the thickness of the penis in her mouth. the neck of the woman is bulging and bulging due to the dimensions of the large penis. The woman's nose gets smashed against the man hips violently. When her face smashes the man's groin the extended tongue of the woman wraps under the man's testicles. The man is thrusting his penis back and forth in rapid motions smashing the face of the woman with his energetic thrusts.", "a woman kneeling with an erected gigantic penis fully inside her throat, her throat is bulged due to the big penis inside of her mouth, she widely opens her mouth moves her head and forth while swallowing the penis. the woman's throat keeps bulging as the penis goes inside her mouth. The penis has a big glans that exists the woman's mouth.","a cinematic scene with a woman in the frame, a man enters from the side, only his lower body is visible, side view of his hips, thighs and legs, with a gigantic erected penis with testicles appears and she starts engaging in a deepthroat blowjob with that penis. She swallows the entire penis, her nose smashes agains the man's hips. She moves her head back and fort swallowing the penis, realistic proportions, natural lighting, cinematic composition" ],
   "example_negative_prompts": [],
   "family": "wan",
   "adapter_type": "lora",
@@ -13,7 +13,7 @@
   "weights": "DT.safetensors",
   "sha256": null,
   "notes_file": "DT_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.mp4",
   "compatibility": {
     "model_variant": "wan_2_2_i2v_a14b",
     "expert_target": null,
@@ -23,7 +23,7 @@
   },
   "settings": {
     "strength": 0.8,
-    "trigger_words": [],
+    "trigger_words": ["a  woman in front of a penis, she engages in a deep throat blowjob, she swallows the penis all the way. Her lips touches the man's groin. Her nose smashes against the man's hips."],
     "positive_prefix": "",
     "positive_suffix": "",
     "negative_prompt": "",

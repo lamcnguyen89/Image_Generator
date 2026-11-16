@@ -13,7 +13,7 @@
   "weights": "FLUXXXnsfwLoRAv4.safetensors",
   "sha256": null,
   "notes_file": "FLUXXXnsfwLoRA_Notes.md",
-  "preview_image": null,
+  "preview_image": "example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "unStable Illusion FluXXX",

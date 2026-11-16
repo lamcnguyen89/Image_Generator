@@ -13,7 +13,7 @@
   "weights": "kera2_Unlocked_V2.safetensors",
   "sha256": null,
   "notes_file": "kera_2_Unlocked.md",
-  "preview_image": null,
+  "preview_image": "example.jpeg",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": null,

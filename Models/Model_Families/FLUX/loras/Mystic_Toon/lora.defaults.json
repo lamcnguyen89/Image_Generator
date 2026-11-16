@@ -3,7 +3,7 @@
   "id": "lora_9bce53e8-c6f6-4d4f-a0ef-104919aaf8cf",
   "display_name": "Mystic Toon v1",
   "description": "Local adapter catalog entry: Mystic Toon v1.",
-  "example_prompts": [],
+  "example_prompts": ["a close-up photograph of a young woman's face, captured in a hyper-realistic style, the subject has fair skin with a light dusting of freckles across her cheeks and nose, her lips are full and naturally pink, with a smooth texture, her eyes are a striking blue, framed by thick, dark eyelashes and accentuated with a subtle, natural makeup look, her eyebrows are neatly trimmed, and her skin appears smooth and well-maintained, the background is a neutral, off-white color, ensuring that the focus remains on the subject, the lighting is soft and natural, highlighting the texture of her skin and the subtle sheen of her makeup, the overall composition is intimate and serene, focusing on the natural beauty of the subject's face and the serene expression of the viewer"],
   "example_negative_prompts": [],
   "family": "flux",
   "adapter_type": "lora",
@@ -13,7 +13,7 @@
   "weights": "MysticToon-V1.safetensors",
   "sha256": null,
   "notes_file": "Mystic_Toon_Notes",
-  "preview_image": null,
+  "preview_image": "example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "flux1-dev2pro.safetensors",
