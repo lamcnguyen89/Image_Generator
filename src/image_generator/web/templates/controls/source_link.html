@@ -1,0 +1,6 @@
+{% macro source_link(asset) %}
+{% set source_url = (asset.defaults.get('source_url') or '') | trim %}
+{% if source_url.lower().startswith('https://') or source_url.lower().startswith('http://') %}
+<a class="action-link" href="{{ source_url }}" target="_blank" rel="noopener noreferrer" aria-label="Source website for {{ asset.display_name }} (opens in a new tab)">Source website <span aria-hidden="true">↗</span></a>
+{% endif %}
+{% endmacro %}

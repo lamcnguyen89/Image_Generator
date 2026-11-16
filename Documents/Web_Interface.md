@@ -28,6 +28,12 @@ title and show a placeholder. Media uses the same sign-in protection as the UI.
 Model card images link to the same generation page as their titles. Template
 edits reload on the next request; Python code changes still require a restart.
 
+Checkpoint and LoRA entries also show a **Source website** link when their
+defaults JSON includes an HTTP or HTTPS `source_url`. Links open in a new tab.
+The generation page groups its title and links in a violet card, with a compact
+checkpoint example image or video on the right. The preview matches the text
+section's height and moves below it on small screens.
+
 ## Example prompt menus
 
 Each generation page has separate **Example prompts** and **Example negative

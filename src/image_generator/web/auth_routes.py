@@ -36,14 +36,22 @@ def next_page(value):
     return value
 
 
+PUBLIC_ASSETS = {"catalog.css", "favicon.ico"}
+
+
+def public_asset():
+    return (request.endpoint == "catalog.static"
+            and request.view_args.get("filename") in PUBLIC_ASSETS)
+
+
 @auth_bp.before_app_request
 def require_password():
     if not current_app.config["ACCESS_PASSWORD"]:
         return None
     if request.endpoint == "auth.login":
         return None
-    # Only the sign-in page's stylesheet is public. Media and API routes stay gated.
-    if request.endpoint == "catalog.static" and request.view_args.get("filename") == "catalog.css":
+    # Only the sign-in page's stylesheet and favicon are public. Media and API routes stay gated.
+    if public_asset():
         return None
     if signed_in():
         return None
@@ -56,9 +64,7 @@ def require_password():
 
 @auth_bp.after_app_request
 def private_response(response):
-    public_stylesheet = (request.endpoint == "catalog.static"
-                         and request.view_args.get("filename") == "catalog.css")
-    if current_app.config["ACCESS_PASSWORD"] and not public_stylesheet:
+    if current_app.config["ACCESS_PASSWORD"] and not public_asset():
         response.cache_control.no_store = True
         response.cache_control.private = True
         response.vary.add("Cookie")

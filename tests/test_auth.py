@@ -90,6 +90,9 @@ class PasswordTests(unittest.TestCase):
         response = self.client.get("/catalog-assets/catalog.css")
         self.assertEqual(response.status_code, 200)
         response.close()
+        response = self.client.get("/catalog-assets/favicon.ico")
+        self.assertEqual(response.status_code, 200)
+        response.close()
 
     def test_incorrect_and_missing_passwords_stay_locked(self):
         for password in ("wrong", "", self.password + " "):

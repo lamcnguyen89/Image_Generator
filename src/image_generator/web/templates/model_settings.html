@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "controls/asset_preview.html" import asset_preview %}
+{% from "controls/source_link.html" import source_link %}
 {% block title %}{{ model.display_name }}{% endblock %}
 {% block content %}
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('catalog.index') }}">Model catalog</a><span aria-hidden="true"> / </span><span aria-current="page">{{ model.display_name }}</span></nav>
@@ -7,7 +8,10 @@
   <div class="badges"><span class="badge">{{ model.family | family_label }}</span><span class="badge accent">Read only</span></div>
   <h1>{{ model.display_name }}</h1>
   <p class="muted">{{ model.defaults.get('description', '') }}</p>
-  <a class="action-link" href="{{ url_for('generation.configure', model_id=model.id) }}">Configure generation <span aria-hidden="true">→</span></a>
+  <div class="model-actions">
+    <a class="action-link" href="{{ url_for('generation.configure', model_id=model.id) }}">Configure generation <span aria-hidden="true">→</span></a>
+    {{ source_link(model) }}
+  </div>
 </div>
 <section class="card overview" aria-label="Model information">
   <dl class="metadata">
@@ -35,7 +39,7 @@
   <article class="card lora-card">
     {{ asset_preview(item.asset) }}
     <div class="asset-card-body">
-    <div class="section-heading"><span class="badge {{ 'accent' if item.enabled else '' }}">{{ 'Enabled' if item.enabled else 'Disabled' }}</span></div>
+    <div class="section-heading"><span class="badge {{ 'accent' if item.enabled else '' }}">{{ 'Enabled' if item.enabled else 'Disabled' }}</span>{{ source_link(item.asset) }}</div>
     <p>Saved strength: <code>{{ item.strength | tojson }}</code></p>
     <p class="muted">{{ 'Compatibility recorded for this checkpoint.' if item.verified else 'Compatibility has not been verified for this checkpoint.' }}</p>
     <details><summary>Adapter settings</summary><pre class="json-block">{{ item.settings | tojson(indent=2) }}</pre></details>

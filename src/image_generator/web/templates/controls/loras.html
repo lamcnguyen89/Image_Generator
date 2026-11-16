@@ -1,5 +1,6 @@
 {% from "controls/asset_preview.html" import asset_preview %}
 {% from "controls/examples.html" import example_menus %}
+{% from "controls/source_link.html" import source_link %}
 {% macro adapter_cards(items, errors) %}
 {% for item in items %}
 <article class="adapter-card" data-lora-id="{{ item.asset.id }}">
@@ -8,6 +9,7 @@
   <div class="section-heading">
     <label class="checkbox-label" for="lora-{{ item.asset.id }}"><input type="checkbox" id="lora-{{ item.asset.id }}" name="lora" value="{{ item.asset.id }}"{% if item.enabled %} checked{% endif %}{% if not item.eligible %} disabled{% endif %}>Enable {{ item.asset.display_name }}</label>
     <span class="badge {{ 'accent' if item.verified else '' }}">{{ 'Verified for checkpoint' if item.verified else 'Unverified' }}</span>
+    {{ source_link(item.asset) }}
   </div>
   {% if item.reason %}<p class="field-help">{{ item.reason }}</p>{% endif %}
   <label class="checkbox-label"><input type="checkbox" name="configured_lora" value="{{ item.asset.id }}"{% if item.configured %} checked{% endif %}>Keep in model settings when disabled</label>
