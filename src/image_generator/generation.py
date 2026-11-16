@@ -139,8 +139,8 @@ def export_video(frames, path: Path, fps):
 
 def save_video_batch(batch: GeneratedBatch, output_dir: str | Path) -> tuple[SavedVideo, ...]:
     seeds = batch.metadata["seeds"]
-    if batch.images or len(batch.videos) != len(seeds) or batch.conditioning_image is None:
-        raise ValueError("Video outputs require matching seeds and a conditioning image")
+    if batch.images or len(batch.videos) != len(seeds):
+        raise ValueError("Video outputs require matching seeds")
     output_dir = Path(output_dir).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     saved = []
@@ -154,10 +154,10 @@ def save_video_batch(batch: GeneratedBatch, output_dir: str | Path) -> tuple[Sav
         family = batch.metadata["model"]["workflow"]
         video_path = output_dir / f"{family}-seed-{seed}-{uuid4().hex}.mp4"
         metadata_path = video_path.with_suffix(".json")
-        conditioning_path = video_path.with_suffix(".input.png")
+        conditioning_path = video_path.with_suffix(".input.png") if batch.conditioning_image is not None else None
         metadata = {
             **deepcopy(batch.metadata), "seed": seed, "video_file": video_path.name,
-            "conditioning_image": conditioning_path.name,
+            "conditioning_image": conditioning_path.name if conditioning_path else None,
             "output_video": {"width": int(width), "height": int(height), "frame_count": len(frames),
                              "fps": fps, "duration_seconds": len(frames) / fps},
             "created_at": datetime.now(timezone.utc).isoformat(),
@@ -167,11 +167,13 @@ def save_video_batch(batch: GeneratedBatch, output_dir: str | Path) -> tuple[Sav
             export_video(frames, video_path, metadata["settings"]["fps"])
             if not video_path.is_file() or video_path.stat().st_size == 0:
                 raise OSError("The encoder did not produce a video file")
-            batch.conditioning_image.save(conditioning_path, format="PNG")
+            if conditioning_path is not None:
+                batch.conditioning_image.save(conditioning_path, format="PNG")
             metadata_path.write_text(payload + "\n", encoding="utf-8")
         except Exception:
             for path in (video_path, metadata_path, conditioning_path):
-                path.unlink(missing_ok=True)
+                if path is not None:
+                    path.unlink(missing_ok=True)
             raise
         saved.append(SavedVideo(video_path, metadata_path, seed, conditioning_path))
     return tuple(saved)

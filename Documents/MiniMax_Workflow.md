@@ -2,7 +2,7 @@
 
 MiniMax is registered as the `minimax` workflow alongside SDXL, FLUX, and WAN.
 It supports the local ComfyUI-format H3 transformer, its video VAE and Qwen3-VL
-text encoder, image-to-video conditioning, and multiple model-only H3 LoRAs.
+text encoder, text-to-video and image-to-video conditioning, and multiple model-only H3 LoRAs.
 It uses native ComfyUI Python nodes directly; no ComfyUI web server is needed.
 
 The implementation follows the existing `MiniMax_Video_Gen.ipynb` generation
@@ -23,7 +23,10 @@ The shared UI contract renders H3-specific controls:
   ceiling. This rule is independent of WAN's `4*n + 1` constraint.
 - Native 24 FPS and CFG 1, rendered read-only and validated again in Python.
 - `res_multistep` sampling with the `simple` schedule and BasicGuider.
-- Source image, aspect preservation, variation count, seed, and VAE tiling.
+- A choice of text-to-video or image-to-video. Only image-to-video requires a
+  source image and exposes source-aspect preservation; text-to-video uses the
+  requested dimensions directly.
+- Variation count, seed, and VAE tiling.
 - Multiple H3 adapter strengths without separate high/low-noise expert groups.
 
 Negative prompting is unavailable in this BasicGuider implementation. Supplying a
@@ -31,8 +34,9 @@ nonempty negative prompt, changing fixed FPS/CFG, or selecting an unsupported
 sampler is rejected rather than silently ignored. Native audio is not decoded
 or exported: this adapter produces silent MP4s, matching the notebook.
 
-Web submission remains a stateless request preview, as for the other families.
-It does not run generation or save uploads/settings. To try the form without
+Web submission queues generation for the shared worker; see
+[web execution](MiniMax_UI_Execution.md). **Preview request** checks form values
+without running generation or saving uploads/settings. To try the form without
 local weights or CUDA:
 
 ```bash
@@ -102,6 +106,12 @@ request = prepare_generation(
 outputs = run_generation(request, "Videos", comfyui_dir="build/ComfyUI")
 ```
 
+For text-to-video, pass `mode="txt2vid"` to `prepare_generation()` and omit
+`inputs`. The model manifest must declare `txt2vid` in `supported_modes` (the
+shipped H3 manifest and template declare both modes). Image-to-video remains the
+default and still requires `input_image`. Both modes use the native
+`MiniMaxH3ImageToVideo` node; text-to-video omits its optional `first_frame` input.
+
 Workflow instances cache the base model, encoder, and VAE by file fingerprints.
 Adapter changes always start from the unpatched base; a zero-strength adapter
 is skipped. The loader checks that nonzero adapters actually add model patches.
@@ -110,8 +120,10 @@ releases the instance's pipeline; CLI execution closes it on completion.
 Calls must be serialized, as with the other workflows.
 
 Variations run and save sequentially rather than retaining multiple decoded
-videos. Outputs use `minimax-seed-<seed>-<uuid>.mp4`, a matching `.input.png`,
-and `.json` metadata under `Videos/`. Metadata includes the request snapshot,
+videos. Outputs use `minimax-seed-<seed>-<uuid>.mp4` and `.json` metadata under
+`Videos/`, with a matching `.input.png` only for image-to-video. Text-to-video
+records `conditioning_image: null` and no source-image metadata.
+Metadata includes the request snapshot,
 component references and resolved paths, fingerprints, conditioning dimensions,
 input hash, actual seed, runtime/ComfyUI revision, and absence of exported audio.
 The shared exporter streams frames through ImageIO/FFmpeg without importing

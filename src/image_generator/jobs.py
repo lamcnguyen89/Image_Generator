@@ -347,7 +347,7 @@ class JobStore:
                 connection.execute("INSERT INTO job_outputs VALUES (?,?,?,?,?,?,?,?)", (
                     uuid4().hex, job_id, position, "video" if video else "image",
                     str(output.video_path if video else output.image_path), str(output.metadata_path), output.seed,
-                    str(output.conditioning_path) if video else None,
+                    str(output.conditioning_path) if video and output.conditioning_path is not None else None,
                 ))
                 position += 1
 

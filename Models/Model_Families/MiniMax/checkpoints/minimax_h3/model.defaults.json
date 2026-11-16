@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "model_b065ec3d-cd27-4cb3-bcab-48797bee8b6b",
   "display_name": "MiniMax H3",
-  "description": "Local ComfyUI-format MiniMax H3 checkpoint for image-to-video generation.",
+  "description": "Local ComfyUI-format MiniMax H3 checkpoint for text-to-video and image-to-video generation.",
   "example_prompts": [],
   "example_negative_prompts": [],
   "family": "minimax",
@@ -18,7 +18,8 @@
   "notes_file": "../../README.md",
   "preview_image": "example.mp4",
   "supported_modes": [
-    "img2vid"
+    "img2vid",
+    "txt2vid"
   ],
   "components": {
     "vae": {
@@ -31,7 +32,7 @@
   },
   "requirements": {
     "runtime": "comfyui",
-    "requires_input_image": true,
+    "requires_input_image": false,
     "required_components": [
       "transformer",
       "text_encoder",

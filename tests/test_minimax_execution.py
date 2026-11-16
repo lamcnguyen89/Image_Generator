@@ -59,8 +59,8 @@ class MiniMaxExecutionTests(MiniMaxFixture, unittest.TestCase):
             raise RuntimeError("synthetic H3 sampling failure")
         return ("sampled",)
 
-    def data(self, **values):
-        page = FormPage(self.client.get("/generate/fixture-minimax").get_data(as_text=True))
+    def data(self, *, mode="img2vid", **values):
+        page = FormPage(self.client.get(f"/generate/fixture-minimax?mode={mode}").get_data(as_text=True))
         data = page.data()
         for name, value in {"action": "generate", "num_inference_steps": "4", **values}.items():
             data[name] = value
@@ -81,6 +81,93 @@ class MiniMaxExecutionTests(MiniMaxFixture, unittest.TestCase):
 
     def staged_files(self):
         return list(self.inputs.glob("*/source.*"))
+
+    def test_mode_switch_preserves_shared_edits_and_requires_image_only_for_img2vid(self):
+        data = self.data(action="change_mode", prompt="A new scene", seed="123")
+        data["mode"] = "txt2vid"
+        data.pop("enable_vae_tiling", None)
+        response = self.client.post("/generate/fixture-minimax", data=data)
+        self.assertEqual(response.status_code, 200)
+        page = FormPage(response.get_data(as_text=True))
+        self.assertEqual([item["value"] for item in page.options["mode"]], ["img2vid", "txt2vid"])
+        self.assertEqual(page.controls["prompt"][0]["value"], "A new scene")
+        self.assertEqual(page.controls["seed"][0]["value"], "123")
+        self.assertNotIn("checked", page.controls["enable_vae_tiling"][0])
+        self.assertNotIn("input_image", page.controls)
+        self.assertNotIn("preserve_aspect_ratio", page.controls)
+        self.assertIn("Generate video", response.get_data(as_text=True))
+        self.assertNotIn("Generate images", response.get_data(as_text=True))
+        back = page.data()
+        back["mode"], back["action"] = "img2vid", "change_mode"
+        response = self.client.post("/generate/fixture-minimax", data=back)
+        self.assertEqual(response.status_code, 200)
+        page = FormPage(response.get_data(as_text=True))
+        self.assertIn("required", page.controls["input_image"][0])
+        self.assertIn("preserve_aspect_ratio", page.controls)
+        missing = page.data()
+        missing["action"] = "generate"
+        self.assertEqual(self.client.post("/generate/fixture-minimax", data=missing).status_code, 422)
+        self.assertEqual(self.store.list_jobs(), ())
+        self.assertEqual(self.staged_files(), [])
+        self.load_runtime.assert_not_called()
+
+    def test_text_to_video_preview_retry_and_worker_export_without_source(self):
+        import imageio.v2 as imageio
+
+        preview = self.client.post("/generate/fixture-minimax", data=self.data(mode="txt2vid", action="preview"))
+        self.assertEqual(preview.status_code, 200)
+        self.assertEqual(FormPage(preview.get_data(as_text=True)).preview["input_files"], {})
+        data = self.data(mode="txt2vid", num_videos_per_prompt="2")
+        response = self.client.post("/generate/fixture-minimax", data=data)
+        self.assertEqual(response.status_code, 303, response.get_data(as_text=True))
+        identifier = response.location.rsplit("/", 1)[1]
+        self.assertEqual(self.client.post("/generate/fixture-minimax", data=data).location, response.location)
+        data["seed"] = "99"
+        self.assertEqual(self.client.post("/generate/fixture-minimax", data=data).status_code, 409)
+        self.assertEqual(self.staged_files(), [])
+        self.load_runtime.assert_not_called()
+        self.run_worker()
+        result = self.client.get(f"/api/jobs/{identifier}").json
+        self.assertEqual(result["status"], "completed", result["error"])
+        self.assertEqual(result["mode"], "txt2vid")
+        self.assertIsNone(result["source_url"])
+        self.assertEqual(len(result["outputs"]), 2)
+        for output in result["outputs"]:
+            self.assertIsNone(output["conditioning_url"])
+            self.assertEqual((output["width"], output["height"], output["frame_count"]), (64, 32, 5))
+            response = self.client.get(output["metadata_url"])
+            self.assertEqual(response.json["mode"], "txt2vid")
+            self.assertEqual(response.json["inputs"], {})
+            self.assertIsNone(response.json["conditioning_image"])
+            self.assertNotIn("input_image", response.json)
+            response.close()
+            response = self.client.get(output["url"], headers={"Range": "bytes=10-29"})
+            self.assertEqual(response.status_code, 206)
+            response.close()
+        records = self.store.get(identifier).outputs
+        self.assertEqual([record.seed for record in records], [42, 43])
+        self.assertTrue(all(record.conditioning_path is None for record in records))
+        self.assertEqual(list((self.videos / identifier).glob("*.png")), [])
+        with imageio.get_reader(str(records[0].file_path)) as reader:
+            self.assertEqual(reader.count_frames(), 5)
+            self.assertEqual(reader.get_data(0).shape, (32, 64, 3))
+        self.assertEqual(self.client.get(f"/jobs/{identifier}/source").status_code, 404)
+        self.assertEqual(self.client.get(f"/jobs/{identifier}/outputs/{records[0].id}/conditioning").status_code, 404)
+        html = self.client.get(f"/jobs/{identifier}").get_data(as_text=True)
+        self.assertIn("<video", html)
+        self.assertNotIn("Uploaded source", html)
+        self.assertNotIn("Exact conditioning image", html)
+
+    def test_text_to_video_rejects_uploads_and_forged_fixed_settings(self):
+        self.assertEqual(self.post(self.data(mode="txt2vid")).status_code, 422)
+        for values, status in (({"fps": "16"}, 422), ({"num_frames": "49"}, 422),
+                               ({"negative_prompt": "blur"}, 422), ({"csrf_token": "bad"}, 400)):
+            with self.subTest(values=values):
+                response = self.client.post("/generate/fixture-minimax", data=self.data(mode="txt2vid", **values))
+                self.assertEqual(response.status_code, status)
+        self.assertEqual(self.store.list_jobs(), ())
+        self.assertEqual(self.staged_files(), [])
+        self.load_runtime.assert_not_called()
 
     def test_form_exposes_generation_and_readonly_fixed_sampling(self):
         html = self.client.get("/generate/fixture-minimax").get_data(as_text=True)

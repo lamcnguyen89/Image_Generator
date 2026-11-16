@@ -49,6 +49,13 @@ def configure(model_id, settings_errors=None):
     settings = model.resolve_settings(workflow_defaults=workflow.defaults)
     form = request.form if request.method == "POST" else None
     values = display_values(ui, settings, form)
+    if form is not None and form.get("action") == "change_mode":
+        # Aspect preservation becomes visible when switching back to image-to-video.
+        # Other absent checkboxes represent unchecked controls in the previous form.
+        inherited = display_values(ui, settings)
+        for name in values:
+            if name == "preserve_aspect_ratio" and name not in form:
+                values[name] = inherited[name]
     options = lora_options(catalog, model, settings, form)
     errors, preview = {}, None
     status_code = 200
@@ -58,12 +65,12 @@ def configure(model_id, settings_errors=None):
     can_generate = (model.defaults["workflow"], mode) in {
         ("sdxl", "txt2img"), ("flux", "txt2img"), ("krea2", "txt2img"),
         ("qwen_2_1", "txt2img"),
-        ("wan", "img2vid"), ("minimax", "img2vid"),
+        ("wan", "img2vid"), ("minimax", "img2vid"), ("minimax", "txt2vid"),
     }
     if settings_errors is not None:
         action = "preview"
-    if action not in {"preview", "generate"}:
-        return render_template("error.html", title="Unknown action", message="Choose preview or generation."), 400
+    if action not in {"preview", "generate", "change_mode"}:
+        return render_template("error.html", title="Unknown action", message="Choose preview, generation, or a mode change."), 400
     if action == "generate":
         if not can_generate:
             return render_template("error.html", title="Generation unavailable", message="This model and mode do not support web submission."), 400
@@ -74,7 +81,7 @@ def configure(model_id, settings_errors=None):
     include_triggers = form is not None and form.get("include_trigger_words") == "on"
     if settings_errors is not None:
         errors.update(settings_errors)
-    elif form is not None:
+    elif form is not None and action != "change_mode":
         submitted, errors = parse_settings(ui, settings, form)
         links, lora_errors = parse_loras(options, form)
         errors.update(lora_errors)
@@ -85,6 +92,8 @@ def configure(model_id, settings_errors=None):
             except FormValidationError as error:
                 errors.update(error.errors)
         input_files, validated_source = {}, None
+        if mode == "txt2vid" and any(upload.filename for upload in request.files.values()):
+            errors["input_image"] = "Text to video does not accept source images."
         for field in ui.fields:
             if field.scope == "inputs":
                 upload = request.files.get(field.name)

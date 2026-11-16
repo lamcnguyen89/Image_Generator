@@ -2,6 +2,13 @@
 
 // Optional hints only. Python validates the submitted values independently.
 const field = (name) => document.getElementById(`field-${name.replaceAll(".", "-")}`);
+const generationMode = document.getElementById("generation-mode");
+const changeMode = document.getElementById("change-generation-mode");
+if (generationMode && changeMode) {
+  generationMode.addEventListener("change", () => {
+    changeMode.form.requestSubmit(changeMode);
+  });
+}
 document.querySelectorAll("[data-lora-id]").forEach((card) => {
   const enabled = card.querySelector('input[name="lora"]');
   const configured = card.querySelector('input[name="configured_lora"]');

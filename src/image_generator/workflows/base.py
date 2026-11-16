@@ -49,7 +49,7 @@ class SavedVideo:
     video_path: Path
     metadata_path: Path
     seed: int
-    conditioning_path: Path
+    conditioning_path: Path | None = None
 
 
 @dataclass(frozen=True)

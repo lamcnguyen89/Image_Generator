@@ -19,6 +19,10 @@ preservation, 124 frames at 24 fps, 20 `res_multistep` sampling steps with the
 must be multiples of 32; valid frame counts satisfy `num_frames % 17 == 5`.
 The negative prompt is empty because this BasicGuider workflow does not use it.
 Input images are supplied for each generation, rather than saved as model defaults.
+The checkpoint supports both `img2vid` and `txt2vid`. Choose the mode in the
+generation UI. Text-to-video uses the requested width and height directly,
+requires no source image, and saves an MP4 and metadata without a conditioning PNG.
+Image-to-video still requires a source image and offers aspect preservation.
 
 The `components` block records the included video VAE and the required
 Comfy-Org Qwen3-VL text encoder. `components.vae.weights` is relative to the
@@ -33,7 +37,8 @@ an H3-specific generation form/request preview and a catalog-backed CLI using
 native ComfyUI Python nodes. Component loading, multiple adapters, quantized
 transfer protection, H3 validation, and silent video export are implemented.
 See [MiniMax workflow setup and tests](../../../Documents/MiniMax_Workflow.md).
-The web interface remains a preview; use `scripts/generate_minimax.py` for generation.
+The web interface can queue either mode for the shared generation worker; see
+[MiniMax web execution](../../../Documents/MiniMax_UI_Execution.md).
 
 The adapter's 200 target matrix shapes match the local checkpoint. This does
 not establish successful full-video inference, so `verified_checkpoint_ids`

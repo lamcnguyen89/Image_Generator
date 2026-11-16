@@ -12,13 +12,22 @@ H3 support. See [MiniMax setup](MiniMax_Workflow.md) for checkpoint, video VAE,
 and Qwen3-VL text encoder configuration. A missing referenced encoder may be
 downloaded by the worker unless `--local-files-only` is supplied.
 
-Open a MiniMax checkpoint's **Configure generation** page, select a source image,
-enter a prompt, and choose **Generate video**. The request freezes its settings
+Open a MiniMax checkpoint's **Configure generation** page and choose **Image to
+video** or **Text to video** in **Generation mode**. The controls refresh when
+the mode changes; **Apply generation mode** also works without JavaScript.
+Shared prompt, sampling, and adapter edits are preserved. For image-to-video,
+select a source image. For text-to-video, enter a prompt and set width and height;
+no image is needed. Choose **Generate video**. The request freezes its settings
 and selected LoRA strengths without changing saved model or adapter settings.
 The web process validates and queues; the worker loads and executes native
 ComfyUI Python nodes. No separate ComfyUI server is required.
 
 ## Controls and source images
+
+Text-to-video uses the configured dimensions directly and omits image conditioning.
+Image-to-video requires a source and offers source-aspect preservation. Switching
+back to image-to-video requires selecting the source again. Both modes share
+the loaded checkpoint, encoder, VAE, and configured LoRAs in the worker.
 
 H3 uses dimensions divisible by 32 (or stricter checkpoint alignment), frame
 counts of `17*n + 5` below the 3600-frame ceiling, and silent video at 24 FPS.
@@ -51,7 +60,8 @@ persisted; tensor and preview payloads are discarded. Variation and saved-video
 counts are separate from the active sampling steps, without a whole-job ETA.
 
 Each saved MP4 appears immediately with playback, seeking, download, and metadata
-links. Results show the original source, exact conditioning PNG, actual dimensions,
+links. Image-to-video results show the original source and exact conditioning PNG;
+text-to-video saves no source or conditioning image. Both modes show actual dimensions,
 frame count, 24 FPS, duration, actual seed, and silent audio status from metadata.
 Earlier variations remain accessible if a later one fails. Output routes are
 confined to the associated job's registered files.

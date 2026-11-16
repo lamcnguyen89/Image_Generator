@@ -18,7 +18,8 @@
   "notes_file": null,
   "preview_image": null,
   "supported_modes": [
-    "img2vid"
+    "img2vid",
+    "txt2vid"
   ],
   "components": {
     "vae": {
@@ -31,7 +32,7 @@
   },
   "requirements": {
     "runtime": "comfyui",
-    "requires_input_image": true,
+    "requires_input_image": false,
     "required_components": [
       "transformer",
       "text_encoder",

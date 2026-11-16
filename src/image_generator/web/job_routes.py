@@ -21,7 +21,7 @@ STAGE_LABELS = {
     "loading_model": "Loading checkpoint", "switching_model": "Switching checkpoint",
     "reusing_model": "Reusing loaded checkpoint", "resetting_loras": "Clearing previous LoRAs",
     "resolving_text_encoder": "Resolving text encoder", "loading_text_encoder": "Loading text encoder",
-    "loading_vae": "Loading video VAE", "encoding_prompt": "Conditioning source and encoding prompt",
+    "loading_vae": "Loading video VAE", "encoding_prompt": "Encoding prompt and preparing conditioning",
     "reusing_loras": "Reusing configured LoRAs",
     "loading_loras": "Loading selected LoRAs", "loras_ready": "LoRAs configured",
     "denoising": "Denoising", "decoding": "Decoding images", "saving": "Saving outputs",

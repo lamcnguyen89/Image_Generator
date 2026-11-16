@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from image_generator.catalog import discover_catalog, initialize_asset
-from image_generator.generation import export_video, prepare_generation, run_generation
+from image_generator.generation import export_video, prepare_generation, run_generation, save_video_batch
 from image_generator.workflows.minimax import MiniMaxWorkflow, protect_quantized_transfers
 
 
@@ -107,12 +107,59 @@ class MiniMaxFixture:
         payload = json.dumps(document).encode()
         path.write_bytes(struct.pack("<Q", len(payload)) + payload + b"data")
 
-    def request(self, **overrides):
-        return prepare_generation(discover_catalog(self.root), "fixture-minimax", overrides=overrides,
-                                  inputs={"input_image": self.source})
+    def request(self, *, mode="img2vid", **overrides):
+        return prepare_generation(discover_catalog(self.root), "fixture-minimax", mode=mode, overrides=overrides,
+                                  inputs={"input_image": self.source} if mode == "img2vid" else None)
 
 
 class MiniMaxTests(MiniMaxFixture, unittest.TestCase):
+    def test_text_to_video_uses_requested_canvas_without_image_conditioning(self):
+        self.source.unlink()
+        events = []
+        self.workflow.set_progress_callback(events.append)
+        batch = self.workflow.generate(self.request(mode="txt2vid"))
+        arguments = self.runtime.h3.MiniMaxH3ImageToVideo.execute.call_args.kwargs
+        self.assertEqual((arguments["width"], arguments["height"], arguments["length"]), (64, 32, 5))
+        self.assertNotIn("first_frame", arguments)
+        self.assertNotIn("last_frame", arguments)
+        self.assertIsNone(batch.conditioning_image)
+        self.assertEqual(batch.metadata["mode"], "txt2vid")
+        self.assertEqual(batch.metadata["inputs"], {})
+        self.assertNotIn("input_image", batch.metadata)
+        self.assertNotIn("conditioning_image", [event.stage for event in events])
+        self.assertIn("encoding_prompt", [event.stage for event in events])
+
+    def test_switching_modes_reuses_components_and_rebuilds_conditioning(self):
+        for mode in ("img2vid", "txt2vid", "img2vid"):
+            self.workflow.generate(self.request(mode=mode))
+        self.runtime.sd.load_diffusion_model.assert_called_once()
+        self.runtime.sd.load_clip.assert_called_once()
+        self.runtime.sd.VAE.assert_called_once()
+        calls = self.runtime.h3.MiniMaxH3ImageToVideo.execute.call_args_list
+        self.assertEqual(["first_frame" in call.kwargs for call in calls], [True, False, True])
+
+    def test_text_to_video_export_failure_removes_partial_files(self):
+        batch = self.workflow.generate(self.request(mode="txt2vid"))
+        def fail_export(frames, path, fps):
+            path.write_bytes(b"partial video")
+            raise OSError("encoder failed")
+        directory = self.root / "failed-output"
+        with patch("image_generator.generation.export_video", side_effect=fail_export):
+            with self.assertRaisesRegex(OSError, "encoder failed"):
+                save_video_batch(batch, directory)
+        self.assertEqual(list(directory.iterdir()), [])
+
+    def test_modes_reject_missing_extra_and_undeclared_inputs_before_runtime(self):
+        catalog = discover_catalog(self.root)
+        for mode, inputs in (("img2vid", {}), ("txt2vid", {"input_image": self.source}),
+                             ("txt2vid", {"other": self.source}), ("unsupported", {})):
+            with self.subTest(mode=mode, inputs=inputs), self.assertRaises(ValueError):
+                prepare_generation(catalog, "fixture-minimax", mode=mode, inputs=inputs)
+        catalog.get_model("fixture-minimax").defaults["supported_modes"] = ["img2vid"]
+        with self.assertRaises(ValueError):
+            prepare_generation(catalog, "fixture-minimax", mode="txt2vid")
+        self.load_runtime.assert_not_called()
+
     def test_native_nodes_receive_h3_settings_and_conditioning(self):
         batch = self.workflow.generate(self.request())
         self.runtime.sd.load_diffusion_model.assert_called_once_with(str(self.checkpoint))

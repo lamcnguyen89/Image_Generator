@@ -1,4 +1,4 @@
-"""MiniMax H3 I2V using native ComfyUI Python nodes, without a ComfyUI server."""
+"""MiniMax H3 text/image-to-video using native nodes without a ComfyUI server."""
 
 from contextlib import contextmanager
 from dataclasses import replace
@@ -62,7 +62,7 @@ def protect_quantized_transfers(root, torch):
 
 
 class MiniMaxWorkflow(Workflow):
-    ui_modes = ("img2vid",)
+    ui_modes = ("img2vid", "txt2vid")
     defaults = {
         "prompt": "", "negative_prompt": "", "positive_prefix": "", "positive_suffix": "",
         "trigger_words": [], "width": 832, "height": 480, "preserve_aspect_ratio": True,
@@ -106,13 +106,16 @@ class MiniMaxWorkflow(Workflow):
             elif field.name == "negative_prompt":
                 field = replace(field, read_only=True, help="BasicGuider does not use a negative prompt; leave empty.")
             fields.append(field)
+        if mode == "img2vid":
+            fields.insert(0, UIField(
+                "input_image", "Source image", "file", "Source image", scope="inputs", required=True,
+                help="Choose a single-frame image. Generation saves the original source for this job; previews do not save uploads."))
+            fields.append(UIField(
+                "preserve_aspect_ratio", "Preserve source aspect ratio", "boolean", "Output",
+                help="Width and height set the output pixel budget; the source determines aspect ratio."))
         return definition(model, mode, workflow="minimax", supported_modes=self.ui_modes,
                           variant="minimax_h3", partial="controls/minimax.html", fields=(
-            UIField("input_image", "Source image", "file", "Source image", scope="inputs", required=True,
-                    help="Choose a single-frame image. Generation saves the original source for this job; previews do not save uploads."),
             *fields,
-            UIField("preserve_aspect_ratio", "Preserve source aspect ratio", "boolean", "Output",
-                    help="Width and height set the output pixel budget; the source determines aspect ratio."),
             UIField("num_frames", "Frame count", "integer", "Output", minimum=minimum, maximum=3600, step=step,
                     help="H3 uses 17*n + 5 frames, independently of WAN's frame rule."),
             UIField("fps", "Playback FPS", "number", "Output", minimum=24, maximum=24, read_only=True,
@@ -130,6 +133,8 @@ class MiniMaxWorkflow(Workflow):
             raise FormValidationError({"sampling": "H3 requires res_multistep with the simple schedule."})
         if settings["negative_prompt"]:
             raise FormValidationError({"negative_prompt": "BasicGuider does not support negative prompting."})
+        if type(settings["preserve_aspect_ratio"]) is not bool:
+            raise FormValidationError({"preserve_aspect_ratio": "Enter a boolean value."})
 
     @staticmethod
     def component_sources(model):
@@ -158,8 +163,11 @@ class MiniMaxWorkflow(Workflow):
         self.validate_form_settings(request.model, request.mode, request.settings)
         if not isinstance(request.prompt, str) or not request.prompt.strip() or request.negative_prompt:
             raise ValueError("MiniMax requires a nonempty prompt and no negative prompt")
-        if set(request.inputs) != {"input_image"} or not request.inputs["input_image"].is_file():
-            raise ValueError("MiniMax img2vid requires a local input_image file")
+        if request.mode == "img2vid":
+            if set(request.inputs) != {"input_image"} or not request.inputs["input_image"].is_file():
+                raise ValueError("MiniMax img2vid requires a local input_image file")
+        elif request.inputs:
+            raise ValueError("MiniMax txt2vid does not accept image inputs")
         if request.model.defaults.get("weights_component") != "transformer":
             raise ValueError("MiniMax weights_component must be transformer")
         checkpoint = request.model.asset_paths["weights"]
@@ -337,28 +345,39 @@ class MiniMaxWorkflow(Workflow):
             raise ValueError("Use generate_batches() or run_generation() to stream multiple MiniMax videos")
         return next(self.generate_batches(request))
 
+    def _prepare_input(self, request):
+        """Resolve the canvas and optional image without loading GPU components."""
+        settings = request.settings
+        width, height = settings["width"], settings["height"]
+        if request.mode == "txt2vid":
+            return width, height, None, {}
+
+        from PIL import Image, ImageOps
+
+        self.report_progress("conditioning_image")
+        path = request.inputs["input_image"]
+        payload = path.read_bytes()
+        with Image.open(BytesIO(payload)) as opened:
+            source = ImageOps.exif_transpose(opened).convert("RGB")
+        input_hash = hashlib.sha256(payload).hexdigest()
+        if settings["preserve_aspect_ratio"]:
+            ratio = source.width / source.height
+            multiple = math.lcm(32, request.model.defaults["requirements"].get("dimension_multiple", 32))
+            width = max(multiple, int(math.sqrt(width * height * ratio)) // multiple * multiple)
+            height = max(multiple, int(math.sqrt(settings["width"] * settings["height"] / ratio)) // multiple * multiple)
+            conditioning = source.resize((width, height), Image.Resampling.LANCZOS)
+        else:
+            conditioning = ImageOps.fit(source, (width, height), method=Image.Resampling.LANCZOS)
+        return width, height, conditioning, {
+            "input_image": {"path": str(path), "sha256": input_hash,
+                            "source_size": list(source.size), "conditioning_size": list(conditioning.size)},
+        }
+
     def generate_batches(self, request):
         self.validate(request)
         try:
-            from PIL import Image, ImageOps
-            import numpy as np
-
-            self.report_progress("conditioning_image")
-            payload = request.inputs["input_image"].read_bytes()
-            with Image.open(BytesIO(payload)) as opened:
-                source = ImageOps.exif_transpose(opened).convert("RGB")
-            input_hash = hashlib.sha256(payload).hexdigest()
-            del payload
             settings = request.settings
-            width, height = settings["width"], settings["height"]
-            if settings["preserve_aspect_ratio"]:
-                ratio = source.width / source.height
-                multiple = math.lcm(32, request.model.defaults["requirements"].get("dimension_multiple", 32))
-                width = max(multiple, int(math.sqrt(width * height * ratio)) // multiple * multiple)
-                height = max(multiple, int(math.sqrt(settings["width"] * settings["height"] / ratio)) // multiple * multiple)
-                conditioning = source.resize((width, height), Image.Resampling.LANCZOS)
-            else:
-                conditioning = ImageOps.fit(source, (width, height), method=Image.Resampling.LANCZOS)
+            width, height, conditioning, input_metadata = self._prepare_input(request)
             check_video_encoder()
             self.report_progress("loading_runtime")
             self._load_runtime()
@@ -371,11 +390,16 @@ class MiniMaxWorkflow(Workflow):
                 self._configure_loras(request)
                 if settings["sampling"]["sampler"] not in self._runtime.samplers.SAMPLER_NAMES or settings["sampling"]["noise_schedule"] not in self._runtime.samplers.SCHEDULER_NAMES:
                     raise ValueError("The selected sampling is unavailable in this ComfyUI checkout")
-                tensor = self._torch.from_numpy(np.array(conditioning).astype(np.float32) / 255.0).unsqueeze(0)
+                inputs = {}
+                if conditioning is not None:
+                    import numpy as np
+
+                    inputs["first_frame"] = self._torch.from_numpy(
+                        np.array(conditioning).astype(np.float32) / 255.0).unsqueeze(0)
                 self.report_progress("encoding_prompt")
                 positive, latent = self._runtime.h3.MiniMaxH3ImageToVideo.execute(
                     clip=self._pipeline["clip"], vae=self._pipeline["vae"], prompt=request.prompt,
-                    width=width, height=height, length=settings["num_frames"], first_frame=tensor).result
+                    width=width, height=height, length=settings["num_frames"], **inputs).result
             seeds = image_seeds(settings, settings["num_videos_per_prompt"])
             for index, seed in enumerate(seeds):
                 self.report_progress("video_variation", index + 1, len(seeds))
@@ -388,8 +412,7 @@ class MiniMaxWorkflow(Workflow):
                     **request_snapshot(request), "seeds": [seed], "video_index": index,
                     "component_paths": {"checkpoint": str(checkpoint), "vae": str(vae), "text_encoder": str(encoder)},
                     "asset_fingerprints": self._model_key,
-                    "input_image": {"path": str(request.inputs["input_image"]), "sha256": input_hash,
-                                    "source_size": list(source.size), "conditioning_size": list(conditioning.size)},
+                    **input_metadata,
                     "frame_count": len(frames), "duration_seconds": len(frames) / settings["fps"],
                     "audio_exported": False,
                     "runtime": {"backend": "comfyui", "device": self.device, "torch_version": self._torch.__version__,

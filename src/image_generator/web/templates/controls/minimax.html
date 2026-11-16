@@ -1,9 +1,10 @@
 <section class="card form-section" aria-labelledby="conditioning-heading">
   <h2 id="conditioning-heading">MiniMax H3 video</h2>
   <p class="muted" id="video-duration" aria-live="polite">Duration is estimated at H3's native 24 FPS.</p>
-  <img id="source-preview" class="source-preview" alt="Selected source image preview" hidden>
+  {% if ui.mode == 'img2vid' %}<img id="source-preview" class="source-preview" alt="Selected source image preview" hidden>{% endif %}
   <p class="field-help">H3 uses a single transformer with BasicGuider (CFG 1). Negative prompting and separate high/low-noise experts are not used. This workflow exports silent video.</p>
-  <p class="field-help">Preserving aspect ratio fits the source to the output pixel budget, aligned to the model's dimension requirements.</p>
+  {% if ui.mode == 'img2vid' %}<p class="field-help">Preserving aspect ratio fits the source to the output pixel budget, aligned to the model's dimension requirements.</p>
+  {% else %}<p class="field-help">Text to video generates from your prompt at the selected width and height. No source image is needed.</p>{% endif %}
   <p class="field-help">Dimensions use multiples of 32, or the checkpoint's stricter requirement. Frame counts follow 17*n + 5, up to 3600 frames. Sampling uses RES multistep with the simple schedule at 24 FPS.</p>
   <p class="field-help">Only explicitly H3-compatible LoRAs can be selected. Each has its own strength; zero skips the adapter. Compatibility declarations do not establish checkpoint verification.</p>
 </section>
