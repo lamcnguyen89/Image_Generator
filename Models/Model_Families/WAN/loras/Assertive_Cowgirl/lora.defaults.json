@@ -22,7 +22,11 @@
     "expert_target": "high_noise",
     "trained_on": "wan2.2_i2v_high_noise_14B_fp16.safetensors",
     "verified_checkpoint_ids": [],
-    "notes": "Local notes explicitly identify WAN 2.2 I2V A14B and recommend strength 0.7-1.0, normally 1.0, and high-noise guidance near 6. The exact training model filename identifies the high-noise expert even though the generic modelspec.architecture header says wan2.1/lora. Only the documented base trigger is extracted; other prompt examples remain in notes_file. Checkpoint compatibility has not been tested. Metadata was populated from local notes and weight headers."
+    "notes": "Local notes explicitly identify WAN 2.2 I2V A14B and recommend strength 0.7-1.0, normally 1.0, and high-noise guidance near 6. The exact training model filename identifies the high-noise expert even though the generic modelspec.architecture header says wan2.1/lora. Only the documented base trigger is extracted; other prompt examples remain in notes_file. Checkpoint compatibility has not been tested. Metadata was populated from local notes and weight headers. User confirmed support for both WAN 2.2 I2V A14B and T2V A14B. Noise expert selection can be overridden per model in the UI.",
+    "model_variants": [
+      "wan_2_2_i2v_a14b",
+      "wan_2_2_t2v_a14b"
+    ]
   },
   "settings": {
     "strength": 1.0,

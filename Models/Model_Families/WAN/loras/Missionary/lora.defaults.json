@@ -26,7 +26,11 @@
     "expert_target": "high_noise",
     "trained_on": null,
     "verified_checkpoint_ids": [],
-    "notes": "The local filename explicitly identifies WAN 2.2 I2V high noise and the notes discuss paired high/low-noise adapters. Only the high-noise file is present here. No exact training checkpoint metadata is embedded. Strength 0.8 is the notebook fallback, not a creator recommendation. Narrative prompt advice remains in notes_file; no mandatory activation keyword is inferred. Checkpoint compatibility has not been tested. Metadata was populated from local notes and weight headers."
+    "notes": "The local filename explicitly identifies WAN 2.2 I2V high noise and the notes discuss paired high/low-noise adapters. Only the high-noise file is present here. No exact training checkpoint metadata is embedded. Strength 0.8 is the notebook fallback, not a creator recommendation. Narrative prompt advice remains in notes_file; no mandatory activation keyword is inferred. Checkpoint compatibility has not been tested. Metadata was populated from local notes and weight headers. User confirmed support for both WAN 2.2 I2V A14B and T2V A14B. Noise expert selection can be overridden per model in the UI.",
+    "model_variants": [
+      "wan_2_2_i2v_a14b",
+      "wan_2_2_t2v_a14b"
+    ]
   },
   "settings": {
     "strength": 0.8,

@@ -74,6 +74,96 @@ class WanT2VExecutionTests(WanExecutionFixture, unittest.TestCase):
         (directory / "adapter.safetensors").write_bytes(b"test adapter")
         return document["id"]
 
+    def make_shared_lora(self, identifier):
+        asset = discover_catalog(self.catalog, initialize_missing=False).get_lora(identifier)
+        document = json.loads(asset.manifest_path.read_text())
+        document["compatibility"]["model_variants"] = ["wan_2_2_i2v_a14b", "wan_2_2_t2v_a14b"]
+        asset.manifest_path.write_text(json.dumps(document))
+        return asset
+
+    def test_shared_i2v_lora_can_be_enabled_and_loaded_in_both_modes(self):
+        identifier = "fixture-wan-high"
+        self.make_shared_lora(identifier)
+        for model_id in ("fixture-wan", "fixture-wan-t2v"):
+            page = FormPage(self.client.get(f"/generate/{model_id}").text)
+            checkbox = next(item for item in page.controls["lora"] if item["value"] == identifier)
+            self.assertNotIn("disabled", checkbox)
+            self.assertEqual(page.controls[f"expert_target:{identifier}"][0]["value"], "high_noise")
+        first = self.submit()
+        data = self.t2v_data()
+        data.setlist("lora", [identifier])
+        response = self.client.post("/generate/fixture-wan-t2v", data=data)
+        self.assertEqual(response.status_code, 303, response.text)
+        second = response.location.rsplit("/", 1)[1]
+        self.worker().run(until_idle=True)
+        self.assertEqual(self.store.get(first).status, "completed")
+        self.assertEqual(self.store.get(second).status, "completed")
+        self.pipelines[1].transformer.set_adapters.assert_called_once_with(["adapter_0"], weights=[0.8])
+        self.pipelines[1].transformer_2.set_adapters.assert_not_called()
+
+    def test_manual_expert_override_survives_queue_and_drives_loader_and_metadata(self):
+        identifier = "fixture-wan-high"
+        asset = self.make_shared_lora(identifier)
+        data = self.t2v_data()
+        data.setlist("lora", [identifier])
+        data[f"expert_target:{identifier}"] = "low_noise"
+        data[f"strength:{identifier}"] = "0.6"
+        response = self.client.post("/generate/fixture-wan-t2v", data=data)
+        self.assertEqual(response.status_code, 303, response.text)
+        job_id = response.location.rsplit("/", 1)[1]
+        queued = self.store.get(job_id)
+        self.assertEqual(queued.request["loras"][0]["settings"]["expert_target"], "low_noise")
+        self.worker().run(until_idle=True)
+        job = self.store.get(job_id)
+        self.assertEqual(job.status, "completed", job.error)
+        pipe = self.pipelines[0]
+        self.assertTrue(pipe.load_lora_weights.call_args.kwargs["load_into_transformer_2"])
+        pipe.transformer.set_adapters.assert_not_called()
+        pipe.transformer_2.set_adapters.assert_called_once_with(["adapter_0"], weights=[0.6])
+        metadata = json.loads(job.outputs[0].metadata_path.read_text())
+        self.assertEqual(metadata["loras"][0]["expert_target"], "low_noise")
+        self.assertEqual(metadata["loras"][0]["compatibility"]["expert_target"], "high_noise")
+        self.assertEqual(json.loads(asset.manifest_path.read_text())["compatibility"]["expert_target"], "high_noise")
+
+    def test_unknown_expert_can_be_chosen_and_saved_separately_for_each_mode(self):
+        identifier = "fixture-wan-unknown"
+        asset = self.make_shared_lora(identifier)
+        for model_id, target in (("fixture-wan", "high_noise"), ("fixture-wan-t2v", "low_noise")):
+            page = FormPage(self.client.get(f"/generate/{model_id}").text)
+            data = page.data()
+            data.setlist("lora", [identifier])
+            data[f"expert_target:{identifier}"] = target
+            data["action"] = "save_model"
+            response = self.client.post(f"/settings/models/{model_id}", data=data)
+            self.assertEqual(response.status_code, 303, response.text)
+        for model_id, target in (("fixture-wan", "high_noise"), ("fixture-wan-t2v", "low_noise")):
+            page = FormPage(self.client.get(f"/generate/{model_id}").text)
+            self.assertEqual(page.controls[f"expert_target:{identifier}"][0]["value"], target)
+            data = self.data() if model_id == "fixture-wan" else self.t2v_data()
+            data[f"expert_target:{identifier}"] = target
+            response = self.client.post(f"/generate/{model_id}", data=data)
+            self.assertEqual(response.status_code, 303, response.text)
+        self.worker().run(until_idle=True)
+        self.assertTrue(all(job.status == "completed" for job in self.store.list_jobs()))
+        self.assertIsNone(json.loads(asset.manifest_path.read_text())["compatibility"]["expert_target"])
+        self.assertFalse(self.pipelines[0].load_lora_weights.call_args.kwargs["load_into_transformer_2"])
+        self.assertTrue(self.pipelines[1].load_lora_weights.call_args.kwargs["load_into_transformer_2"])
+
+    def test_missing_or_forged_manual_expert_is_rejected_without_loading_models(self):
+        identifier = "fixture-wan-unknown"
+        self.make_shared_lora(identifier)
+        for target in ("", "both", "invalid"):
+            data = self.t2v_data()
+            data.setlist("lora", [identifier])
+            data[f"expert_target:{identifier}"] = target
+            response = self.client.post("/generate/fixture-wan-t2v", data=data)
+            self.assertEqual(response.status_code, 422, response.text)
+            self.assertIn("Choose the high-noise or low-noise expert", response.text)
+        with self.assertRaises(ValueError):
+            self.prepared_t2v(loras=[{"id": identifier, "enabled": True, "expert_target": "both"}])
+        self.assertEqual(self.store.list_jobs(), ())
+        self.runtime.assert_not_called()
+
     def test_catalog_has_one_wan_card_and_both_modes_resolve_to_their_checkpoint(self):
         html = self.client.get("/").get_data(as_text=True)
         self.assertEqual(html.count('>Wan 2.2</a></h3>'), 1)

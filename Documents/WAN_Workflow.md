@@ -63,11 +63,19 @@ Enabled saved model links are used unless `--no-loras` is specified. Repeating
 `--lora ID[:STRENGTH]` selects multiple adapters and replaces the saved list.
 Strength precedence is request → checkpoint link → adapter user/default setting.
 
-Every enabled WAN LoRA must declare compatible `model_variant` metadata and an
-explicit `expert_target` of `high_noise` or `low_noise`. Unknown targets/variants
-are rejected before model loading; disabled adapters are ignored. Resolve unknown
-metadata from verified evidence before enabling those entries. No weight files
-or compatibility metadata are changed by the backend.
+Every enabled WAN LoRA must declare compatible variants in
+`compatibility.model_variants`, or the legacy single `compatibility.model_variant`.
+When present, the list is authoritative. This allows one adapter to declare both
+`wan_2_2_i2v_a14b` and `wan_2_2_t2v_a14b`.
+
+The UI's **Noise expert** selector chooses `high_noise` or `low_noise` per adapter.
+Model LoRA links may specify `expert_target` to override the adapter's recorded
+target. For example, `{"id": "adapter-id", "enabled": true, "strength": 0.8,
+"expert_target": "low_noise"}` loads that selection into the low-noise expert.
+The effective choice is frozen in the queued adapter settings and output
+metadata. Missing/invalid targets and unsupported variants are rejected before
+model loading; disabled adapters are ignored. Overrides do not rewrite adapter
+metadata or weights.
 
 Adapters load into `transformer` or `transformer_2` according to that metadata.
 Each expert activates only its own adapter names and strengths. Previous adapters

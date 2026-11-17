@@ -72,6 +72,13 @@ recorded locally, relative weight and notes paths, compatibility data, strength,
 trigger words, optional prompt additions, and optional generation recommendations.
 `compatibility.expert_target` is `high_noise`, `low_noise`, or `null` when unknown.
 `compatibility.model_variant` records the intended model when established.
+The local adapters now also declare both `wan_2_2_i2v_a14b` and
+`wan_2_2_t2v_a14b` in `compatibility.model_variants`, following the user's
+confirmation of support for both modes. That list takes precedence for mode
+eligibility; the legacy single variant and training/source notes are retained.
+Each LoRA card offers a **Noise expert** dropdown. You can override a recorded
+target or choose one when it is missing. Overrides are saved in the model's
+LoRA link as `expert_target`, independently for I2V and T2V.
 
 | Adapter folder | Variant | Expert | Initial strength | Basis |
 |---|---|---|---|---|
@@ -85,8 +92,8 @@ trigger words, optional prompt additions, and optional generation recommendation
 Assertive_Cowgirl's generic architecture header says `wan2.1/lora`, but the exact
 training filename and notes explicitly identify WAN 2.2 I2V high noise; those
 more specific fields determine the catalog entry. Doggy_POV includes image
-cross-attention projection tensors; compatibility with the current two-expert
-checkpoint has not been assumed. DT contains `diff_b` bias-delta tensors, so
+cross-attention projection tensors; the supported-variants list now records the
+user's compatibility declaration. DT contains `diff_b` bias-delta tensors, so
 loader support requires validation.
 
 The base trigger for Assertive_Cowgirl and the explicit `POVdog` trigger are
@@ -107,7 +114,7 @@ Doggy_POV's companion URL is not used as its origin. Mouthful's notes contain no
 origin URL, so its source fields are `null`. No live webpage settings were
 retrieved for this change. Hashes/previews are `null`, and all verified-checkpoint
 lists are empty because no loading/generation tests were performed. Unknown
-expert targets must be resolved before the future workflow loads those adapters.
+expert targets can be chosen in the UI before the workflow loads those adapters.
 
 Each user file starts as `{"schema_version": 1, "settings": {}}`. IDs are assigned
 once; retain them when renaming files or moving folders. Checkpoint links and

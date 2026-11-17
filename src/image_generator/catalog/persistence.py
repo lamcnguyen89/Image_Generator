@@ -10,6 +10,7 @@ from pathlib import Path
 import tempfile
 
 from .discovery import discover_catalog
+from .compatibility import lora_model_variants
 from .media import example_media
 from .settings import lora_strength_minimum, resolve_settings
 from .validation import CatalogValidationError, ValidationIssue, validate_defaults, validate_user
@@ -62,16 +63,19 @@ def _scoped_overrides(existing, inherited, desired, scope, remove=()):
     return result
 
 
-def adapter_unavailable(model, asset):
+def adapter_unavailable(model, asset, *, expert_target=None, require_expert=True):
     compatibility = asset.defaults["compatibility"]
     variant = compatibility.get("model_variant")
     if asset.family != model.family:
         return "This adapter belongs to a different family."
-    if variant and model.defaults.get("model_variant") and variant != model.defaults["model_variant"]:
-        return "This adapter targets a different model variant."
     if model.defaults["workflow"] == "wan":
-        if variant != model.defaults.get("model_variant") or compatibility.get("expert_target") not in {"high_noise", "low_noise"}:
-            return "Set the WAN model variant and high-noise or low-noise expert target before use."
+        if model.defaults.get("model_variant") not in lora_model_variants(compatibility):
+            return "This adapter is not declared compatible with the selected WAN model variant."
+        target = expert_target if expert_target is not None else compatibility.get("expert_target")
+        if require_expert and target not in {"high_noise", "low_noise"}:
+            return "Choose a high-noise or low-noise expert for this WAN adapter."
+    elif variant and model.defaults.get("model_variant") and variant != model.defaults["model_variant"]:
+        return "This adapter targets a different model variant."
     if model.defaults["workflow"] == "minimax" and variant != "minimax_h3":
         return "Record explicit MiniMax H3 compatibility before using this adapter."
     return ""
@@ -207,8 +211,10 @@ def save_model_settings(catalog, model_id, desired, *, scope, expected_revision,
             asset = current.loras.get(link["id"])
             if asset is None:
                 raise ValueError("Unknown adapter ID.")
-            if link["enabled"] and adapter_unavailable(model, asset):
-                raise ValueError(adapter_unavailable(model, asset))
+            reason = adapter_unavailable(
+                model, asset, expert_target=link.get("expert_target", asset.resolve_settings().get("expert_target")))
+            if link["enabled"] and reason:
+                raise ValueError(reason)
             strength = link.get("strength", asset.resolve_settings().get("strength", 0.8))
             minimum = lora_strength_minimum(model.family)
             if minimum is not None and strength < minimum:

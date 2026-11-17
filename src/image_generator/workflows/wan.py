@@ -6,6 +6,7 @@ import json
 import math
 from time import perf_counter
 
+from image_generator.catalog.compatibility import lora_model_variants
 from .base import GeneratedBatch
 from .common import TransformerWorkflow, _nonnegative_number, check_video_encoder, file_fingerprint, image_seeds, validate_common
 
@@ -71,9 +72,9 @@ class WanWorkflow(TransformerWorkflow):
             raise ValueError("num_frames must satisfy the checkpoint frame_count rule and be 4*n + 1, at least 5")
         for selection in request.loras:
             compatibility = selection.asset.defaults["compatibility"]
-            if compatibility.get("model_variant") != model.defaults["model_variant"]:
+            if model.defaults["model_variant"] not in lora_model_variants(compatibility):
                 raise ValueError(f"WAN LoRA {selection.asset.id!r} needs an explicit compatible model_variant")
-            if compatibility.get("expert_target") not in {"high_noise", "low_noise"}:
+            if selection.expert_target not in {"high_noise", "low_noise"}:
                 raise ValueError(f"WAN LoRA {selection.asset.id!r} needs an explicit high_noise or low_noise expert_target")
 
     def get_ui_definition(self, model, mode):

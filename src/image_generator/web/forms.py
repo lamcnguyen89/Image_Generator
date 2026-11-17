@@ -68,12 +68,15 @@ def lora_options(catalog, model, settings, form=None):
     options = []
     for asset in sorted(catalog.loras.values(), key=lambda item: (item.display_name.casefold(), item.id)):
         compatibility = asset.defaults["compatibility"]
-        target = compatibility.get("expert_target")
-        reason = adapter_unavailable(model, asset)
-        if reason and asset.id not in links and not (asset.family == model.family and model.family in {"wan", "minimax"}):
-            continue
         resolved = asset.resolve_settings()
         link = links.get(asset.id, {})
+        default_target = resolved.get("expert_target", compatibility.get("expert_target"))
+        target = link.get("expert_target", default_target)
+        if form is not None:
+            target = form.get(f"expert_target:{asset.id}", target)
+        reason = adapter_unavailable(model, asset, expert_target=target, require_expert=False)
+        if reason and asset.id not in links and not (asset.family == model.family and model.family in {"wan", "minimax"}):
+            continue
         strength = link.get("strength", resolved.get("strength", 0.8))
         strength_source = "override" if "strength" in link or not link else "default"
         options.append({
@@ -85,6 +88,8 @@ def lora_options(catalog, model, settings, form=None):
             "verified": model.id in compatibility.get("verified_checkpoint_ids", []),
             "minimum_strength": lora_strength_minimum(asset.family),
             "expert": target if target in {"high_noise", "low_noise"} and not reason else "unknown",
+            "wan": model.defaults["workflow"] == "wan", "expert_target": target,
+            "default_expert_target": default_target,
         })
     return options
 
@@ -118,6 +123,14 @@ def parse_loras(options, form, *, preserve_disabled=False):
             )
             continue
         link = {"id": identifier, "enabled": identifier in enabled}
+        if item["wan"]:
+            target = form.get(f"expert_target:{identifier}", item["expert_target"])
+            if target not in {"high_noise", "low_noise"}:
+                if link["enabled"] or target not in {None, ""}:
+                    errors[f"expert_target:{identifier}"] = "Choose the high-noise or low-noise expert."
+                    continue
+            elif target != item["default_expert_target"]:
+                link["expert_target"] = target
         if source == "override":
             link["strength"] = strength
         elif not preserve_disabled:

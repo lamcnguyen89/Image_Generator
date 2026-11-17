@@ -19,6 +19,16 @@ The form validates frame count, dimensions, both guidance values, and each
 adapter's explicit expert target before queueing. Settings and adapter selections
 are frozen for that job. The web process does not import the GPU runtime.
 
+Each WAN LoRA card has a **Noise expert** dropdown. Choose **High noise** or
+**Low noise** to select which transformer loads that adapter. A recorded target
+is selected initially; missing targets stay blank until you choose. Enabled
+adapters require a choice. **Save model settings** retains overrides separately
+for the I2V and T2V checkpoints, without changing the adapter's original metadata.
+
+The local WAN adapters declare both variants in `compatibility.model_variants`.
+This prevents an I2V training label from disabling their checkboxes in T2V mode.
+Adapters without a compatible declaration remain unavailable.
+
 Image-to-video previews validate image content without saving uploads. After a preview or
 validation response, select the source again; the page explicitly reminds you.
 
@@ -94,6 +104,6 @@ expert adapter groups, clear them, and switch checkpoints on the same worker.
 
 For text-to-video, omit the source image. Verify output dimensions and video
 playback, then switch between both modes in one worker. Check that the T2V
-checkpoint reuses the notebook's shared Hugging Face cache. Only adapters with
-explicit `wan_2_2_t2v_a14b` compatibility and an expert target may be enabled for
-text-to-video; existing I2V adapters remain available for image-to-video.
+checkpoint reuses the notebook's shared Hugging Face cache. Adapters must declare
+`wan_2_2_t2v_a14b` compatibility in `model_variants` (or the legacy single
+`model_variant`) and have a selected or recorded expert target for text-to-video.

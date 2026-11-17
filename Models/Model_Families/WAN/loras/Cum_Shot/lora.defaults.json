@@ -22,7 +22,11 @@
     "expert_target": null,
     "trained_on": null,
     "verified_checkpoint_ids": [],
-    "notes": "Local source naming identifies WAN 2.2 I2V, and 5120-wide adapter tensors support the 14B layout. The file has no architecture or expert metadata and its filename does not identify high/low noise, so expert_target is null. Strength 1.0 uses the local recommendation of at least 1.0. The repeated leading example token is stored as a trigger; full prompt examples remain in notes_file. The referenced 4-6-step wrapper workflow is not assumed to be a preset for the current base-model workflow. Checkpoint compatibility has not been tested. Metadata was populated from local notes and weight headers."
+    "notes": "Local source naming identifies WAN 2.2 I2V, and 5120-wide adapter tensors support the 14B layout. The file has no architecture or expert metadata and its filename does not identify high/low noise, so expert_target is null. Strength 1.0 uses the local recommendation of at least 1.0. The repeated leading example token is stored as a trigger; full prompt examples remain in notes_file. The referenced 4-6-step wrapper workflow is not assumed to be a preset for the current base-model workflow. Checkpoint compatibility has not been tested. Metadata was populated from local notes and weight headers. User confirmed support for both WAN 2.2 I2V A14B and T2V A14B. Noise expert selection can be overridden per model in the UI.",
+    "model_variants": [
+      "wan_2_2_i2v_a14b",
+      "wan_2_2_t2v_a14b"
+    ]
   },
   "settings": {
     "strength": 1.0,

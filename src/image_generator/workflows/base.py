@@ -17,6 +17,10 @@ class LoRASelection:
     strength: float
     adapter_name: str
 
+    @property
+    def expert_target(self):
+        return self.settings.get("expert_target", self.asset.defaults["compatibility"].get("expert_target"))
+
 
 @dataclass(frozen=True)
 class GenerationRequest:

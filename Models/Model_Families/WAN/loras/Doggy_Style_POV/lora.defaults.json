@@ -25,7 +25,11 @@
     "expert_target": null,
     "trained_on": null,
     "verified_checkpoint_ids": [],
-    "notes": "Local notes identify image-to-video training on a 480p 14B model but do not explicitly establish a WAN 2.2 expert target. The adapter includes cross-attention image-projection keys (k_img), so WAN 2.2 I2V A14B compatibility is not assumed. model_variant and expert_target are null pending confirmation. Strength 0.8 is the notebook fallback; the 0.4-0.5 strength in the notes is for a separate companion LoRA, not this adapter. POVdog is explicitly documented as the trigger. Notes report possible issues with wide aspect ratios. Checkpoint compatibility has not been tested. Metadata was populated from local notes and weight headers."
+    "notes": "Local notes identify image-to-video training on a 480p 14B model but do not explicitly establish a WAN 2.2 expert target. The adapter includes cross-attention image-projection keys (k_img), so WAN 2.2 I2V A14B compatibility is not assumed. model_variant and expert_target are null pending confirmation. Strength 0.8 is the notebook fallback; the 0.4-0.5 strength in the notes is for a separate companion LoRA, not this adapter. POVdog is explicitly documented as the trigger. Notes report possible issues with wide aspect ratios. Checkpoint compatibility has not been tested. Metadata was populated from local notes and weight headers. User confirmed support for both WAN 2.2 I2V A14B and T2V A14B. Noise expert selection can be overridden per model in the UI.",
+    "model_variants": [
+      "wan_2_2_i2v_a14b",
+      "wan_2_2_t2v_a14b"
+    ]
   },
   "settings": {
     "strength": 0.8,

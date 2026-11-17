@@ -10,6 +10,7 @@ import secrets
 import subprocess
 
 from image_generator.catalog.settings import lora_strength_minimum
+from image_generator.catalog.compatibility import lora_model_variants
 
 from .base import Workflow
 
@@ -95,7 +96,8 @@ def validate_common(request, defaults, *, family, mode, count_field, samplers,
         if asset.kind != "lora" or asset.family != family:
             raise ValueError(f"LoRA {asset.id!r} does not declare {family.upper()} compatibility")
         variant = asset.defaults["compatibility"].get("model_variant")
-        if variant and variant != model.defaults.get("model_variant"):
+        variants = lora_model_variants(asset.defaults["compatibility"]) if family == "wan" else ((variant,) if variant else ())
+        if variants and model.defaults.get("model_variant") not in variants:
             raise ValueError(f"LoRA {asset.id!r} targets a different model variant")
         if asset.id in identifiers or selection.adapter_name in names:
             raise ValueError("Duplicate LoRA IDs or adapter names")
@@ -206,7 +208,7 @@ class TransformerWorkflow(Workflow):
             self._has_adapters = True
             options = {}
             if targeted:
-                options["load_into_transformer_2"] = selection.asset.defaults["compatibility"]["expert_target"] == "low_noise"
+                options["load_into_transformer_2"] = selection.expert_target == "low_noise"
             try:
                 self._load_lora(selection, **options)
             except Exception as exc:
@@ -214,7 +216,7 @@ class TransformerWorkflow(Workflow):
             self.report_progress("loading_loras", index + 1, len(request.loras))
         if targeted:
             for target, component in (("high_noise", "transformer"), ("low_noise", "transformer_2")):
-                selections = [item for item in request.loras if item.asset.defaults["compatibility"]["expert_target"] == target]
+                selections = [item for item in request.loras if item.expert_target == target]
                 if selections:
                     getattr(self._pipeline, component).set_adapters(
                         [item.adapter_name for item in selections], weights=[float(item.strength) for item in selections],

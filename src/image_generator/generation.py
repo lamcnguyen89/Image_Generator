@@ -36,6 +36,8 @@ def prepare_generation(
         except KeyError:
             raise ValueError(f"Unknown LoRA ID {link['id']!r}") from None
         adapter_settings = asset.resolve_settings()
+        if asset.family == "wan" and "expert_target" in link:
+            adapter_settings["expert_target"] = link["expert_target"]
         strength = link.get("strength", adapter_settings.get("strength"))
         if type(strength) not in (int, float):
             raise ValueError(f"LoRA {asset.id!r} needs a numeric strength")
@@ -87,6 +89,7 @@ def request_snapshot(request: GenerationRequest) -> dict:
             "strength": selection.strength, "adapter_name": selection.adapter_name,
             "settings": selection.settings,
             "compatibility": selection.asset.defaults["compatibility"],
+            **({"expert_target": selection.expert_target} if selection.asset.family == "wan" else {}),
         } for selection in request.loras],
     })
 

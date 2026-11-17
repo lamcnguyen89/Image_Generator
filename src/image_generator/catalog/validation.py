@@ -147,6 +147,11 @@ def validate_settings(
                     strength = link["strength"]
                     if not _finite_number(strength):
                         error(f"{link_field}.strength", "must be a finite number")
+                if "expert_target" in link and link["expert_target"] not in ("high_noise", "low_noise"):
+                    error(f"{link_field}.expert_target", "must be high_noise or low_noise")
+        elif name == "expert_target":
+            if value not in ("high_noise", "low_noise"):
+                error(location, "must be high_noise or low_noise")
     return issues
 
 
@@ -213,6 +218,10 @@ def validate_defaults(document: object, path: Path, kind: AssetKind) -> list[Val
         if not isinstance(compatibility, dict):
             error("compatibility", "must be an object")
         else:
+            if "model_variants" in compatibility:
+                variants = compatibility["model_variants"]
+                if not _string_list(variants) or not variants or len(set(variants)) != len(variants):
+                    error("compatibility.model_variants", "must be a nonempty list of distinct nonempty strings")
             if not _string_list(compatibility.get("verified_checkpoint_ids", [])):
                 error("compatibility.verified_checkpoint_ids", "must be a list of nonempty strings")
             for field in ("trained_on", "model_variant", "expert_target"):

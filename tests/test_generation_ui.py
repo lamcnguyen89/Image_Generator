@@ -214,7 +214,8 @@ class GenerationUITests(unittest.TestCase):
             self.assertIn(label, html)
         page = FormPage(html)
         unknown = next(control for control in page.controls["lora"] if control["value"] == "fixture-wan-unknown")
-        self.assertIn("disabled", unknown)
+        self.assertNotIn("disabled", unknown)
+        self.assertEqual(page.controls["expert_target:fixture-wan-unknown"][0]["value"], "")
         data = self.data("wan")
         del data["input_image"]
         response, _ = self.post("wan", data)

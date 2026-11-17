@@ -33,7 +33,14 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font
 pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .site-header, main, footer { width: min(1120px, calc(100% - 3rem)); margin-inline: auto; }
 .site-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.3rem; border-bottom: 1px solid var(--border); }
-.brand { color: var(--text); font-weight: 700; text-decoration: none; }
+
+.brand {
+  color: #F6FF00;       /* Title text color */
+  font-size: 3rem;      /* Approximately 32px */
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .header-actions { display: flex; align-items: center; gap: 1rem; min-width: 0; }
 .memory-card { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; max-width: 390px; padding: .65rem .85rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
 .memory-meter { flex: 1; min-width: 165px; }
