@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "model_58ca6c4e-14f3-4452-a39c-0f94dabb486e",
+  "display_name": "WAN 2.2 T2V A14B",
+  "description": "Pretrained WAN 2.2 text-to-video pipeline with high-noise and low-noise experts.",
+  "example_prompts": [],
+  "example_negative_prompts": [],
+  "family": "wan",
+  "workflow": "wan",
+  "model_variant": "wan_2_2_t2v_a14b",
+  "weights_component": "pipeline",
+  "source_url": "https://huggingface.co/Wan-AI/Wan2.2-T2V-A14B-Diffusers",
+  "source_model_id": "Wan-AI/Wan2.2-T2V-A14B-Diffusers",
+  "source_version_id": null,
+  "weights": null,
+  "sha256": null,
+  "base_model_id": "Wan-AI/Wan2.2-T2V-A14B-Diffusers",
+  "notes_file": "../../README.md",
+  "preview_image": null,
+  "supported_modes": [
+    "txt2vid"
+  ],
+  "requirements": {
+    "requires_input_image": false,
+    "required_components": [
+      "transformer",
+      "transformer_2"
+    ],
+    "dimension_multiple": 16,
+    "frame_count": {
+      "minimum": 5,
+      "step": 4,
+      "offset": 1
+    },
+    "scheduler_config": {}
+  },
+  "settings": {
+    "prompt": "",
+    "negative_prompt": "blurry, low quality, distorted, flickering, subtitles, watermark",
+    "positive_prefix": "",
+    "positive_suffix": "",
+    "trigger_words": [],
+    "width": 832,
+    "height": 480,
+    "num_frames": 81,
+    "fps": 16,
+    "num_videos_per_prompt": 1,
+    "num_inference_steps": 40,
+    "guidance_scale": 4.0,
+    "guidance_scale_2": 3.0,
+    "seed": null,
+    "enable_vae_tiling": true,
+    "sampling": {
+      "sampler": "model_default",
+      "noise_schedule": "default"
+    },
+    "loras": []
+  },
+  "example_media": [],
+  "generation_group": {
+    "id": "wan_2_2_a14b",
+    "display_name": "Wan 2.2",
+    "description": "Generate video from text or animate a source image with WAN 2.2."
+  }
+}

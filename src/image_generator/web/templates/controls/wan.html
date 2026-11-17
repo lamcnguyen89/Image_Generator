@@ -1,6 +1,10 @@
 <section class="card form-section" aria-labelledby="conditioning-heading">
   <h2 id="conditioning-heading">Video preview</h2>
   <p class="muted" id="video-duration" aria-live="polite">Duration is estimated from frame count and playback FPS.</p>
+  {% if ui.mode == 'img2vid' %}
   <img id="source-preview" class="source-preview" alt="Selected source image preview" hidden>
   <p class="field-help">Preserving aspect ratio adjusts the requested dimensions to the source image. The generated result will record its actual dimensions.</p>
+  {% else %}
+  <p class="field-help">Text to video generates from your prompt at the selected width and height. No source image is needed.</p>
+  {% endif %}
 </section>

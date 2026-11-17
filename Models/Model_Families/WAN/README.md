@@ -1,11 +1,38 @@
 # WAN checkpoint and LoRA JSON
 
-The pretrained WAN checkpoint entry and all six local LoRA folders have populated
-default/user JSON pairs. The notebook still uses its existing Python settings;
-this change only prepares catalog data. It does not load these JSON files, create
-checkpoint/LoRA links, or modify weights.
+## Text-to-video
 
-## Checkpoint
+`checkpoints/wan2_2_t2v/model.defaults.json` registers the official
+`Wan-AI/Wan2.2-T2V-A14B-Diffusers` pretrained pipeline with its own permanent ID,
+`model_variant: "wan_2_2_t2v_a14b"`, and `supported_modes: ["txt2vid"]`.
+`model.user.json` starts with empty settings overrides. The catalog entry contains
+metadata; the weights are downloaded to the shared Hugging Face cache when the
+notebook first loads the model.
+
+Use `WAN_T2V_Video_Gen.ipynb` for text-to-video and `WAN_I2V_Video_Gen.ipynb` for
+image-to-video. The T2V notebook uses `WanPipeline`, needs no source image, and
+saves MP4/JSON files without conditioning PNGs. Its defaults and the new manifest
+agree: 832×480, 81 frames at 16 FPS, 40 steps, high-noise guidance 4.0, low-noise
+guidance 3.0, and no adapters. Local overrides must be complete T2V Diffusers
+pipeline directories. Existing I2V LoRAs are not selected or assumed compatible.
+The notebook uses its editable Python settings, independently of catalog user
+overrides.
+
+The application supports both variants in `WanWorkflow`. The shipped entries
+share `generation_group` metadata and appear as one **Wan 2.2** catalog card.
+Choose **Text to video** or **Image to video** in its generation dropdown. Each
+mode selects its own checkpoint, saved defaults, and compatible adapters; the
+prompt is kept when switching. T2V jobs need no upload and save MP4/JSON outputs
+without a conditioning PNG. The worker uses the same Hugging Face cache as the
+notebook. See [web execution](../../../Documents/WAN_UI_Execution.md).
+
+Reference: [official T2V model and Diffusers example](https://huggingface.co/Wan-AI/Wan2.2-T2V-A14B-Diffusers).
+
+## Image-to-video checkpoint
+
+The I2V checkpoint entry and all six local LoRA folders have populated
+default/user JSON pairs. The I2V notebook uses its Python settings independently
+of those catalog files.
 
 `checkpoints/wan2_2_i2v_a14b/model.defaults.json` identifies the official
 `Wan-AI/Wan2.2-I2V-A14B-Diffusers` repository, a complete image-to-video pipeline
@@ -25,7 +52,7 @@ dimension multiple of 16 for this variant, and the frame-count rule
 For example, 49, 81, and 161 frames satisfy it. This is an application-specific
 constraint object, not a JSON Schema definition.
 
-The future workflow must also check the loaded model's VAE/patch alignment and
+The workflow also checks the loaded model's VAE/patch alignment and
 expert boundary configuration. Both guidance scales must enable CFG together
 (both above 1) or disable it together (both at or below 1), matching the current
 notebook's validation. `guidance_scale` controls high noise; `guidance_scale_2`

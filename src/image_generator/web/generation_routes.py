@@ -1,6 +1,7 @@
 """Generation forms, previews, and image/video queue submission; no GPU execution."""
 
 from contextlib import nullcontext
+from dataclasses import replace
 import re
 import sqlite3
 from uuid import uuid4
@@ -27,6 +28,7 @@ def configure(model_id, settings_errors=None):
     from image_generator.workflows.registry import create_workflow
     from image_generator.workflows.ui import FormValidationError
     from .forms import display_values, lora_options, parse_loras, parse_settings
+    from .generation_groups import generation_targets, generation_title
 
     catalog = get_catalog()
     try:
@@ -35,28 +37,36 @@ def configure(model_id, settings_errors=None):
         abort(404)
     try:
         workflow = create_workflow(model.defaults["workflow"])
-        modes = tuple(mode for mode in workflow.ui_modes if mode in model.defaults["supported_modes"])
+        targets = generation_targets(catalog, model, workflow.ui_modes)
+        modes = tuple(targets)
         if not modes:
             raise ValueError("This model has no modes with an implemented generation form.")
-        mode = request.form.get("mode", modes[0]) if request.method == "POST" else request.args.get("mode", modes[0])
+        default_mode = next((mode for mode in modes if mode in model.defaults["supported_modes"]), modes[0])
+        mode = request.form.get("mode", default_mode) if request.method == "POST" else request.args.get("mode", default_mode)
         if mode not in modes:
             return render_template("error.html", title="Unsupported mode",
                                    message="Choose a mode supported by this model and workflow."), 400
-        ui = workflow.get_ui_definition(model, mode)
+        model = targets[mode]
+        ui = replace(workflow.get_ui_definition(model, mode), supported_modes=modes)
     except ValueError as error:
         return render_template("error.html", title="Generation form unavailable", message=str(error)), 422
 
     settings = model.resolve_settings(workflow_defaults=workflow.defaults)
     form = request.form if request.method == "POST" else None
-    values = display_values(ui, settings, form)
-    if form is not None and form.get("action") == "change_mode":
+    changed_checkpoint = (form is not None and form.get("action") == "change_mode"
+                          and form.get("model_id", model_id) != model.id)
+    values = display_values(ui, settings, None if changed_checkpoint else form)
+    if changed_checkpoint:
+        # Each checkpoint has its own numerical defaults and compatible adapters.
+        values["prompt"] = form.get("prompt", values["prompt"])
+    elif form is not None and form.get("action") == "change_mode":
         # Aspect preservation becomes visible when switching back to image-to-video.
         # Other absent checkboxes represent unchecked controls in the previous form.
         inherited = display_values(ui, settings)
         for name in values:
             if name == "preserve_aspect_ratio" and name not in form:
                 values[name] = inherited[name]
-    options = lora_options(catalog, model, settings, form)
+    options = lora_options(catalog, model, settings, None if changed_checkpoint else form)
     errors, preview = {}, None
     status_code = 200
     action = form.get("action", "preview") if form is not None else "preview"
@@ -65,7 +75,7 @@ def configure(model_id, settings_errors=None):
     can_generate = (model.defaults["workflow"], mode) in {
         ("sdxl", "txt2img"), ("flux", "txt2img"), ("krea2", "txt2img"),
         ("qwen_2_1", "txt2img"),
-        ("wan", "img2vid"), ("minimax", "img2vid"), ("minimax", "txt2vid"),
+        ("wan", "img2vid"), ("wan", "txt2vid"), ("minimax", "img2vid"), ("minimax", "txt2vid"),
     }
     if settings_errors is not None:
         action = "preview"
@@ -149,6 +159,7 @@ def configure(model_id, settings_errors=None):
         "generate.html", model=model, ui=ui, values=values, loras=options,
         errors=errors, preview=preview, include_triggers=include_triggers,
         can_generate=can_generate, csrf_token=csrf_token(), submission_key=submission_key,
+        generation_title=generation_title(model), mode_changes_checkpoint=len({item.id for item in targets.values()}) > 1,
         settings_revision=form.get("settings_revision", "") if form is not None else settings_revision(catalog),
         settings_notice=notices.get(request.args.get("settings_result")),
     ), (status_code if status_code != 200 else 422) if errors else 200

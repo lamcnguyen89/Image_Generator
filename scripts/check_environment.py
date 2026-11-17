@@ -24,6 +24,7 @@ IMPORTS = {
             "Krea2Pipeline",
             "Krea2Transformer2DModel",
             "WanImageToVideoPipeline",
+            "WanPipeline",
             "AutoencoderKLWan",
         ),
     ),

@@ -119,13 +119,13 @@ class WebTests(unittest.TestCase):
 
         template = self.root / "templates/controls/asset_preview.html"
         template.parent.mkdir(parents=True)
-        template.write_text('{% macro asset_preview(asset, href=none) %}Original preview{% endmacro %}')
+        template.write_text('{% macro asset_preview(asset, href=none, title=none) %}Original preview{% endmacro %}')
         self.app.jinja_env.loader = ChoiceLoader([
             FileSystemLoader(self.root / "templates"), self.app.jinja_env.loader,
         ])
         self.assertIn("Original preview", self.client.get("/").text)
         previous_mtime = template.stat().st_mtime
-        template.write_text('{% macro asset_preview(asset, href=none) %}Updated preview{% endmacro %}')
+        template.write_text('{% macro asset_preview(asset, href=none, title=none) %}Updated preview{% endmacro %}')
         os.utime(template, (previous_mtime + 2, previous_mtime + 2))
         html = self.client.get("/").text
         self.assertIn("Updated preview", html)

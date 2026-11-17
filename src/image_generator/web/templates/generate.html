@@ -3,7 +3,7 @@
 {% from "controls/loras.html" import adapter_cards %}
 {% from "controls/examples.html" import example_menus %}
 {% from "controls/source_link.html" import source_link %}
-{% block title %}Configure {{ model.display_name }}{% endblock %}
+{% block title %}Configure {{ generation_title }}{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('catalog.static', filename='generation.css') }}">{% endblock %}
 {% block content %}
 {% set is_video = ui.mode in ['img2vid', 'txt2vid'] %}
@@ -12,7 +12,7 @@
 <section class="card page-heading generation-heading{{ ' generation-heading-with-media' if heading_media else '' }}" aria-labelledby="generation-title">
   <div class="generation-heading-content">
   <div class="badges"><span class="badge">{{ model.family | family_label }}</span><span class="badge accent">{{ 'Generation' if can_generate else 'Form preview' }}</span></div>
-  <h1 id="generation-title">{{ model.display_name }}</h1>
+  <h1 id="generation-title">{{ generation_title }}</h1>
   <p class="muted">{% if can_generate %}Configure your {{ 'videos' if is_video else 'images' }}, then submit them to the generation queue.{% else %}Configure your {{ 'video' if is_video else 'image' }}. Preview the request before generation is connected.{% endif %}</p>
   <div class="model-actions">
     <a href="{{ url_for('catalog.index') }}">Choose another model</a>
@@ -47,6 +47,7 @@
       <section class="card form-section">
         <label for="generation-mode">Generation mode</label><select id="generation-mode" name="mode">{% for mode in ui.supported_modes %}<option value="{{ mode }}"{% if mode == ui.mode %} selected{% endif %}>{{ mode | mode_label }}</option>{% endfor %}</select>
         {% if ui.supported_modes | length > 1 %}<button type="submit" name="action" value="change_mode" id="change-generation-mode" formnovalidate class="secondary-button">Apply generation mode</button>{% endif %}
+        {% if mode_changes_checkpoint %}<p class="field-help">Changing mode loads that checkpoint's saved settings and adapters. Your prompt is kept.</p>{% endif %}
       </section>
       <section class="card form-section" aria-labelledby="checkpoint-examples-heading">
         <h2 id="checkpoint-examples-heading">Checkpoint examples</h2>

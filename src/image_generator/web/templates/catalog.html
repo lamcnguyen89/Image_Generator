@@ -15,14 +15,15 @@
     <span class="muted">{{ family.models | length }} model{{ '' if family.models | length == 1 else 's' }} · {{ family.lora_count }} registered LoRA{{ '' if family.lora_count == 1 else 's' }}</span>
   </div>
   <div class="model-grid">
-    {% for model in family.models %}
+    {% for card in family.models %}
+    {% set model = card.model %}
     <article class="card model-card">
-      {{ asset_preview(model, url_for('generation.configure', model_id=model.id)) }}
+      {{ asset_preview(model, url_for('generation.configure', model_id=model.id), title=card.title) }}
       <div class="asset-card-body">
       <div class="badges">
-        {% for mode in model.defaults.supported_modes %}<span class="badge">{{ mode | mode_label }}</span>{% endfor %}
+        {% for mode in card.modes %}<span class="badge">{{ mode | mode_label }}</span>{% endfor %}
       </div>
-      <p class="muted description">{{ model.defaults.get('description', '') }}</p>
+      <p class="muted description">{{ card.description }}</p>
       <div class="model-actions">
       {{ source_link(model) }}
       <a class="action-link" href="{{ url_for('catalog.model_settings', model_id=model.id) }}" aria-label="View settings for {{ model.display_name }}">View settings <span aria-hidden="true">→</span></a>

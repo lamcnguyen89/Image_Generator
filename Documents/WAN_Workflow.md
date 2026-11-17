@@ -1,9 +1,16 @@
-# WAN 2.2 I2V-A14B backend
+# WAN 2.2 I2V/T2V A14B backend
 
-The WAN workflow supports `img2vid` for `wan_2_2_i2v_a14b`. It requires a local
-starting image and a complete pretrained or local Diffusers pipeline containing
-both high-noise and low-noise experts. Text-to-video and other WAN variants need
-separate implementations or extensions.
+The WAN workflow supports `img2vid` for `wan_2_2_i2v_a14b` and `txt2vid` for
+`wan_2_2_t2v_a14b`. Both use complete pretrained or local Diffusers pipelines
+containing high-noise and low-noise experts. I2V uses `WanImageToVideoPipeline`
+and requires a local starting image; T2V uses `WanPipeline` with no image input.
+Other WAN variants need separate implementations or extensions.
+
+The shipped checkpoints share one **Wan 2.2** catalog card through matching
+`generation_group` metadata. The UI dropdown selects the concrete model; model
+IDs, weights, saved settings, adapter compatibility, and queued requests remain
+specific to each variant. The worker reuses components within a checkpoint and
+reloads when the checkpoint/variant changes.
 
 ## Runner
 
@@ -73,7 +80,7 @@ additions. Trigger insertion is explicit through `--include-trigger-words`.
 Outputs go under `Videos/` or `--output-dir`:
 
 - `wan-seed-...mp4`: encoded video.
-- Matching `.input.png`: the exact resized/cropped conditioning image.
+- Matching `.input.png` for I2V only: the exact resized/cropped conditioning image.
 - Matching `.json`: settings, final prompts, model/variant, expert adapters and
   strengths, actual seed, original input path/SHA-256, oriented source size,
   conditioning size, actual pipeline arguments, scheduler, boundary, frame count,
@@ -112,13 +119,20 @@ outputs = run_generation(request, "Videos", cache_dir="Models/hub")
 print(outputs[0].video_path, outputs[0].conditioning_path)
 ```
 
-Preparation infers `img2vid` from the model's declared first mode. A retained
+For T2V, select the catalog model whose variant is `wan_2_2_t2v_a14b`, pass
+`mode="txt2vid"`, and omit `inputs`. `SavedVideo.conditioning_path` is `None` for
+these results. T2V uses the configured dimensions directly, with the same loaded
+VAE/transformer alignment checks, rather than fitting a source aspect ratio.
+Local T2V directories must declare `_class_name: "WanPipeline"` in
+`model_index.json`. Both T2V experts must have 16 input/output latent channels.
+
+Preparation infers the mode from the selected model's declared first mode. A retained
 `WanWorkflow` instance can be reused for serialized requests. Use
 `generate_batches(request)` and save each returned batch with `save_batch()`;
 release the batch before asking for the next variation. `generate(request)` is
 convenient for one video and rejects multi-video requests. Always close a retained
-workflow in `finally`. Flask and the background worker are separate application
-layers and remain unchanged.
+workflow in `finally`. See [web execution](WAN_UI_Execution.md) for the shared
+mode selector, queue, and worker.
 
 ## Verification
 

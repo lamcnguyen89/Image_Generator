@@ -33,7 +33,8 @@ class UIContractTests(unittest.TestCase):
                 self.assertEqual(len(names), len(set(names)))
                 settings = {field.name.split(".")[0] for field in ui.fields if field.scope == "settings"}
                 self.assertEqual(settings, workflow.defaults.keys() - {"loras"})
-                self.assertEqual(ui.supported_modes, workflow.ui_modes)
+                self.assertEqual(ui.supported_modes, tuple(
+                    mode for mode in workflow.ui_modes if mode in model.defaults["supported_modes"]))
                 self.assertNotIn("values", vars(ui))
                 resolved = model.resolve_settings(workflow_defaults=workflow.defaults,
                                                   request_overrides={"prompt": "A mountain lake"})

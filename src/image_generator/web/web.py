@@ -67,20 +67,24 @@ def mode_label(mode):
 
 @catalog_bp.get("/")
 def index():
+    from .generation_groups import catalog_cards
+
     catalog = get_catalog()
     groups = {}
-    for model in sorted(catalog.models.values(), key=lambda item: (
+    ordered_models = sorted(catalog.models.values(), key=lambda item: (
         FAMILY_ORDER.get(item.family, len(FAMILY_ORDER)),
         item.family, item.display_name.casefold(), item.id,
-    )):
+    ))
+    for card in catalog_cards(catalog, ordered_models):
+        model = card["model"]
         group = groups.setdefault(model.family, {"name": model.family, "models": [], "lora_count": 0})
-        group["models"].append(model)
+        group["models"].append(card)
     for lora in catalog.loras.values():
         if lora.family in groups:
             groups[lora.family]["lora_count"] += 1
     return render_template(
         "catalog.html", families=list(groups.values()),
-        model_count=len(catalog.models), lora_count=len(catalog.loras),
+        model_count=sum(len(group["models"]) for group in groups.values()), lora_count=len(catalog.loras),
     )
 
 

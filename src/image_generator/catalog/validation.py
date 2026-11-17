@@ -185,6 +185,16 @@ def validate_defaults(document: object, path: Path, kind: AssetKind) -> list[Val
     if "weights" not in document:
         error("weights", "is required (use null for a pretrained model)")
     if kind == "model":
+        group = document.get("generation_group")
+        if group is not None:
+            if not isinstance(group, dict):
+                error("generation_group", "must be an object")
+            else:
+                for key in ("id", "display_name"):
+                    if not _nonempty_string(group.get(key)):
+                        error(f"generation_group.{key}", "must be a nonempty string")
+                if "description" in group and not isinstance(group["description"], str):
+                    error("generation_group.description", "must be a string")
         if not _nonempty_string(document.get("workflow")):
             error("workflow", "must be a nonempty string")
         modes = document.get("supported_modes")

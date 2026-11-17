@@ -6,16 +6,26 @@ Start the web server and shared worker together:
 bash scripts/start.sh --device cuda:0
 ```
 
-Open a WAN checkpoint's **Configure generation** page, select a source image,
-enter a prompt, configure the video variations, and choose **Generate video**.
+Open the single **Wan 2.2** catalog card's **Configure generation** page and
+choose **Image to video** or **Text to video** in the mode dropdown. The form
+refreshes automatically; **Apply generation mode** also works without JavaScript.
+Changing modes loads that checkpoint's saved settings and adapters and keeps
+your prompt. Each queued job records the concrete checkpoint and selected mode.
+
+For image-to-video, select a source image. Text-to-video uses the requested width
+and height directly and requires no source image. Enter a prompt, configure the
+video variations, and choose **Generate video**.
 The form validates frame count, dimensions, both guidance values, and each
 adapter's explicit expert target before queueing. Settings and adapter selections
 are frozen for that job. The web process does not import the GPU runtime.
 
-Previews validate image content without saving uploads. After a preview or
+Image-to-video previews validate image content without saving uploads. After a preview or
 validation response, select the source again; the page explicitly reminds you.
 
 ## Source storage and retries
+
+Text-to-video jobs do not stage or retain source files. Their retries use the
+same submission-key checks on the checkpoint, mode, and settings.
 
 Original image bytes are stored at `data/inputs/<submission_key>/source.<format>`.
 The extension comes from decoded content; the client filename never determines
@@ -50,13 +60,14 @@ and encoding/saving. Saved video counts are separate from the active variation's
 steps; these steps do not estimate whole-job time.
 
 Each saved variation appears immediately as a playable MP4 with byte-range
-seeking and download links. The page includes the original source, the exact
-conditioning PNG, the seed, actual output dimensions, frame count, FPS, duration,
-and JSON metadata. Previously saved videos remain available if a later variation
+seeking and download links. Both modes show the seed, actual output dimensions,
+frame count, FPS, duration, and JSON metadata. Image-to-video also shows the
+original source and exact conditioning PNG; text-to-video creates neither.
+Previously saved videos remain available if a later variation
 fails. Polling appends new results without rebuilding existing video players.
 
 Queued outputs use `JOB_VIDEO_OUTPUT_ROOT` (project `Videos/<job_id>/` by default),
-including MP4, conditioning PNG, and JSON files. The standalone WAN CLI continues
+including MP4 and JSON files, plus a conditioning PNG for image-to-video. The standalone WAN CLI continues
 to default to `Videos/`. Previously saved web videos under `Images/<job_id>/`
 remain playable and downloadable.
 
@@ -64,6 +75,7 @@ remain playable and downloadable.
 
 ```bash
 .venv/bin/python -m unittest discover -s tests -p 'test_wan_execution.py' -v
+.venv/bin/python -m unittest discover -s tests -p 'test_wan_t2v_execution.py' -v
 .venv/bin/python -m unittest discover -s tests -p 'test_transformer_workflows.py' -v
 ```
 
@@ -79,3 +91,9 @@ The configured base model may need to download its pretrained components; local
 WAN weights must be a complete Diffusers pipeline containing both experts.
 Confirm playback and conditioning dimensions in the browser. Repeat with both
 expert adapter groups, clear them, and switch checkpoints on the same worker.
+
+For text-to-video, omit the source image. Verify output dimensions and video
+playback, then switch between both modes in one worker. Check that the T2V
+checkpoint reuses the notebook's shared Hugging Face cache. Only adapters with
+explicit `wan_2_2_t2v_a14b` compatibility and an expert target may be enabled for
+text-to-video; existing I2V adapters remain available for image-to-video.

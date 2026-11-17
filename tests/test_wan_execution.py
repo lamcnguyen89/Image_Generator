@@ -47,7 +47,7 @@ class VideoPipeline(Pipeline):
         return super().result(**arguments)
 
 
-class WanExecutionTests(unittest.TestCase):
+class WanExecutionFixture:
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -81,6 +81,7 @@ class WanExecutionTests(unittest.TestCase):
         diffusers = SimpleNamespace(__version__="test", WanImageToVideoPipeline=SimpleNamespace(from_pretrained=self.loader),
             AutoencoderKLWan=SimpleNamespace(from_pretrained=lambda *args, **kwargs: SimpleNamespace(
                 dtype="fp32", enable_tiling=Mock(), disable_tiling=Mock())))
+        self.diffusers = diffusers
         runtime = patch("image_generator.workflows.common.import_module", side_effect={"torch": torch, "diffusers": diffusers}.__getitem__)
         self.runtime = runtime.start()
         self.addCleanup(runtime.stop)
@@ -111,6 +112,8 @@ class WanExecutionTests(unittest.TestCase):
     def staged_files(self):
         return list(self.inputs.glob("*/source.*"))
 
+
+class WanExecutionTests(WanExecutionFixture, unittest.TestCase):
     def test_upload_is_immutable_original_bytes_and_survives_web_restart(self):
         identifier = self.submit()
         self.runtime.assert_not_called()

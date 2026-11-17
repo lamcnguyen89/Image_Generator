@@ -1,4 +1,4 @@
-{% macro asset_preview(asset, href=none) %}
+{% macro asset_preview(asset, href=none, title=none) %}
 {% set examples = asset | asset_previews %}
 {% set carousel = examples | length > 1 %}
 <div class="asset-preview{{ ' asset-preview-empty' if not examples else '' }}"{% if carousel %} data-asset-carousel role="group" aria-roledescription="carousel" aria-label="Examples for {{ asset.display_name }}"{% endif %}>
@@ -30,6 +30,6 @@
   {% else %}
   <p class="asset-preview-placeholder muted">No example media available</p>
   {% endif %}
-  <h3 class="asset-preview-title">{% if href %}<a href="{{ href }}">{{ asset.display_name }}</a>{% else %}{{ asset.display_name }}{% endif %}</h3>
+  <h3 class="asset-preview-title">{% if href %}<a href="{{ href }}">{{ title or asset.display_name }}</a>{% else %}{{ title or asset.display_name }}{% endif %}</h3>
 </div>
 {% endmacro %}

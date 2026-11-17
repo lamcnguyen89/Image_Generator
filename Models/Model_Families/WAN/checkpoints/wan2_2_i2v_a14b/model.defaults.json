@@ -3,8 +3,14 @@
   "id": "model_95f8fb96-fc3b-4cf3-8b6f-e95e8cb5209b",
   "display_name": "WAN 2.2 I2V A14B",
   "description": "Pretrained WAN 2.2 image-to-video pipeline with high-noise and low-noise experts.",
-  "example_prompts": [],
-  "example_negative_prompts": [],
+  "example_prompts": [
+    "A woman walking towards the camera",
+    "pov, facefuck. A petite girl with short raven hair and teary violet eyes has a thick veined penis violently thrusting into her mouth, the man's hands gripping her hair tightly as he forces her head down repeatedly, his entire length disappearing completely into her throat with each rough push, her lips stretched taut around the base, saliva strands snapping and reforming as he yanks her head back up, her throat bulging visibly with every deep penetration, tears streaming down her flushed cheeks mixing with smudged black eyeliner, mascara streaks forming dark trails, her uvula repeatedly stretching around the glistening shaft, gag reflex triggering with each harsh thrust causing her body to jerk involuntarily, choked gurgling sounds escaping her stuffed throat, sweat dripping down her neck as she struggles to breathe, her small breasts trembling with the violent motion, the man's hips slamming against her face rhythmically, her nostrils flaring wide during brief moments when the penis withdraws slightly before being rammed back in, her trembling hands weakly pressing against his thighs in futile resistance, spit pooling at the corners of her mouth before being stretched into thin strands during rapid upward pulls, her black choker digging into her neck as her head is yanked forward again, the veined shaft glistening with saliva and precum under the neon lights, her tear-filled eyes rolling back slightly with each overwhelming thrust, visible throat contractions massaging the length as it pistons in and out, her short hair sticking to her sweaty forehead from the brutal pace, the relentless facefucking causing continuous drool trails down her chin that drip onto her exposed collarbones.",
+    "woman with long blonde hair tied in pigtails, wearing a black choker and a pink bow, sitting on a bed with pink sheets, holding a large, erect penis in her hand. She has fair skin, blue eyes, and is looking directly at the camera with a neutral expression. The room is well-lit with natural light coming through a window on the right. The bed has a wooden headboard and a white nightstand with a vase of pink flowers. The background includes a framed picture on the wall., (pov handjob, she strokes the penis with her hand, cum shoots out of the tip of the penis, cumshot, cum splatters all over her face and breasts, her expression is happy)"
+  ],
+  "example_negative_prompts": [
+    "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走, blurry,talking, teeth visible, strong blush, zoom out, zoom in"
+  ],
   "family": "wan",
   "workflow": "wan",
   "model_variant": "wan_2_2_i2v_a14b",
@@ -58,6 +64,13 @@
     "loras": []
   },
   "example_media": [
-    "example.mp4"
-  ]
+    "B44ZFYZZ7V5KH84SS1GBPME310.mp4",
+    "example.mp4",
+    "MJ274S0K5SDTTKVAVSDDB0V0T0.mp4"
+  ],
+  "generation_group": {
+    "id": "wan_2_2_a14b",
+    "display_name": "Wan 2.2",
+    "description": "Generate video from text or animate a source image with WAN 2.2."
+  }
 }
