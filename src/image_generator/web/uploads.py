@@ -44,25 +44,40 @@ def validate_image_upload(upload):
     return payload, extension
 
 
+def validate_upload(spec, upload):
+    if spec.kind != "image":
+        raise ValueError(f"Unsupported input kind {spec.kind!r}")
+    return validate_image_upload(upload)
+
+
 @dataclass
-class StagedSource:
-    path: Path
+class StagedSources:
+    paths: dict[str, Path]
     retained: bool = False
+
+    @property
+    def path(self):
+        return self.paths["input_image"]
 
     def retain(self):
         self.retained = True
 
 
-@contextmanager
-def stage_source(submission_key, validated):
-    """Hold the submission lock through enqueue and roll back new files on failure.
+StagedSource = StagedSources
 
-    Existing sources are never replaced or removed. Per-key locks serialize
-    retries across web processes so cleanup cannot remove a concurrent job input.
-    """
+
+def _source_name(name, extension):
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name) or extension not in IMAGE_EXTENSIONS.values():
+        raise ValueError("Invalid source name or extension")
+    return f"source.{extension}" if name == "input_image" else f"input-{name}.{extension}"
+
+
+@contextmanager
+def stage_sources(submission_key, validated):
+    """Stage all named inputs atomically under one retry-stable submission lock."""
     if not re.fullmatch(r"[0-9a-f]{32}", submission_key):
         raise ValueError("Invalid submission key")
-    payload, extension = validated
+    names = {name: _source_name(name, value[1]) for name, value in validated.items()}
     root = Path(current_app.config["JOB_INPUT_ROOT"]).expanduser().resolve()
     locks = root / ".locks"
     locks.mkdir(parents=True, exist_ok=True)
@@ -74,43 +89,57 @@ def stage_source(submission_key, validated):
         if directory.is_symlink():
             raise ValueError("Input directory must not be a symlink")
         directory.mkdir(exist_ok=True)
-        path = directory / f"source.{extension}"
-        existing = list(directory.iterdir())
-        created = False
-        staged = StagedSource(path)
+        staged = StagedSources({name: directory / filename for name, filename in names.items()})
+        created = []
         try:
+            existing = set(directory.iterdir())
             if existing:
-                if existing != [path] or path.is_symlink() or path.read_bytes() != payload:
-                    raise SubmissionConflict("This form already has a different source image. Reload to create another job.")
+                if existing != set(staged.paths.values()) or any(
+                    path.is_symlink() or path.read_bytes() != validated[name][0]
+                    for name, path in staged.paths.items()
+                ):
+                    raise SubmissionConflict("This form already has different source files. Reload to create another job.")
             else:
-                with NamedTemporaryFile(dir=directory, prefix=".source-", delete=False) as stream:
-                    temporary = Path(stream.name)
-                    try:
-                        stream.write(payload)
-                        stream.flush()
-                        temporary.chmod(0o400)
-                        temporary.replace(path)
-                        created = True
-                    finally:
-                        temporary.unlink(missing_ok=True)
+                for name, path in staged.paths.items():
+                    with NamedTemporaryFile(dir=directory, prefix=".source-", delete=False) as stream:
+                        temporary = Path(stream.name)
+                        try:
+                            stream.write(validated[name][0])
+                            stream.flush()
+                            temporary.chmod(0o400)
+                            temporary.replace(path)
+                            created.append(path)
+                        finally:
+                            temporary.unlink(missing_ok=True)
             yield staged
         finally:
-            if created and not staged.retained:
-                path.unlink(missing_ok=True)
+            if not staged.retained:
+                for path in created:
+                    path.unlink(missing_ok=True)
             if not any(directory.iterdir()):
                 directory.rmdir()
 
 
-def managed_source_path(job):
-    """Only a job's registered source inside the configured input root is public."""
-    raw = job.request.get("inputs", {}).get("input_image")
+@contextmanager
+def stage_source(submission_key, validated):
+    """Compatibility entry point for callers staging a single source image."""
+    with stage_sources(submission_key, {"input_image": validated}) as staged:
+        yield staged
+
+
+def managed_source_path(job, name="input_image"):
+    """Only a registered source inside the configured input root is public."""
+    raw = job.request.get("inputs", {}).get(name)
     if not raw:
         return None
     root = Path(current_app.config["JOB_INPUT_ROOT"]).expanduser().resolve()
     path = Path(raw)
+    try:
+        allowed = {_source_name(name, extension) for extension in IMAGE_EXTENSIONS.values()}
+    except ValueError:
+        return None
     if (path.is_symlink() or path.parent.is_symlink() or not path.resolve().is_relative_to(root)
             or path.parent.parent != root or not re.fullmatch(r"[0-9a-f]{32}", path.parent.name)
-            or path.name not in {f"source.{extension}" for extension in IMAGE_EXTENSIONS.values()}
-            or not path.is_file()):
+            or path.name not in allowed or not path.is_file()):
         return None
     return path

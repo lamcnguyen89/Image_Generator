@@ -106,7 +106,7 @@ class SDXLTests(unittest.TestCase):
             DPMSolverMultistepScheduler=DPMScheduler,
         )
         self.runtime_import = patch(
-            "image_generator.workflows.sdxl.import_module",
+            "image_generator.workflows.sdxl.runtime.import_module",
             side_effect={"torch": self.torch, "diffusers": self.diffusers}.__getitem__,
         ).start()
         self.addCleanup(patch.stopall)
@@ -228,7 +228,7 @@ class SDXLTests(unittest.TestCase):
         self.assertEqual(request.prompt, "quality, model-trigger, style-trigger a lake sunlight")
 
     def test_random_seeds_and_fixed_seed_sequence_are_recorded(self):
-        with patch("image_generator.workflows.sdxl.secrets.randbelow", side_effect=[11, 23]):
+        with patch("image_generator.workflows.sdxl.runtime.secrets.randbelow", side_effect=[11, 23]):
             batch = self.workflow.generate(self.request(seed=None, num_images_per_prompt=2))
         self.assertEqual(batch.metadata["seeds"], [11, 23])
         batch = self.workflow.generate(self.request(seed=2**63 - 1, num_images_per_prompt=2, clip_skip=1))

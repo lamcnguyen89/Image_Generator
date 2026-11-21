@@ -118,8 +118,8 @@ class TransformerTests(unittest.TestCase):
             WanImageToVideoPipeline=SimpleNamespace(from_pretrained=self.wan_loader),
             AutoencoderKLWan=SimpleNamespace(from_pretrained=self.vae_loader),
         )
-        self.runtime = patch("image_generator.workflows.common.import_module", side_effect={"torch": self.torch, "diffusers": self.diffusers}.__getitem__).start()
-        self.encoder = patch("image_generator.workflows.wan.check_video_encoder").start()
+        self.runtime = patch("image_generator.workflows.shared.diffusers_runtime.import_module", side_effect={"torch": self.torch, "diffusers": self.diffusers}.__getitem__).start()
+        self.encoder = patch("image_generator.workflows.wan.runtime.check_video_encoder").start()
         self.exporter = patch("image_generator.generation.export_video", side_effect=lambda frames, path, fps: path.write_bytes(b"mock MP4")).start()
         self.addCleanup(patch.stopall)
         self.flux_workflow, self.wan_workflow = FluxWorkflow(), WanWorkflow()

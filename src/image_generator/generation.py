@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from .catalog import Catalog
 from .workflows.base import GeneratedBatch, GenerationRequest, LoRASelection, SavedImage, SavedVideo
-from .workflows.registry import create_workflow
+from .workflows.registry import create_workflow, get_definition
 
 
 def prepare_generation(
@@ -25,7 +25,7 @@ def prepare_generation(
         model = deepcopy(catalog.get_model(model_id))
     except KeyError:
         raise ValueError(f"Unknown model ID {model_id!r}") from None
-    workflow = create_workflow(model.defaults["workflow"])
+    workflow = get_definition(model.defaults["workflow"])
     settings = model.resolve_settings(workflow_defaults=workflow.defaults, request_overrides=overrides)
     loras = []
     for link in settings.get("loras", []):
@@ -35,9 +35,7 @@ def prepare_generation(
             asset = deepcopy(catalog.get_lora(link["id"]))
         except KeyError:
             raise ValueError(f"Unknown LoRA ID {link['id']!r}") from None
-        adapter_settings = asset.resolve_settings()
-        if asset.family == "wan" and "expert_target" in link:
-            adapter_settings["expert_target"] = link["expert_target"]
+        adapter_settings = workflow.adapter_policy.request_settings(asset, link)
         strength = link.get("strength", adapter_settings.get("strength"))
         if type(strength) not in (int, float):
             raise ValueError(f"LoRA {asset.id!r} needs a numeric strength")
@@ -89,7 +87,7 @@ def request_snapshot(request: GenerationRequest) -> dict:
             "strength": selection.strength, "adapter_name": selection.adapter_name,
             "settings": selection.settings,
             "compatibility": selection.asset.defaults["compatibility"],
-            **({"expert_target": selection.expert_target} if selection.asset.family == "wan" else {}),
+            **({"expert_target": selection.expert_target} if selection.expert_target is not None else {}),
         } for selection in request.loras],
     })
 

@@ -9,6 +9,12 @@ The application is in `src/image_generator/`. SDXL, FLUX, Qwen 2.1, and Krea 2 t
 and WAN 2.2 image-to-video generation have reusable backends and command-line runners.
 The notebooks remain independent experiments.
 
+Workflow integrations now live in self-contained packages under
+`src/image_generator/workflows/`. Their definitions drive forms, command-line
+options, named inputs, adapter policies, and runtime selection. See the
+[workflow architecture and extension guide](Documents/Workflow_Architecture.md)
+for adding a pipeline or isolating changes to one model.
+
 Catalog discovery, manifest validation, and settings resolution are implemented
 without GPU dependencies. Run `python scripts/inspect_catalog.py` to list models
 and LoRAs, or add `--json` to inspect their effective settings. See the

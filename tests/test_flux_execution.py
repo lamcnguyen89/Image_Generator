@@ -102,7 +102,7 @@ class FluxExecutionTests(unittest.TestCase):
             __version__="test-diffusers", FlowMatchEulerDiscreteScheduler=Scheduler,
             FluxPipeline=SimpleNamespace(from_pretrained=self.loader),
             FluxTransformer2DModel=SimpleNamespace(from_single_file=self.transformer_loader))
-        runtime = patch("image_generator.workflows.common.import_module",
+        runtime = patch("image_generator.workflows.shared.diffusers_runtime.import_module",
                         side_effect={"torch": torch, "diffusers": diffusers}.__getitem__)
         self.runtime = runtime.start()
         self.addCleanup(runtime.stop)

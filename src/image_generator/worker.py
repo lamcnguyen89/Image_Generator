@@ -15,7 +15,8 @@ from uuid import uuid4
 from .generation import save_batch
 from .job_requests import decode_request, verify_fingerprints
 from .jobs import JobStore
-from .workflows.registry import WORKFLOWS, create_workflow
+from .workflows.registry import WORKFLOWS, create_workflow, get_definition
+from .workflows.runtime import resolve_runtime_options
 
 
 LOGGER = logging.getLogger(__name__)
@@ -280,7 +281,10 @@ def main(argv=None):
     parser.add_argument("--dtype", choices=["float16", "bfloat16", "float32"])
     parser.add_argument("--cache-dir", type=Path)
     parser.add_argument("--local-files-only", action="store_true")
-    parser.add_argument("--comfyui-dir", type=Path)
+    extra_options = {option.name: option for name in WORKFLOWS
+                     for option in get_definition(name).extra_runtime_options}
+    for option in extra_options.values():
+        parser.add_argument("--" + option.name.replace("_", "-"), type=option.type, help=option.help)
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     try:
@@ -297,8 +301,8 @@ def main(argv=None):
                    "cache_dir": args.cache_dir if args.cache_dir is not None else cache_root / "hub",
                    "local_files_only": args.local_files_only,
                    "token": os.getenv("HUGGINGFACE_TOKEN") or os.getenv("HF_TOKEN") or None}
-        runtime_options = {name: dict(options) for name in WORKFLOWS}
-        runtime_options["minimax"]["comfyui_dir"] = args.comfyui_dir
+        options.update({name: getattr(args, name) for name in extra_options})
+        runtime_options = {name: resolve_runtime_options(get_definition(name), options) for name in WORKFLOWS}
         video_output_dir = args.video_output_dir or os.getenv("IMAGE_GENERATOR_JOB_VIDEO_OUTPUT_ROOT") or PROJECT_ROOT / "Videos"
         worker = Worker(JobStore(args.database), args.output_dir, video_output_dir=video_output_dir,
                         runtime_options=runtime_options,

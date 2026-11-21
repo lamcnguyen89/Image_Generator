@@ -1,12 +1,13 @@
 """Shared generation contracts, independent of GPU libraries and Flask."""
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 
 from image_generator.catalog import CatalogAsset
+
 from .ui import UIDefinition
 
 
@@ -76,17 +77,23 @@ class Workflow(ABC):
         if callback is not None:
             callback(WorkflowProgress(stage, current, total))
 
+    @property
+    def definition(self):
+        from .registry import get_definition
+
+        return get_definition(self.workflow_id)
+
     def get_ui_definition(self, model: CatalogAsset, mode: str) -> UIDefinition:
         """Describe controls without loading weights; current values are separate."""
-        raise ValueError("This workflow does not provide a generation form")
+        return self.definition.get_ui_definition(model, mode)
 
     def validate_form_settings(self, model: CatalogAsset, mode: str, settings: dict) -> None:
         """Validate form values only; full validate() still checks assets before jobs."""
-        self.get_ui_definition(model, mode).validate_settings(settings)
+        self.definition.validate_form_settings(model, mode, settings)
 
-    @abstractmethod
     def validate(self, request: GenerationRequest) -> None:
         """Validate without importing model libraries or loading weights."""
+        self.definition.validate(request)
 
     @abstractmethod
     def generate(self, request: GenerationRequest) -> GeneratedBatch:

@@ -1,3 +1,4 @@
+{% from "controls/field.html" import render_field %}
 {% from "controls/asset_preview.html" import asset_preview %}
 {% from "controls/examples.html" import example_menus %}
 {% from "controls/source_link.html" import source_link %}
@@ -12,16 +13,9 @@
     {{ source_link(item.asset) }}
   </div>
   {% if item.reason %}<p class="field-help">{{ item.reason }}</p>{% endif %}
-  {% if item.wan %}
-  <label for="expert-{{ item.asset.id }}">Noise expert</label>
-  <select id="expert-{{ item.asset.id }}" name="expert_target:{{ item.asset.id }}"{% if errors.get('expert_target:' ~ item.asset.id) %} aria-invalid="true" aria-describedby="expert-error-{{ item.asset.id }}"{% endif %}>
-    <option value=""{% if not item.expert_target %} selected{% endif %}>Choose high or low noise</option>
-    <option value="high_noise"{% if item.expert_target == 'high_noise' %} selected{% endif %}>High noise</option>
-    <option value="low_noise"{% if item.expert_target == 'low_noise' %} selected{% endif %}>Low noise</option>
-  </select>
-  <p class="field-help">Choose which expert loads this adapter. Saved with this model's settings.</p>
-  {% if errors.get('expert_target:' ~ item.asset.id) %}<p class="field-error" id="expert-error-{{ item.asset.id }}">{{ errors['expert_target:' ~ item.asset.id] }}</p>{% endif %}
-  {% endif %}
+  {% for field, values in item.link_controls %}
+  {{ render_field(field, values, errors) }}
+  {% endfor %}
   <label class="checkbox-label"><input type="checkbox" name="configured_lora" value="{{ item.asset.id }}"{% if item.configured %} checked{% endif %}>Keep in model settings when disabled</label>
   <button type="button" class="adapter-button" data-remove-lora>Remove from model settings</button>
   <label for="strength-source-{{ item.asset.id }}">Strength source</label>

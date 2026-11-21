@@ -96,7 +96,7 @@ class SDXLExecutionTests(unittest.TestCase):
             __version__="test-diffusers", StableDiffusionXLPipeline=self.loader,
             EulerDiscreteScheduler=EulerScheduler, EulerAncestralDiscreteScheduler=AncestralScheduler,
             DPMSolverMultistepScheduler=DPMScheduler)
-        runtime = patch("image_generator.workflows.sdxl.import_module", side_effect={"torch": torch, "diffusers": diffusers}.__getitem__)
+        runtime = patch("image_generator.workflows.sdxl.runtime.import_module", side_effect={"torch": torch, "diffusers": diffusers}.__getitem__)
         self.runtime = runtime.start()
         self.addCleanup(runtime.stop)
 

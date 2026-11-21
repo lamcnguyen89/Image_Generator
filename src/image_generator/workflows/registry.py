@@ -1,23 +1,29 @@
-"""Explicit, lazy workflow registry. Manifests never supply import paths."""
+"""Explicit lazy registry of trusted workflow definitions, never manifest imports."""
 
 from importlib import import_module
 
-from .base import Workflow
-
+from .definition import WorkflowDefinition
 
 WORKFLOWS = {
-    "sdxl": ("image_generator.workflows.sdxl", "SDXLWorkflow"),
-    "flux": ("image_generator.workflows.flux", "FluxWorkflow"),
-    "qwen_2_1": ("image_generator.workflows.qwen21", "Qwen21Workflow"),
-    "krea2": ("image_generator.workflows.krea2", "Krea2Workflow"),
-    "wan": ("image_generator.workflows.wan", "WanWorkflow"),
-    "minimax": ("image_generator.workflows.minimax", "MiniMaxWorkflow"),
+    "sdxl": ("image_generator.workflows.sdxl.definition", "DEFINITION"),
+    "flux": ("image_generator.workflows.flux.definition", "DEFINITION"),
+    "qwen_2_1": ("image_generator.workflows.qwen21.definition", "DEFINITION"),
+    "krea2": ("image_generator.workflows.krea2.definition", "DEFINITION"),
+    "wan": ("image_generator.workflows.wan.definition", "DEFINITION"),
+    "minimax": ("image_generator.workflows.minimax.definition", "DEFINITION"),
 }
 
 
-def create_workflow(name: str, **options) -> Workflow:
+def get_definition(name: str) -> WorkflowDefinition:
     try:
-        module, class_name = WORKFLOWS[name]
+        entry = WORKFLOWS[name]
     except KeyError:
         raise ValueError(f"Workflow {name!r} is not implemented; available: {', '.join(WORKFLOWS)}") from None
-    return getattr(import_module(module), class_name)(**options)
+    definition = entry if isinstance(entry, WorkflowDefinition) else getattr(import_module(entry[0]), entry[1])
+    if not isinstance(definition, WorkflowDefinition) or definition.name != name:
+        raise ValueError(f"Invalid workflow definition for {name!r}")
+    return definition
+
+
+def create_workflow(name: str, **options):
+    return get_definition(name).create_runtime(**options)

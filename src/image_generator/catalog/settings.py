@@ -6,8 +6,9 @@ from typing import Any
 
 
 def lora_strength_minimum(family: str) -> int | None:
-    """Qwen 2.1 supports signed adapter ratios; other workflows require >= 0."""
-    return None if family == "qwen_2_1" else 0
+    """Resolve the family integration's shared adapter strength policy."""
+    from image_generator.workflows.adapters import policy_for_family
+    return policy_for_family(family).minimum_strength
 
 
 def merge_settings(*layers: Mapping[str, Any]) -> dict[str, Any]:

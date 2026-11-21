@@ -21,7 +21,7 @@ def _error(error, status=422):
 
 @settings_bp.post("/api/models/<model_id>/settings/field")
 def model_setting_field(model_id):
-    from image_generator.workflows.registry import create_workflow
+    from image_generator.workflows.registry import get_definition
 
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
@@ -47,7 +47,7 @@ def model_setting_field(model_id):
         if (isinstance(previous, dict) and not isinstance(value, dict)
                 or isinstance(previous, list) and not isinstance(value, list)):
             raise ValueError("Keep the setting's object or list structure.")
-        workflow = create_workflow(model.defaults["workflow"])
+        workflow = get_definition(model.defaults["workflow"])
         mode = next((mode for mode in workflow.ui_modes if mode in model.defaults["supported_modes"]), None)
         if mode is None:
             raise ValueError("This checkpoint has no editable workflow mode.")
@@ -96,7 +96,7 @@ def examples(asset_id):
 
 @settings_bp.post("/settings/models/<model_id>")
 def model_settings(model_id):
-    from image_generator.workflows.registry import create_workflow
+    from image_generator.workflows.registry import get_definition
     from image_generator.workflows.ui import FormValidationError
     from .forms import lora_options, parse_loras, parse_settings
 
@@ -111,7 +111,7 @@ def model_settings(model_id):
         return _error("Choose save or reset model settings.", 400)
     mode = request.form.get("mode")
     try:
-        workflow = create_workflow(model.defaults["workflow"])
+        workflow = get_definition(model.defaults["workflow"])
         ui = workflow.get_ui_definition(model, mode)
         revision = request.form.get("settings_revision")
         if not revision or revision != settings_revision(catalog):

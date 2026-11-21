@@ -22,7 +22,7 @@
     <a href="{{ url_for('jobs.detail', job_id=job.id) }}">Refresh status</a>
   </section>
   <section class="card job-panel job-error" id="job-error" role="alert"{% if not job.error %} hidden{% endif %}><h2>Generation could not complete</h2><p id="job-error-message">{{ job.error or '' }}</p></section>
-  {% if status.source_url %}<section class="card job-panel"><h2>Uploaded source</h2><a href="{{ status.source_url }}"><img class="job-source" src="{{ status.source_url }}" alt="Original uploaded source image"></a></section>{% endif %}
+  {% for name, source_url in status.sources.items() %}<section class="card job-panel"><h2>Uploaded source: {{ name | replace('_', ' ') }}</h2><a href="{{ source_url }}"><img class="job-source" src="{{ source_url }}" alt="Original uploaded source image"></a></section>{% endfor %}
   <section class="card job-panel" aria-labelledby="outputs-heading"><h2 id="outputs-heading">Saved outputs</h2>
     <p class="muted" id="outputs-empty"{% if status.outputs %} hidden{% endif %}>{{ 'No outputs were saved.' if status.terminal else 'Outputs will appear here when saved.' }}</p>
     <div class="job-output-grid" id="job-outputs">{% for output in status.outputs %}<figure class="job-output" data-output-id="{{ output.id }}">

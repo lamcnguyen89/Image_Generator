@@ -94,7 +94,7 @@ class MiniMaxFixture:
         runtime_patch = patch.object(self.workflow, "_load_runtime", side_effect=load_runtime)
         self.load_runtime = runtime_patch.start()
         self.addCleanup(runtime_patch.stop)
-        encoder_patch = patch("image_generator.workflows.minimax.check_video_encoder")
+        encoder_patch = patch("image_generator.workflows.minimax.runtime.check_video_encoder")
         self.video_encoder = encoder_patch.start()
         self.addCleanup(encoder_patch.stop)
 

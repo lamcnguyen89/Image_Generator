@@ -25,7 +25,7 @@ def upload_too_large(error):
 @generation_bp.route("/generate/<model_id>", methods=["GET", "POST"])
 def configure(model_id, settings_errors=None):
     # Catalog browsing keeps workflow imports lazy; these modules are CPU-only.
-    from image_generator.workflows.registry import create_workflow
+    from image_generator.workflows.registry import get_definition
     from image_generator.workflows.ui import FormValidationError
     from .forms import display_values, lora_options, parse_loras, parse_settings
     from .generation_groups import generation_targets, generation_title
@@ -36,7 +36,7 @@ def configure(model_id, settings_errors=None):
     except KeyError:
         abort(404)
     try:
-        workflow = create_workflow(model.defaults["workflow"])
+        workflow = get_definition(model.defaults["workflow"])
         targets = generation_targets(catalog, model, workflow.ui_modes)
         modes = tuple(targets)
         if not modes:
@@ -60,23 +60,20 @@ def configure(model_id, settings_errors=None):
         # Each checkpoint has its own numerical defaults and compatible adapters.
         values["prompt"] = form.get("prompt", values["prompt"])
     elif form is not None and form.get("action") == "change_mode":
-        # Aspect preservation becomes visible when switching back to image-to-video.
+        # Workflow-declared controls may appear only after a mode change.
         # Other absent checkboxes represent unchecked controls in the previous form.
         inherited = display_values(ui, settings)
-        for name in values:
-            if name == "preserve_aspect_ratio" and name not in form:
-                values[name] = inherited[name]
+        for parameter in ui.fields:
+            if parameter.inherit_when_absent and parameter.name not in form:
+                values[parameter.name] = inherited[parameter.name]
     options = lora_options(catalog, model, settings, None if changed_checkpoint else form)
     errors, preview = {}, None
     status_code = 200
     action = form.get("action", "preview") if form is not None else "preview"
     submission_key = form.get("submission_key") if form is not None else None
     submission_key = submission_key or uuid4().hex
-    can_generate = (model.defaults["workflow"], mode) in {
-        ("sdxl", "txt2img"), ("flux", "txt2img"), ("krea2", "txt2img"),
-        ("qwen_2_1", "txt2img"),
-        ("wan", "img2vid"), ("wan", "txt2vid"), ("minimax", "img2vid"), ("minimax", "txt2vid"),
-    }
+    mode_definition = workflow.mode(mode)
+    can_generate = mode_definition.executable
     if settings_errors is not None:
         action = "preview"
     if action not in {"preview", "generate", "change_mode"}:
@@ -101,9 +98,11 @@ def configure(model_id, settings_errors=None):
                 workflow.validate_form_settings(model, mode, submitted)
             except FormValidationError as error:
                 errors.update(error.errors)
-        input_files, validated_source = {}, None
-        if mode == "txt2vid" and any(upload.filename for upload in request.files.values()):
-            errors["input_image"] = "Text to video does not accept source images."
+        input_files, validated_sources = {}, {}
+        declared_inputs = {spec.name: spec for spec in mode_definition.inputs}
+        for name, upload in request.files.items():
+            if upload.filename and name not in declared_inputs:
+                errors[name] = "This mode does not accept this source file."
         for field in ui.fields:
             if field.scope == "inputs":
                 upload = request.files.get(field.name)
@@ -112,11 +111,11 @@ def configure(model_id, settings_errors=None):
                         errors[field.name] = "Select a source image."
                 else:
                     input_files[field.name] = secure_filename(upload.filename) or "selected-image"
-                    if can_generate and mode == "img2vid":
-                        from .uploads import validate_image_upload
+                    if can_generate:
+                        from .uploads import validate_upload
 
                         try:
-                            validated_source = validate_image_upload(upload)
+                            validated_sources[field.name] = validate_upload(declared_inputs[field.name], upload)
                         except ValueError as error:
                             errors[field.name] = str(error)
         if not errors:
@@ -126,14 +125,14 @@ def configure(model_id, settings_errors=None):
                 from image_generator.generation import prepare_generation
                 from image_generator.jobs import SubmissionConflict
                 from .job_routes import get_job_store
-                from .uploads import stage_source
+                from .uploads import stage_sources
 
                 try:
-                    source_context = stage_source(submission_key, validated_source) if validated_source else nullcontext()
+                    source_context = stage_sources(submission_key, validated_sources) if validated_sources else nullcontext()
                     with source_context as source:
                         prepared = prepare_generation(catalog, model.id, mode=mode, overrides=submitted,
                                                       include_trigger_words=include_triggers,
-                                                      inputs={"input_image": source.path} if source else None)
+                                                      inputs=source.paths if source else None)
                         job = get_job_store().enqueue(prepared, submission_key=submission_key)
                         if source:
                             source.retain()

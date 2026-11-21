@@ -77,7 +77,10 @@ ui = workflow.get_ui_definition(model, mode)
 workflow.validate_form_settings(model, mode, settings)
 ```
 
-Each workflow declares its modes and field definitions in its own Python file.
+Each workflow declares its modes in its package's `definition.py` and its
+field definitions/defaults in `parameters.py`. The registered lightweight
+definition supplies forms without constructing the backend runtime. See the
+[workflow extension guide](Workflow_Architecture.md) for the package structure.
 Definitions contain field names, types, labels, groups, constraints, help, select
 choices, and an optional specialized template partial. They do not contain current
 values. For example, a field can address `sampling.sampler` inside nested settings.
@@ -159,8 +162,10 @@ Try default/override strength modes, shared defaults, removing all adapters,
 resetting, and submitting a second tab opened before the first tab's save.
 
 To add another checkpoint for an existing workflow, provide its manifests and
-requirements. For another workflow, implement/register it, declare `ui_modes`,
-define its fields, and add a partial if generic controls are insufficient.
+requirements. For another workflow, register a `WorkflowDefinition` declaring
+its modes, inputs, fields, validation, and backend. Executable modes enable
+submission automatically. Add package-local templates/scripts if generic
+controls are insufficient; shared routes need no workflow-specific branch.
 
 ## Preview and generation behavior
 

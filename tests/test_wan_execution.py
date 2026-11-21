@@ -82,7 +82,7 @@ class WanExecutionFixture:
             AutoencoderKLWan=SimpleNamespace(from_pretrained=lambda *args, **kwargs: SimpleNamespace(
                 dtype="fp32", enable_tiling=Mock(), disable_tiling=Mock())))
         self.diffusers = diffusers
-        runtime = patch("image_generator.workflows.common.import_module", side_effect={"torch": torch, "diffusers": diffusers}.__getitem__)
+        runtime = patch("image_generator.workflows.shared.diffusers_runtime.import_module", side_effect={"torch": torch, "diffusers": diffusers}.__getitem__)
         self.runtime = runtime.start()
         self.addCleanup(runtime.stop)
 

@@ -4,9 +4,9 @@
 {% from "controls/examples.html" import example_menus %}
 {% from "controls/source_link.html" import source_link %}
 {% block title %}Configure {{ generation_title }}{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('catalog.static', filename='generation.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('catalog.static', filename='generation.css') }}">{% for stylesheet in ui.styles %}<link rel="stylesheet" href="{{ url_for('workflow_assets.static', workflow=ui.workflow, filename=stylesheet) }}">{% endfor %}{% endblock %}
 {% block content %}
-{% set is_video = ui.mode in ['img2vid', 'txt2vid'] %}
+{% set is_video = ui.output_kind == 'video' %}
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('catalog.index') }}">Model catalog</a><span aria-hidden="true"> / </span><a href="{{ url_for('catalog.model_settings', model_id=model.id) }}">{{ model.display_name }}</a><span aria-hidden="true"> / </span><span aria-current="page">Configure</span></nav>
 {% set heading_media = model | asset_preview %}
 <section class="card page-heading generation-heading{{ ' generation-heading-with-media' if heading_media else '' }}" aria-labelledby="generation-title">
@@ -36,7 +36,7 @@
 <section class="card form-errors" role="alert" aria-labelledby="errors-heading"><h2 id="errors-heading">Check these values</h2><ul>{% for name, message in errors.items() %}<li><strong>{{ name }}</strong>: {{ message }}</li>{% endfor %}</ul></section>
 {% endif %}
 {% if settings_notice %}<p class="preview-success" role="status">{{ settings_notice }}</p>{% endif %}
-{% if request.method == 'POST' and ui.mode == 'img2vid' and request.form.get('action', 'preview') in ['preview', 'generate'] %}<p class="worker-notice" role="status">Select your source image again before submitting. Browsers clear file selections after a preview or validation response.</p>{% endif %}
+{% if request.method == 'POST' and ui.fields | selectattr('scope', 'equalto', 'inputs') | list | length > 0 and request.form.get('action', 'preview') in ['preview', 'generate'] %}<p class="worker-notice" role="status">Select your source image again before submitting. Browsers clear file selections after a preview or validation response.</p>{% endif %}
 <form method="post" action="{{ url_for('generation.configure', model_id=model.id) }}" enctype="multipart/form-data" id="generation-form">
   <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
   <input type="hidden" name="submission_key" value="{{ submission_key }}">
@@ -55,15 +55,15 @@
       </section>
       {% for group, fields in ui.groups.items() %}
         {% if group == 'Advanced' %}<details class="card form-section"><summary>Advanced settings</summary><div class="field-grid">{% for field in fields %}{{ render_field(field, values, errors) }}{% endfor %}</div></details>
-        {% else %}<fieldset class="card form-section"><legend>{{ group }}</legend><div class="field-grid">{% for field in fields %}{{ render_field(field, values, errors) }}{% endfor %}</div>{% if group == 'Sampling' and ui.workflow in ['flux', 'qwen_2_1'] %}<p class="field-help" id="cfg-status" aria-live="polite">Negative prompting requires true CFG above 1.</p>{% elif group == 'Sampling' and ui.workflow == 'krea2' %}<p class="field-help" id="krea2-cfg-status" aria-live="polite">Negative prompting requires guidance above 0.</p>{% endif %}</fieldset>{% endif %}
+        {% else %}<fieldset class="card form-section"><legend>{{ group }}</legend><div class="field-grid">{% for field in fields %}{{ render_field(field, values, errors) }}{% endfor %}</div>{% for partial_group, partial in ui.group_partials %}{% if partial_group == group %}{% include workflow_template(ui.workflow, partial) %}{% endif %}{% endfor %}</fieldset>{% endif %}
       {% endfor %}
-      {% if ui.partial %}{% include ui.partial %}{% endif %}
+      {% if ui.partial %}{% include workflow_template(ui.workflow, ui.partial) %}{% endif %}
       <section class="card form-section" aria-labelledby="loras-heading">
         <div class="section-heading"><h2 id="loras-heading">LoRAs</h2><span class="muted">{{ loras | length }} available entries</span></div>
         <p class="field-help">Enable multiple adapters and set each strength. Unverified entries still require loader compatibility checks.</p>
         {% if errors.get('loras') %}<p class="field-error">{{ errors.loras }}</p>{% endif %}
-        {% if ui.workflow == 'wan' %}
-          {% for target, label in [('high_noise', 'High-noise adapters'), ('low_noise', 'Low-noise adapters'), ('unknown', 'Unavailable or unconfigured adapters')] %}<fieldset class="adapter-group"><legend>{{ label }}</legend>{{ adapter_cards(loras | selectattr('expert', 'equalto', target) | list, errors) }}</fieldset>{% endfor %}
+        {% if ui.adapter_groups %}
+          {% for target, label in ui.adapter_groups %}<fieldset class="adapter-group"><legend>{{ label }}</legend>{{ adapter_cards(loras | selectattr('group', 'equalto', target) | list, errors) }}</fieldset>{% endfor %}
         {% else %}{{ adapter_cards(loras, errors) }}{% endif %}
         <label class="checkbox-label"><input type="checkbox" name="include_trigger_words"{% if include_triggers %} checked{% endif %}>Include model and enabled adapter trigger words</label>
       </section>
@@ -88,4 +88,5 @@
 {% block scripts %}
 <script src="{{ url_for('catalog.static', filename='generation.js') }}" defer></script>
 <script src="{{ url_for('catalog.static', filename='examples.js') }}" defer></script>
+{% for script in ui.scripts %}<script src="{{ url_for('workflow_assets.static', workflow=ui.workflow, filename=script) }}" defer></script>{% endfor %}
 {% endblock %}

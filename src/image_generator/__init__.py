@@ -45,4 +45,6 @@ def create_app(config=None):
     app.register_blueprint(jobs_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(system_bp)
+    from .web.workflow_assets import install_workflow_assets
+    install_workflow_assets(app)
     return app

@@ -18,3 +18,5 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "image_generator.web" = ["templates/*.html", "templates/controls/*.html", "static/*.css", "static/*.js"]
+
+"*" = ["templates/controls/*.html", "static/*.js", "static/*.css"]

@@ -135,6 +135,8 @@ def job_payload(job):
                      "text": progress_text(job.stage, job.current, job.total),
                      "completion_text": completion_text},
         "source_url": url_for("jobs.source", job_id=job.id) if managed_source_path(job) else None,
+        "sources": {name: url_for("jobs.named_source", job_id=job.id, input_name=name)
+                    for name in job.request.get("inputs", {}) if managed_source_path(job, name)},
         "worker_notice": notice,
         "timing": job_timing(job, worker_available=not notice),
         "events": [{"stage": event.stage, "label": stage_label(event.stage),
@@ -153,9 +155,8 @@ def output_path(job, path):
         return None
     path = path.resolve()
     roots = [current_app.config["JOB_OUTPUT_ROOT"]]
-    if job.workflow in {"minimax", "wan"}:
-        # Keep previously registered videos in Images accessible as well.
-        roots.insert(0, current_app.config["JOB_VIDEO_OUTPUT_ROOT"])
+    # Either output kind can be produced by any registered workflow.
+    roots.insert(0, current_app.config["JOB_VIDEO_OUTPUT_ROOT"])
     for root in roots:
         root = Path(root).expanduser().resolve()
         directory = (root / job.id).resolve()
@@ -166,9 +167,14 @@ def output_path(job, path):
 
 @jobs_bp.get("/jobs/<job_id>/source")
 def source(job_id):
+    return named_source(job_id, "input_image")
+
+
+@jobs_bp.get("/jobs/<job_id>/inputs/<input_name>")
+def named_source(job_id, input_name):
     from .uploads import managed_source_path
 
-    path = managed_source_path(get_job(job_id))
+    path = managed_source_path(get_job(job_id), input_name)
     if path is None:
         abort(404)
     response = send_file(path, conditional=True, max_age=0,
