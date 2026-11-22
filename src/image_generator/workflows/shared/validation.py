@@ -32,7 +32,8 @@ def _nonnegative_number(value):
 
 
 def validate_common(
-    request, defaults, *, family, mode, count_field, samplers, guidance_field="guidance_scale", dimension_base=16
+    request, defaults, *, family, mode, count_field, samplers=None, guidance_field="guidance_scale", dimension_base=16,
+    sampling_validator=None,
 ):
     model, settings = request.model, request.settings
     if model.kind != "model" or model.family != family:
@@ -62,11 +63,14 @@ def validate_common(
     sampling = settings.get("sampling")
     if not isinstance(sampling, dict) or set(sampling) != {"sampler", "noise_schedule"}:
         raise ValueError("sampling must contain sampler and noise_schedule")
-    if sampling["sampler"] not in samplers or sampling["noise_schedule"] != "default":
-        raise ValueError(f"Unsupported {family.upper()} sampling: {sampling!r}")
-    allowed = requirements.get("allowed_sampling")
-    if allowed is not None and (not isinstance(allowed, list) or sampling not in allowed):
-        raise ValueError("Sampling is prohibited by this checkpoint's allowed_sampling")
+    if sampling_validator is not None:
+        sampling_validator(family, sampling, requirements)
+    else:
+        if sampling["sampler"] not in samplers or sampling["noise_schedule"] != "default":
+            raise ValueError(f"Unsupported {family.upper()} sampling: {sampling!r}")
+        allowed = requirements.get("allowed_sampling")
+        if allowed is not None and (not isinstance(allowed, list) or sampling not in allowed):
+            raise ValueError("Sampling is prohibited by this checkpoint's allowed_sampling")
     if not isinstance(requirements.get("scheduler_config", {}), dict):
         raise ValueError("requirements.scheduler_config must be an object")
     identifiers, names = set(), set()

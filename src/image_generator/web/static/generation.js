@@ -2,6 +2,26 @@
 
 // Optional hints only. Python validates the submitted values independently.
 const field = (name) => document.getElementById(`field-${name.replaceAll(".", "-")}`);
+document.querySelectorAll("select[data-choice-source]").forEach((control) => {
+  const source = field(control.dataset.choiceSource);
+  if (!source) return;
+  const choices = JSON.parse(control.dataset.choicesBySource);
+  const update = (resetInvalid) => {
+    const allowed = choices[source.value] || [];
+    Array.from(control.options).forEach((option) => {
+      option.disabled = option.hidden = !allowed.includes(option.value);
+    });
+    if (resetInvalid && !allowed.includes(control.value)) {
+      control.value = allowed[0] || "";
+      control.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  };
+  // Keep invalid submitted values visible on validation errors until the user
+  // changes their related selection. Recommendations also send input events.
+  update(false);
+  source.addEventListener("change", () => update(true));
+  source.addEventListener("input", () => update(true));
+});
 const generationMode = document.getElementById("generation-mode");
 const changeMode = document.getElementById("change-generation-mode");
 if (generationMode && changeMode) {

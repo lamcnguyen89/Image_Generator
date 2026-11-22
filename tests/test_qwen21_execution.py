@@ -52,7 +52,8 @@ class Pipeline:
         self.set_adapters, self.set_lora_device = Mock(), Mock()
 
     def __call__(self, **arguments):
-        self.owner.calls.append({"pipeline": self, "adapters": tuple(self.adapters), "arguments": arguments})
+        self.owner.calls.append({"pipeline": self, "scheduler": self.scheduler,
+                                 "adapters": tuple(self.adapters), "arguments": arguments})
         if arguments["prompt"] == "fail generation":
             raise RuntimeError("synthetic Qwen inference failure")
         sigmas = arguments["sigmas"] if arguments["sigmas"] is not None else self.config["sample_sigmas"]
@@ -140,6 +141,61 @@ class Qwen21ExecutionTests(unittest.TestCase):
 
     def worker(self):
         return Worker(self.store, self.outputs, video_output_dir=self.videos)
+
+    def test_registered_sampling_preserves_custom_sigmas_and_repo_schedule_on_reuse(self):
+        from image_generator.catalog.persistence import settings_revision
+
+        page = FormPage(self.client.get("/generate/fixture-qwen_2_1").text)
+        self.assertEqual([option["value"] for option in page.options["sampling.sampler"]], ["flow_match_euler"])
+        rejected = self.client.post("/generate/fixture-qwen_2_1", data=self.data(**{"sampling.sampler": "model_default"}))
+        self.assertEqual(rejected.status_code, 422)
+        manifest = self.catalog_root / "QWEN_2_1/checkpoints/demo/model.defaults.json"
+        document = json.loads(manifest.read_text())
+        sampling = {"sampler": "model_default", "noise_schedule": "default"}
+        document["requirements"]["allowed_sampling"].append(sampling)
+        document["requirements"]["scheduler_config"] = {"base_shift": 0.7}
+        manifest.write_text(json.dumps(document))
+        response = self.client.post("/api/models/fixture-qwen_2_1/settings/field", json={
+            "field": "sampling", "value_text": json.dumps(sampling),
+            "csrf_token": self.data()["csrf_token"], "settings_revision": settings_revision(self.catalog()),
+        })
+        self.assertEqual(response.status_code, 200, response.text)
+        self.repo_sigmas = [1, 0.8, 0.4]
+        identifiers = [self.submit(sigmas="1, 0.5"),
+                       self.submit(**{"sampling.sampler": "flow_match_euler"}, seed="99")]
+        self.runtime.assert_not_called()
+        self.worker().run(until_idle=True)
+        for identifier, sigmas in zip(identifiers, ([1, 0.5], self.repo_sigmas), strict=True):
+            job = self.store.get(identifier)
+            self.assertEqual(job.status, "completed")
+            metadata = json.loads(job.outputs[0].metadata_path.read_text())
+            self.assertEqual(metadata["scheduler"]["config"]["base_shift"], 0.7)
+            self.assertEqual(metadata["effective_sample_sigmas"], sigmas)
+        self.assertIsNot(self.calls[0]["scheduler"], self.calls[1]["scheduler"])
+        self.assertEqual(self.loader.call_count, 1)
+        self.assertEqual([self.store.get(identifier).request["settings"]["sampling"]["sampler"] for identifier in identifiers],
+                         ["model_default", "flow_match_euler"])
+
+    def test_named_schedule_validates_against_custom_sigmas_before_queueing(self):
+        manifest = self.catalog_root / "QWEN_2_1/checkpoints/demo/model.defaults.json"
+        document = json.loads(manifest.read_text())
+        document["requirements"]["allowed_sampling"].append({"sampler": "flow_match_euler", "noise_schedule": "karras"})
+        manifest.write_text(json.dumps(document))
+        data = self.data(sigmas="1, 0.5", **{"sampling.noise_schedule": "karras"})
+        response = self.client.post("/generate/fixture-qwen_2_1", data=data)
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("Choose the Default noise schedule when supplying custom sigmas", response.text)
+        self.assertEqual(self.store.list_jobs(), ())
+        self.runtime.assert_not_called()
+        self.repo_sigmas = [1, 0.7, 0.3]
+        identifier = self.submit(**{"sampling.noise_schedule": "karras"})
+        self.worker().run(until_idle=True)
+        job = self.store.get(identifier)
+        self.assertEqual(job.status, "completed")
+        metadata = json.loads(job.outputs[0].metadata_path.read_text())
+        self.assertTrue(metadata["scheduler"]["config"]["use_karras_sigmas"])
+        self.assertEqual(metadata["input_sample_sigmas"], self.repo_sigmas)
+        self.assertEqual(metadata["effective_num_inference_steps"], 3)
 
     def test_card_order_and_shared_form_with_qwen_controls(self):
         html = self.client.get("/").get_data(as_text=True)

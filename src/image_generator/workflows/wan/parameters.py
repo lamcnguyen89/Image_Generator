@@ -35,8 +35,8 @@ def get_ui_definition(model, mode):
         common_fields,
         definition,
         frame_constraints,
-        sampling_fields,
     )
+    from ..shared.samplers.ui import sampling_fields
     from .validation import variant_definition
 
     minimum, step = frame_constraints(model.defaults["requirements"])
@@ -80,7 +80,7 @@ def get_ui_definition(model, mode):
                 minimum=0,
                 help="Must be greater than zero. Controls exported video playback.",
             ),
-            *sampling_fields(model, ("model_default",)),
+            *sampling_fields(model, workflow="wan"),
             UIField(
                 "guidance_scale_2",
                 "Low-noise guidance",

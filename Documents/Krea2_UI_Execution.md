@@ -12,6 +12,16 @@ updates when guidance or the negative prompt changes: negative prompting is
 active above guidance 0 with a nonempty negative prompt. Krea 2 does not expose
 FLUX's separate true CFG control.
 
+The sampler dropdown comes from the shared registry, filtered by the checkpoint's
+`requirements.allowed_sampling`. Big Love KreaEdit3 selects **ER SDE** by default
+and also offers **Flow match Euler**. The noise schedule is **Default**, preserving
+Krea 2's resolution-aware schedule. To edit the `sampling` row on the model page,
+enter the complete JSON object:
+
+```json
+{"sampler": "er_sde", "noise_schedule": "default"}
+```
+
 **Preview request** checks form values without loading weights or queueing a
 job. **Save model settings**, **Reset model settings**, and shared adapter
 save/reset actions use the same persistence and conflict checks as other families.
@@ -38,6 +48,8 @@ weights and the [runtime configuration](Krea2_Workflow.md).
 ```bash
 .venv/bin/python -m unittest discover -s tests -p 'test_krea2_execution.py' -v
 .venv/bin/python -m unittest discover -s tests -p 'test_ui_contract.py' -v
+.venv/bin/python -m unittest discover -s tests -p 'test_sampler_registry.py' -v
+.venv/bin/python -m unittest discover -s tests -p 'test_er_sde.py' -v
 ```
 
 Tests use the real form, queue, worker, workflow, and PNG/JSON saving with a

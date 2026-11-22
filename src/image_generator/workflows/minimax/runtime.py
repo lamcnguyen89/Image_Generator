@@ -7,6 +7,7 @@ from time import perf_counter
 from ..base import GeneratedBatch, Workflow
 from ..shared.assets import file_fingerprint
 from ..shared.seeds import image_seeds
+from ..shared.schedules import validate_schedule
 from ..shared.validation import check_video_encoder
 from .comfy_runtime import ComfyRuntimeMixin
 from .conditioning import prepare_input
@@ -70,12 +71,14 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
 
     def _render_one(self, request, positive, latent, seed):
         nodes, settings = self._runtime.sampling, request.settings
+        schedule = validate_schedule("comfyui_minimax_h3", settings["sampling"]["noise_schedule"],
+                                     request.model.defaults["requirements"])
         with self._torch.inference_mode(False), self._torch.no_grad():
             guider = nodes.BasicGuider.execute(model=self._model, conditioning=positive)[0]
             sampler = nodes.KSamplerSelect.execute(sampler_name=settings["sampling"]["sampler"])[0]
             sigmas = nodes.BasicScheduler.execute(
                 model=self._model,
-                scheduler=settings["sampling"]["noise_schedule"],
+                scheduler=schedule.native_name,
                 steps=settings["num_inference_steps"],
                 denoise=1.0,
             )[0]
@@ -121,9 +124,11 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
             with self._torch.inference_mode(False), self._torch.no_grad():
                 self._ensure_pipeline(checkpoint, vae, encoder)
                 self._configure_loras(request)
+                schedule = validate_schedule("comfyui_minimax_h3", settings["sampling"]["noise_schedule"],
+                                             request.model.defaults["requirements"])
                 if (
                     settings["sampling"]["sampler"] not in self._runtime.samplers.SAMPLER_NAMES
-                    or settings["sampling"]["noise_schedule"] not in self._runtime.samplers.SCHEDULER_NAMES
+                    or schedule.native_name not in self._runtime.samplers.SCHEDULER_NAMES
                 ):
                     raise ValueError("The selected sampling is unavailable in this ComfyUI checkout")
                 inputs = {}

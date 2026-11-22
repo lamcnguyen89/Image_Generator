@@ -12,6 +12,7 @@ from .parameters import DEFAULTS, MODES
 
 class Krea2Workflow(TransformerWorkflow):
     workflow_id = "krea2"
+    sampler_workflow_id = "krea2"
     defaults = DEFAULTS
     ui_modes = MODES
 
@@ -49,7 +50,6 @@ class Krea2Workflow(TransformerWorkflow):
         try:
             self._load_runtime()
             self._ensure_pipeline(request, file_fingerprint(request.model.asset_paths["weights"]))
-            self._configure_scheduler(request, self._diffusers.FlowMatchEulerDiscreteScheduler)
             self._configure_loras(request)
             if request.loras:
                 self._pipeline.set_lora_device(
@@ -70,6 +70,7 @@ class Krea2Workflow(TransformerWorkflow):
                 )
             }
             generators = [self._torch.Generator(device=self.device).manual_seed(seed) for seed in seeds]
+            self._configure_registered_scheduler(request, generators=generators)
             steps = settings["num_inference_steps"]
             if getattr(self, "_progress_callback", None) is not None:
 

@@ -18,6 +18,7 @@ from .validation import variant_definition
 
 class WanWorkflow(TransformerWorkflow):
     workflow_id = "wan"
+    sampler_workflow_id = "wan"
     defaults = DEFAULTS
     ui_modes = MODES
     variants = VARIANTS
@@ -143,8 +144,8 @@ class WanWorkflow(TransformerWorkflow):
             seeds = image_seeds(request.settings, request.settings["num_videos_per_prompt"])
             for index, seed in enumerate(seeds):
                 self.report_progress("video_variation", index + 1, len(seeds))
-                self._configure_scheduler(request)
                 generator = self._torch.Generator(device=self.device).manual_seed(seed)
+                self._configure_registered_scheduler(request, generators=[generator])
                 self._synchronize()
                 start = perf_counter()
                 steps = request.settings["num_inference_steps"]

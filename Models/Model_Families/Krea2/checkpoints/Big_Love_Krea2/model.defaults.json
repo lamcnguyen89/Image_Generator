@@ -41,6 +41,10 @@
     "scheduler_config": {},
     "allowed_sampling": [
       {
+        "sampler": "er_sde",
+        "noise_schedule": "default"
+      },
+      {
         "sampler": "flow_match_euler",
         "noise_schedule": "default"
       }

@@ -14,6 +14,7 @@ from .validation import validate_sigmas
 
 class Qwen21Workflow(TransformerWorkflow):
     workflow_id = "qwen_2_1"
+    sampler_workflow_id = "qwen_2_1"
     defaults = DEFAULTS
     ui_modes = MODES
 
@@ -48,7 +49,6 @@ class Qwen21Workflow(TransformerWorkflow):
         try:
             self._load_runtime()
             self._ensure_pipeline(request, file_fingerprint(request.model.asset_paths["weights"]))
-            self._configure_scheduler(request, self._diffusers.FlowMatchEulerDiscreteScheduler)
             self._configure_loras(request)
             if request.loras:
                 self._pipeline.set_lora_device(
@@ -78,6 +78,7 @@ class Qwen21Workflow(TransformerWorkflow):
             steps = len(effective_sigmas) if effective_sigmas is not None else settings["num_inference_steps"]
             cfg_enabled = settings["true_cfg_scale"] > 1 and bool(request.negative_prompt)
             generators = [self._torch.Generator(device=self.device).manual_seed(seed) for seed in seeds]
+            self._configure_registered_scheduler(request, generators=generators)
             if getattr(self, "_progress_callback", None) is not None:
 
                 def on_step_end(pipeline, step, timestep, tensors):
@@ -106,16 +107,21 @@ class Qwen21Workflow(TransformerWorkflow):
                 raise RuntimeError("The Qwen 2.1 pipeline returned an unexpected image count")
             from image_generator.generation import request_snapshot
 
+            schedule_metadata = self._scheduler_metadata()
+            actual_sigmas = schedule_metadata.get("sigmas")
+            sampled_sigmas = actual_sigmas[:-1] if actual_sigmas is not None else effective_sigmas
+
             return GeneratedBatch(
                 images,
                 {
                     **request_snapshot(request),
                     "seeds": seeds,
-                    "scheduler": self._scheduler_metadata(),
+                    "scheduler": schedule_metadata,
                     "true_cfg_enabled": cfg_enabled,
                     "negative_prompt_enabled": cfg_enabled,
                     "effective_num_inference_steps": steps,
-                    "effective_sample_sigmas": effective_sigmas,
+                    "input_sample_sigmas": effective_sigmas,
+                    "effective_sample_sigmas": sampled_sigmas,
                     "runtime": self._runtime_metadata(elapsed),
                 },
             )

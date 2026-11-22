@@ -54,7 +54,8 @@ class Pipeline:
         self.set_adapters = Mock()
 
     def __call__(self, **arguments):
-        self.owner.calls.append({"pipeline": self, "adapters": tuple(self.adapters), "arguments": arguments})
+        self.owner.calls.append({"pipeline": self, "scheduler": self.scheduler,
+                                 "adapters": tuple(self.adapters), "arguments": arguments})
         if arguments["prompt"] == "fail generation":
             raise RuntimeError("synthetic FLUX inference failure")
         self.num_timesteps = arguments["num_inference_steps"]
@@ -123,6 +124,58 @@ class FluxExecutionTests(unittest.TestCase):
 
     def worker(self):
         return Worker(self.store, self.outputs, video_output_dir=self.videos)
+
+    def test_registered_sampling_saves_and_uses_fresh_scheduler_with_model_reuse(self):
+        from image_generator.catalog.persistence import settings_revision
+
+        page = FormPage(self.client.get("/generate/fixture-flux").text)
+        self.assertEqual([option["value"] for option in page.options["sampling.sampler"]], ["flow_match_euler"])
+        rejected = self.client.post("/generate/fixture-flux", data=self.data(**{"sampling.sampler": "model_default"}))
+        self.assertEqual(rejected.status_code, 422)
+        manifest = self.catalog_root / "FLUX/checkpoints/demo/model.defaults.json"
+        document = json.loads(manifest.read_text())
+        sampling = {"sampler": "model_default", "noise_schedule": "beta"}
+        document["requirements"]["allowed_sampling"].append(sampling)
+        document["requirements"]["allowed_sampling"].append({"sampler": "flow_match_euler", "noise_schedule": "exponential"})
+        document["requirements"]["scheduler_config"] = {"shift": 3.0}
+        manifest.write_text(json.dumps(document))
+        response = self.client.post("/api/models/fixture-flux/settings/field", json={
+            "field": "sampling", "value_text": json.dumps(sampling),
+            "csrf_token": self.data()["csrf_token"],
+            "settings_revision": settings_revision(discover_catalog(self.catalog_root)),
+        })
+        self.assertEqual(response.status_code, 200, response.text)
+        identifiers = [self.submit(), self.submit(**{"sampling.sampler": "flow_match_euler",
+                                                     "sampling.noise_schedule": "exponential"}, seed="99")]
+        self.runtime.assert_not_called()
+        self.worker().run(until_idle=True)
+        for identifier, curve in zip(identifiers, ("beta", "exponential"), strict=True):
+            job = self.store.get(identifier)
+            self.assertEqual(job.status, "completed")
+            metadata = json.loads(job.outputs[0].metadata_path.read_text())
+            self.assertEqual(metadata["scheduler"]["config"]["shift"], 3.0)
+            self.assertTrue(metadata["scheduler"]["config"][f"use_{curve}_sigmas"])
+        self.assertIsNot(self.calls[0]["scheduler"], self.calls[1]["scheduler"])
+        self.assertEqual(self.loader.call_count, 1)
+        self.assertEqual([self.store.get(identifier).request["settings"]["sampling"]["sampler"] for identifier in identifiers],
+                         ["model_default", "flow_match_euler"])
+
+    def test_derived_flux_workflow_reuses_base_sampler_bindings_during_generation(self):
+        from dataclasses import replace
+        from image_generator.workflows.registry import WORKFLOWS, get_definition
+
+        manifest = self.catalog_root / "FLUX/checkpoints/demo/model.defaults.json"
+        document = json.loads(manifest.read_text())
+        document["workflow"] = "custom_flux"
+        manifest.write_text(json.dumps(document))
+        custom = replace(get_definition("flux"), name="custom_flux")
+        with patch.dict(WORKFLOWS, {"custom_flux": custom}):
+            identifier = self.submit()
+            self.worker().run(until_idle=True)
+        job = self.store.get(identifier)
+        self.assertEqual((job.workflow, job.status), ("custom_flux", "completed"))
+        self.assertIsInstance(self.calls[0]["scheduler"], Scheduler)
+        self.assertEqual(self.loader.call_count, 1)
 
     def test_form_uses_shared_sdxl_layout_and_flux_controls(self):
         html = self.client.get("/generate/fixture-flux").get_data(as_text=True)

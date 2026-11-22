@@ -5,11 +5,13 @@ import re
 
 from ..base import GenerationRequest
 from ..shared.validation import _nonnegative_number
-from .parameters import SAMPLERS, get_ui_definition
+from ..shared.samplers import validate_sampling
+from .parameters import get_ui_definition
 
 
 def validate_form_settings(model, mode, settings):
     get_ui_definition(model, mode).validate_settings(settings)
+    validate_sampling("sdxl", settings["sampling"], model.defaults["requirements"], allow_extensions=True)
 
 
 def validate(request: GenerationRequest) -> None:
@@ -43,18 +45,7 @@ def validate(request: GenerationRequest) -> None:
     clip_skip = settings.get("clip_skip")
     if clip_skip is not None and (type(clip_skip) is not int or clip_skip < 0):
         raise ValueError("clip_skip must be null or a nonnegative integer")
-    sampling = settings.get("sampling")
-    if not isinstance(sampling, dict) or set(sampling) != {"sampler", "noise_schedule"}:
-        raise ValueError("sampling must contain sampler and noise_schedule")
-    if sampling["sampler"] not in {"model_default", *SAMPLERS}:
-        raise ValueError(f"Unsupported SDXL sampler {sampling['sampler']!r}")
-    if sampling["noise_schedule"] != "default":
-        raise ValueError("Only the default noise schedule is currently supported")
-    allowed = requirements.get("allowed_sampling")
-    if allowed is not None and (not isinstance(allowed, list) or sampling not in allowed):
-        raise ValueError(f"Sampling {sampling!r} is prohibited by this checkpoint's allowed_sampling")
-    if not isinstance(requirements.get("scheduler_config", {}), dict):
-        raise ValueError("requirements.scheduler_config must be an object")
+    validate_sampling("sdxl", settings.get("sampling"), requirements)
     validate_weights(model.asset_paths["weights"], "Checkpoint", optional=True)
     if model.asset_paths["weights"] is None and not model.defaults.get("base_model_id"):
         raise ValueError("A pretrained SDXL model requires base_model_id")

@@ -8,8 +8,8 @@ from pathlib import Path
 
 from ..base import Workflow
 from .adapters import DiffusersAdapters
-from .metadata import scheduler_config_snapshot
-from .sampling import build_scheduler
+from .metadata import scheduler_metadata
+from .samplers import create_scheduler
 
 
 class TransformerWorkflow(DiffusersAdapters, Workflow):
@@ -69,10 +69,11 @@ class TransformerWorkflow(DiffusersAdapters, Workflow):
         self._scheduler_config = deepcopy(dict(self._pipeline.scheduler.config))
         self._model_key = key
 
-    def _configure_scheduler(self, request, scheduler_class=None):
-        cls = scheduler_class or self._scheduler_class
-        self._pipeline.scheduler = build_scheduler(
-            cls, self._scheduler_config, requirements=request.model.defaults["requirements"]
+    def _configure_registered_scheduler(self, request, *, generators):
+        self._pipeline.scheduler = create_scheduler(
+            self.sampler_workflow_id, request.settings["sampling"], request.model.defaults["requirements"],
+            diffusers=self._diffusers, original_class=self._scheduler_class,
+            original_config=self._scheduler_config, generators=generators,
         )
 
     def _synchronize(self):
@@ -89,10 +90,7 @@ class TransformerWorkflow(DiffusersAdapters, Workflow):
         }
 
     def _scheduler_metadata(self):
-        return {
-            "class_name": type(self._pipeline.scheduler).__name__,
-            "config": scheduler_config_snapshot(dict(self._pipeline.scheduler.config)),
-        }
+        return scheduler_metadata(self._pipeline.scheduler)
 
     def close(self):
         self._pipeline = self._model_key = self._scheduler_class = self._scheduler_config = None

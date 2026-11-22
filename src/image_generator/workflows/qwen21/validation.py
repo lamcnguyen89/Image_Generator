@@ -1,6 +1,7 @@
 """Cross-field and asset validation without loading model runtimes."""
 
 from ..shared.validation import _finite_number, validate_common, validate_weights
+from ..shared.samplers import validate_sampling
 from ..ui import FormValidationError
 from .parameters import DEFAULTS, get_ui_definition
 
@@ -20,6 +21,9 @@ def validate_sigmas(sigmas):
 
 def validate_form_settings(model, mode, settings):
     get_ui_definition(model, mode).validate_settings(settings)
+    validate_sampling("qwen_2_1", settings["sampling"], model.defaults["requirements"], allow_extensions=True)
+    if settings["sigmas"] is not None and settings["sampling"]["noise_schedule"] != "default":
+        raise FormValidationError({"sigmas": "Choose the Default noise schedule when supplying custom sigmas."})
     try:
         validate_sigmas(settings["sigmas"])
     except ValueError as exc:
@@ -33,7 +37,7 @@ def validate(request):
         family="qwen_2_1",
         mode="txt2img",
         count_field="num_images_per_prompt",
-        samplers={"flow_match_euler", "model_default"},
+        sampling_validator=validate_sampling,
         guidance_field="true_cfg_scale",
         dimension_base=32,
     )
@@ -49,7 +53,4 @@ def validate(request):
         if model.defaults.get("weights_component") != "transformer":
             raise ValueError("A local Qwen 2.1 checkpoint must declare weights_component transformer")
         validate_weights(path, "Qwen 2.1 transformer")
-    requirements = model.defaults["requirements"]
-    if requirements.get("scheduler_class", "FlowMatchEulerDiscreteScheduler") != "FlowMatchEulerDiscreteScheduler":
-        raise ValueError("Qwen 2.1 requires FlowMatchEulerDiscreteScheduler")
     validate_form_settings(model, request.mode, request.settings)

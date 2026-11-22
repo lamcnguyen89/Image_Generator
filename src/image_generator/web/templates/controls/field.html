@@ -9,9 +9,9 @@
   {% if field.type in ['textarea', 'string_list', 'number_list'] %}
   <textarea id="{{ control_id }}" name="{{ field.name }}" rows="{{ 4 if field.name == 'prompt' else 2 }}"{% if field.required %} required{% endif %}{% if field.read_only %} readonly{% endif %} aria-describedby="{{ control_id }}-help"{% if errors.get(field.name) %} aria-invalid="true"{% endif %}>{{ value }}</textarea>
   {% elif field.type == 'select' %}
-  <select id="{{ control_id }}" name="{{ field.name }}" aria-describedby="{{ control_id }}-help"{% if errors.get(field.name) %} aria-invalid="true"{% endif %}>
+  <select id="{{ control_id }}" name="{{ field.name }}" aria-describedby="{{ control_id }}-help"{% if field.choice_source %} data-choice-source="{{ field.choice_source }}" data-choices-by-source='{{ dict(field.choices_by_source) | tojson }}'{% endif %}{% if errors.get(field.name) %} aria-invalid="true"{% endif %}>
     {% if value not in field.choices | map(attribute=0) | list %}<option value="{{ value }}" selected disabled>Unavailable value: {{ value }}</option>{% endif %}
-    {% for choice, label in field.choices %}<option value="{{ choice }}"{% if value == choice %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    {% for choice, label in field.choices %}<option value="{{ choice }}"{% if value == choice %} selected{% endif %}{% if field.choice_source and choice not in dict(field.choices_by_source).get(values.get(field.choice_source), ()) %} disabled hidden{% endif %}>{{ label }}</option>{% endfor %}
   </select>
   {% elif field.type == 'file' %}
   <input type="file" id="{{ control_id }}" name="{{ field.name }}" accept="image/*"{% if field.required %} required{% endif %} aria-describedby="{{ control_id }}-help"{% if errors.get(field.name) %} aria-invalid="true"{% endif %}>

@@ -262,6 +262,37 @@ class GenerationUITests(unittest.TestCase):
                     with patch(f"{prefix}.generate", side_effect=AssertionError("must not generate")):
                         self.assertEqual(self.post(family, self.data(family))[0].status_code, 200)
 
+    def test_karras_choices_and_preview_validate_exact_sampling_pairs(self):
+        manifest = self.root / "SDXL/checkpoints/demo/model.defaults.json"
+        document = json.loads(manifest.read_text())
+        document["requirements"]["allowed_sampling"].extend([
+            {"sampler": "dpmpp_2m_sde", "noise_schedule": "default"},
+            {"sampler": "dpmpp_2m_sde", "noise_schedule": "karras"},
+        ])
+        manifest.write_text(json.dumps(document))
+        page = self.page("sdxl")
+        control = page.controls["sampling.noise_schedule"][0]
+        self.assertEqual(control["data-choice-source"], "sampling.sampler")
+        self.assertEqual(json.loads(control["data-choices-by-source"]), {
+            "euler": ["default"], "euler_ancestral": ["default"], "dpmpp_2m_sde": ["default", "karras"],
+        })
+        karras = next(option for option in page.options["sampling.noise_schedule"] if option["value"] == "karras")
+        self.assertIn("disabled", karras)
+        data = self.data("sdxl")
+        for name, value in {"action": "preview", "sampling.sampler": "euler", "sampling.noise_schedule": "karras"}.items():
+            data[name] = value
+        response = self.client.post("/generate/fixture-sdxl", data=data)
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("Choose a noise schedule supported by the selected sampler", response.text)
+        data["sampling.sampler"] = "dpmpp_2m_sde"
+        response = self.client.post("/generate/fixture-sdxl", data=data)
+        self.assertEqual(response.status_code, 200)
+        page = FormPage(response.text)
+        self.assertEqual(page.preview["overrides"]["sampling"], {"sampler": "dpmpp_2m_sde", "noise_schedule": "karras"})
+        selected = next(option for option in page.options["sampling.noise_schedule"] if "selected" in option)
+        self.assertEqual(selected["value"], "karras")
+        self.assertNotIn("disabled", selected)
+
     def test_navigation_static_assets_and_repository_models(self):
         html = self.client.get("/").get_data(as_text=True)
         self.assertIn('href="/generate/fixture-sdxl"', html)

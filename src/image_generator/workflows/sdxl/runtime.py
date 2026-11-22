@@ -9,13 +9,14 @@ from pathlib import Path
 from time import perf_counter
 
 from ..base import GeneratedBatch, GenerationRequest, Workflow
-from ..shared.metadata import scheduler_config_snapshot
-from ..shared.sampling import build_scheduler
-from .parameters import DEFAULTS, MODES, SAMPLERS
+from ..shared.metadata import scheduler_metadata
+from ..shared.samplers import create_scheduler
+from .parameters import DEFAULTS, MODES
 
 
 class SDXLWorkflow(Workflow):
     workflow_id = "sdxl"
+    sampler_workflow_id = "sdxl"
     defaults = DEFAULTS
     ui_modes = MODES
 
@@ -112,17 +113,12 @@ class SDXLWorkflow(Workflow):
                 options["config"] = request.model.defaults["base_model_id"]
             return pipeline_class.from_single_file(str(path), **options)
 
-    def _configure_scheduler(self, request):
-        sampler = request.settings["sampling"]["sampler"]
-        scheduler_class = (
-            self._scheduler_class if sampler == "model_default" else getattr(self._diffusers, SAMPLERS[sampler])
-        )
-        options = {}
-        if sampler == "dpmpp_2m_sde":
-            options.update(algorithm_type="sde-dpmsolver++", solver_order=2)
+    def _configure_scheduler(self, request, *, generators):
         # Start from the loader's config, never the previous job's scheduler.
-        self._pipeline.scheduler = build_scheduler(
-            scheduler_class, self._scheduler_config, requirements=request.model.defaults["requirements"], **options
+        self._pipeline.scheduler = create_scheduler(
+            self.sampler_workflow_id, request.settings["sampling"], request.model.defaults["requirements"],
+            diffusers=self._diffusers, original_class=self._scheduler_class,
+            original_config=self._scheduler_config, generators=generators,
         )
 
     def _configure_loras(self, request):
@@ -160,7 +156,6 @@ class SDXLWorkflow(Workflow):
             self.report_progress("loading_runtime")
             self._load_runtime()
             model_reused = self._load_pipeline(request)
-            self._configure_scheduler(request)
             loras_reset = self._configure_loras(request)
             settings = request.settings
             seed = settings["seed"]
@@ -169,6 +164,7 @@ class SDXLWorkflow(Workflow):
                 for index in range(settings["num_images_per_prompt"])
             ]
             generators = [self._torch.Generator(device=self.device).manual_seed(value) for value in seeds]
+            self._configure_scheduler(request, generators=generators)
             arguments = {
                 name: settings[name]
                 for name in (
@@ -220,10 +216,7 @@ class SDXLWorkflow(Workflow):
                 {
                     **request_snapshot(request),
                     "seeds": seeds,
-                    "scheduler": {
-                        "class_name": type(self._pipeline.scheduler).__name__,
-                        "config": scheduler_config_snapshot(dict(self._pipeline.scheduler.config)),
-                    },
+                    "scheduler": scheduler_metadata(self._pipeline.scheduler),
                     "runtime": {
                         "device": self.device,
                         "dtype": self.dtype,

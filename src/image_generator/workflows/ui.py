@@ -40,6 +40,11 @@ class UIDefinition:
                 error = field.validate(setting_value(settings, field.name))
                 if error:
                     errors[field.name] = error
+                elif field.choice_source:
+                    source_value = setting_value(settings, field.choice_source)
+                    choices = dict(field.choices_by_source).get(source_value, ()) if isinstance(source_value, str) else ()
+                    if setting_value(settings, field.name) not in choices:
+                        errors[field.name] = field.validation_message or "Choose an option supported by the related selection."
         if errors:
             raise FormValidationError(errors)
 

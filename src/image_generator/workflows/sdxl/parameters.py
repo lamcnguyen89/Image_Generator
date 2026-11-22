@@ -1,10 +1,9 @@
 """Parameter defaults and controls; safe to inspect without GPU dependencies."""
 
-SAMPLERS = {
-    "euler": "EulerDiscreteScheduler",
-    "euler_ancestral": "EulerAncestralDiscreteScheduler",
-    "dpmpp_2m_sde": "DPMSolverMultistepScheduler",
-}
+from ..shared.samplers import available_samplers
+
+# Retain the public SDXL compatibility export, deriving it from the registry.
+SAMPLERS = {spec.name: spec.scheduler_class for spec in available_samplers("sdxl", {}) if spec.scheduler_class}
 
 DEFAULTS = {
     "prompt": "",
@@ -27,7 +26,8 @@ MODES = ("txt2img",)
 
 
 def get_ui_definition(model, mode):
-    from ..ui import UIField, common_fields, definition, sampling_fields
+    from ..ui import UIField, common_fields, definition
+    from ..shared.samplers.ui import sampling_fields
 
     return definition(
         model,
@@ -37,7 +37,7 @@ def get_ui_definition(model, mode):
         supported_modes=MODES,
         fields=(
             *common_fields(model, dimension_base=8),
-            *sampling_fields(model, ("model_default", *SAMPLERS)),
+            *sampling_fields(model, workflow="sdxl"),
             UIField(
                 "clip_skip",
                 "Clip skip",

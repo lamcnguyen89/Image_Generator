@@ -59,17 +59,30 @@ Only `txt2img` is implemented. Unknown SDXL setting names fail explicitly.
 
 ### Schedulers
 
-| Manifest/CLI sampler | Behavior |
-| --- | --- |
-| `model_default` | Recreate the loader's scheduler class with its original configuration. |
-| `euler` | EulerDiscreteScheduler. |
-| `euler_ancestral` | EulerAncestralDiscreteScheduler. |
-| `dpmpp_2m_sde` | DPMSolverMultistepScheduler with SDE DPM++ and solver order 2. |
+| Manifest/CLI sampler | Noise schedule | Behavior |
+| --- | --- | --- |
+| `model_default` | `default` | Recreate the loader's scheduler class with its original configuration. |
+| `euler` | `default`, `normal`, `karras`, `exponential`, `beta` | EulerDiscreteScheduler with the selected sigma grid. |
+| `euler_ancestral` | `default`, `normal` | Euler A (Euler ancestral), using EulerAncestralDiscreteScheduler. |
+| `dpmpp_2m_sde` | `default`, `normal` | DPMSolverMultistepScheduler with SDE DPM++ and solver order 2. |
+| `dpmpp_2m_sde` | `karras` | The same solver with Karras sigmas (`use_karras_sigmas: true`). |
+| `dpmpp_2m_sde` | `exponential`, `beta` | The same solver with the selected sigma grid. |
 
-`--sampler` can override the resolved choice within a checkpoint's allowed
-sampling pairs. Mandatory `requirements.scheduler_config` values take precedence
-over sampler defaults. Only `noise_schedule: default` is implemented; alternate
-schedules fail validation rather than silently changing behavior.
+Choices, validation, and scheduler construction use the
+[shared sampler registry](Samplers.md). `--sampler` can override the resolved
+choice within a checkpoint's allowed sampling pairs. Mandatory
+`requirements.scheduler_config` values take precedence over sampler defaults;
+configuration that conflicts with an explicitly selected noise schedule is
+rejected. The UI filters noise schedules by sampler and checkpoint restrictions.
+Definitions and backend flags come from the [shared schedule registry](Schedules.md).
+Lustify GGWP v7 defaults to DPM++ 2M SDE Karras, represented as:
+
+```json
+"sampling": {"sampler": "dpmpp_2m_sde", "noise_schedule": "karras"}
+```
+
+The equivalent CLI selection is `--sampler dpmpp_2m_sde
+--sampling-noise-schedule karras`.
 
 ### LoRAs
 

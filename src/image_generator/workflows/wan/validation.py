@@ -5,6 +5,7 @@ import json
 from image_generator.catalog.compatibility import lora_model_variants
 
 from ..shared.validation import _nonnegative_number, validate_common
+from ..shared.samplers import validate_sampling
 from .parameters import DEFAULTS, VARIANTS, get_ui_definition
 
 
@@ -19,6 +20,7 @@ def validate_form_settings(model, mode, settings):
     from ..ui import FormValidationError
 
     get_ui_definition(model, mode).validate_settings(settings)
+    validate_sampling("wan", settings["sampling"], model.defaults["requirements"], allow_extensions=True)
     errors = {}
     if settings["fps"] <= 0:
         errors["fps"] = "Playback FPS must be greater than zero."
@@ -33,7 +35,7 @@ def validate_form_settings(model, mode, settings):
 def validate(request):
     mode, pipeline_class = variant_definition(request.model)
     validate_common(
-        request, DEFAULTS, family="wan", mode=mode, count_field="num_videos_per_prompt", samplers={"model_default"}
+        request, DEFAULTS, family="wan", mode=mode, count_field="num_videos_per_prompt", sampling_validator=validate_sampling
     )
     model, settings = request.model, request.settings
     if mode == "img2vid":

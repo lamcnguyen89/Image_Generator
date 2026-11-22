@@ -1,11 +1,13 @@
 """Cross-field and asset validation without loading model runtimes."""
 
 from ..shared.validation import validate_common, validate_weights
+from ..shared.samplers import validate_sampling
 from .parameters import DEFAULTS, get_ui_definition
 
 
 def validate_form_settings(model, mode, settings):
     get_ui_definition(model, mode).validate_settings(settings)
+    validate_sampling("krea2", settings["sampling"], model.defaults["requirements"], allow_extensions=True)
 
 
 def validate(request):
@@ -15,7 +17,7 @@ def validate(request):
         family="krea2",
         mode="txt2img",
         count_field="num_images_per_prompt",
-        samplers={"flow_match_euler", "model_default"},
+        sampling_validator=validate_sampling,
     )
     model, settings = request.model, request.settings
     if request.inputs:
@@ -30,8 +32,6 @@ def validate(request):
             raise ValueError("A local Krea2 checkpoint must declare weights_component transformer")
         validate_weights(path, "Krea2 transformer")
     requirements = model.defaults["requirements"]
-    if requirements.get("scheduler_class", "FlowMatchEulerDiscreteScheduler") != "FlowMatchEulerDiscreteScheduler":
-        raise ValueError("Krea 2 RAW requires FlowMatchEulerDiscreteScheduler")
     limit = requirements.get("max_sequence_length_limit", 512)
     if type(limit) is not int or not 1 <= limit <= 512:
         raise ValueError("requirements.max_sequence_length_limit must be between 1 and 512")

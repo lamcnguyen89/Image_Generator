@@ -27,6 +27,20 @@ explicit schedule takes precedence over repository sigmas and the inference
 step count. Progress and saved metadata use the effective number of steps,
 including when a repository such as Turbo ships a preset schedule.
 
+The [shared sampler registry](Samplers.md) supplies sampler choices, settings-save
+and request validation, and scheduler construction. Qwen 2.1 registers
+`flow_match_euler` and the existing `model_default` Euler alias. The
+[schedule registry](Schedules.md) provides Default, Normal, Karras, Exponential, and Beta
+where checkpoint restrictions allow them. Explicit custom sigma lists require
+Default; a named curve can transform the repository/default input grid.
+Normal replaces that grid with the full training-range grid while retaining
+the effective step count and model shift.
+Checkpoint `allowed_sampling` and scheduler
+configuration remain authoritative. Each job receives a fresh scheduler while
+reusing the loaded model; custom and repository sigma schedules keep the
+precedence described above. Metadata includes the input sigma preset and actual
+applied sigma grid and timesteps when exposed by the runtime.
+
 Enable any number of compatible LoRAs, choose independent strengths, and opt
 into trigger words. Qwen accepts signed strengths, including negative Turbo
 adjustments; the other families retain their existing minimum of zero.

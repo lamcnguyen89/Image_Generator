@@ -56,7 +56,8 @@ class Pipeline:
         self.set_lora_device = Mock()
 
     def __call__(self, **arguments):
-        self.owner.calls.append({"pipeline": self, "adapters": tuple(self.adapters), "arguments": arguments})
+        self.owner.calls.append({"pipeline": self, "scheduler": self.scheduler,
+                                 "adapters": tuple(self.adapters), "arguments": arguments})
         if arguments["prompt"] == "fail generation":
             raise RuntimeError("synthetic Krea2 inference failure")
         self.num_timesteps = arguments["num_inference_steps"]
@@ -141,6 +142,68 @@ class Krea2ExecutionTests(unittest.TestCase):
         self.assertNotIn("input_image", page.controls)
         self.assertIn('id="krea2-cfg-status"', html)
         self.runtime.assert_not_called()
+
+    def allow_er_sde(self):
+        manifest = self.catalog_root / "Krea2/checkpoints/demo/model.defaults.json"
+        document = json.loads(manifest.read_text())
+        document["requirements"]["allowed_sampling"].append({"sampler": "er_sde", "noise_schedule": "default"})
+        manifest.write_text(json.dumps(document))
+
+    def test_registered_sampler_choices_and_inline_save_respect_checkpoint_policy(self):
+        from image_generator.catalog.persistence import settings_revision
+
+        html = self.client.get("/generate/fixture-krea2").text
+        self.assertNotIn('<option value="er_sde"', html)
+        data = self.data(**{"sampling.sampler": "er_sde"})
+        self.assertEqual(self.client.post("/generate/fixture-krea2", data=data).status_code, 422)
+        self.allow_er_sde()
+        html = self.client.get("/generate/fixture-krea2").text
+        self.assertIn('<option value="er_sde"', html)
+        self.assertIn("ER SDE", html)
+        sampling = {"sampler": "er_sde", "noise_schedule": "default"}
+        response = self.client.post("/api/models/fixture-krea2/settings/field", json={
+            "field": "sampling", "value_text": json.dumps(sampling),
+            "csrf_token": self.data()["csrf_token"],
+            "settings_revision": settings_revision(discover_catalog(self.catalog_root)),
+        })
+        self.assertEqual(response.status_code, 200, response.text)
+        model = discover_catalog(self.catalog_root).get_model("fixture-krea2")
+        self.assertEqual(model.resolve_settings()["sampling"], sampling)
+        self.assertEqual(model.user_overrides["settings"]["sampling"], {"sampler": "er_sde"})
+        identifier = self.submit()
+        self.assertEqual(self.store.get(identifier).request["settings"]["sampling"], sampling)
+        self.runtime.assert_not_called()
+
+    def test_registry_dispatches_and_resets_samplers_while_reusing_pipeline(self):
+        self.allow_er_sde()
+
+        class ERScheduler(Scheduler):
+            pass
+
+        def build(**options):
+            scheduler = ERScheduler.from_config(options["original_config"],
+                                                **options["requirements"]["scheduler_config"])
+            scheduler.generators = options["generators"]
+            return scheduler
+
+        first = self.submit(**{"sampling.sampler": "er_sde"}, num_images_per_prompt="2", seed="42")
+        euler = self.submit(**{"sampling.sampler": "flow_match_euler"})
+        again = self.submit(**{"sampling.sampler": "er_sde"}, seed="99")
+        with patch("image_generator.workflows.shared.samplers.flow_match.build_er_sde", side_effect=build) as factory:
+            self.worker().run(until_idle=True)
+        for identifier in (first, euler, again):
+            self.assertEqual(self.store.get(identifier).status, "completed")
+        schedulers = [call["scheduler"] for call in self.calls]
+        self.assertEqual([type(scheduler) for scheduler in schedulers], [ERScheduler, Scheduler, ERScheduler])
+        self.assertIsNot(schedulers[0], schedulers[2])
+        self.assertEqual([generator.seed for generator in schedulers[0].generators], [42, 43])
+        self.assertEqual([generator.seed for generator in schedulers[2].generators], [99])
+        self.assertEqual(self.loader.call_count, 1)
+        self.assertEqual(factory.call_count, 2)
+        # Selecting another sampler must not replace the original loader config.
+        self.assertEqual(factory.call_args.kwargs["original_config"], {"num_train_timesteps": 1000})
+        metadata = json.loads(self.store.get(first).outputs[0].metadata_path.read_text())
+        self.assertEqual(metadata["scheduler"]["class_name"], "ERScheduler")
 
     def test_submission_freezes_values_and_loras_without_loading_runtime_or_saving_settings(self):
         before = {path: path.read_bytes() for path in self.catalog_root.rglob("*.json")}

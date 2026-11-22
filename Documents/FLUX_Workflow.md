@@ -30,10 +30,16 @@ Metadata records whether it was active. `max_sequence_length` must be in 1–512
 or a smaller manifest limit; dimensions must satisfy the manifest alignment and
 be multiples of 16.
 
-The workflow uses FlowMatchEulerDiscreteScheduler and preserves its default
-noise schedule. Mandatory manifest scheduler configuration is applied on every
-request from the original loader configuration. Checkpoint `allowed_sampling`
-restrictions are enforced; SDXL samplers and alternate noise schedules are rejected.
+The [shared sampler registry](Samplers.md) supplies form choices, settings-save
+and request validation, and runtime scheduler construction. FLUX registers
+`flow_match_euler` and the existing `model_default` Euler alias, both using
+FlowMatchEulerDiscreteScheduler. The [schedule registry](Schedules.md) supplies
+Default, Normal, Karras, Exponential, and Beta where checkpoint restrictions allow them.
+Default preserves the component schedule. Mandatory manifest
+scheduler configuration is applied to a fresh scheduler on every request from the
+original loader configuration. Checkpoint `allowed_sampling` restrictions are
+enforced; only registered FLUX sampling pairs are accepted. Sampling changes
+reuse the loaded model without carrying scheduler state between requests.
 
 ## Adapters
 

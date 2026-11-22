@@ -3,6 +3,7 @@
 from dataclasses import replace
 
 from ..ui import UIField, common_fields, definition, frame_constraints
+from ..shared.schedules import get_schedule
 
 DEFAULTS = {
     "prompt": "",
@@ -29,6 +30,7 @@ MODES = ("img2vid", "txt2vid")
 
 def get_ui_definition(model, mode):
     requirements = model.defaults["requirements"]
+    schedule = get_schedule("comfyui_minimax_h3", DEFAULTS["sampling"]["noise_schedule"])
     if requirements.get("runtime") != "comfyui" or requirements.get("guider", "BasicGuider") != "BasicGuider":
         raise ValueError("MiniMax H3 requires runtime comfyui and BasicGuider")
     if requirements.get("native_fps", 24) != 24:
@@ -104,7 +106,7 @@ def get_ui_definition(model, mode):
                 "text",
                 "Sampling",
                 read_only=True,
-                help="Fixed to simple for H3.",
+                help=f"Fixed to {schedule.label} for H3.",
             ),
             UIField("enable_vae_tiling", "Enable VAE tiling", "boolean", "Advanced", cli_flags=("--vae-tiling",)),
         ),

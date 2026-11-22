@@ -24,7 +24,8 @@ MODES = ("txt2img",)
 
 
 def get_ui_definition(model, mode):
-    from ..ui import UIField, common_fields, definition, sampling_fields
+    from ..ui import UIField, common_fields, definition
+    from ..shared.samplers.ui import sampling_fields
 
     fields = tuple(
         UIField(
@@ -52,7 +53,7 @@ def get_ui_definition(model, mode):
         variant="qwen_image_2_1",
         fields=(
             *fields,
-            *sampling_fields(model, ("flow_match_euler", "model_default")),
+            *sampling_fields(model, workflow="qwen_2_1"),
             UIField(
                 "use_kv_cache",
                 "Cache prompt attention",

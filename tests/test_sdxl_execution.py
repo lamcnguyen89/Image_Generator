@@ -115,6 +115,43 @@ class SDXLExecutionTests(unittest.TestCase):
     def worker(self):
         return Worker(self.store, self.outputs)
 
+    def test_registered_samplers_save_queue_and_dispatch_with_model_reuse(self):
+        from image_generator.catalog.persistence import settings_revision
+
+        manifest = self.catalog_root / "SDXL/checkpoints/demo/model.defaults.json"
+        document = json.loads(manifest.read_text())
+        document["requirements"]["allowed_sampling"].append({"sampler": "dpmpp_2m_sde", "noise_schedule": "default"})
+        document["requirements"]["allowed_sampling"].append({"sampler": "dpmpp_2m_sde", "noise_schedule": "karras"})
+        manifest.write_text(json.dumps(document))
+        html = self.client.get("/generate/fixture-sdxl").text
+        for name in ("euler_ancestral", "dpmpp_2m_sde"):
+            self.assertIn(f'<option value="{name}"', html)
+        identifiers = []
+        for sampler, schedule in (("euler_ancestral", "default"), ("dpmpp_2m_sde", "karras"),
+                                  ("dpmpp_2m_sde", "default")):
+            sampling = {"sampler": sampler, "noise_schedule": schedule}
+            response = self.client.post("/api/models/fixture-sdxl/settings/field", json={
+                "field": "sampling", "value_text": json.dumps(sampling),
+                "csrf_token": self.data()["csrf_token"],
+                "settings_revision": settings_revision(discover_catalog(self.catalog_root)),
+            })
+            self.assertEqual(response.status_code, 200, response.text)
+            identifiers.append(self.submit())
+            self.assertEqual(self.store.get(identifiers[-1]).request["settings"]["sampling"], sampling)
+        self.runtime.assert_not_called()
+        self.worker().run(until_idle=True)
+        for identifier, scheduler_class, schedule in zip(
+            identifiers, ("AncestralScheduler", "DPMScheduler", "DPMScheduler"), ("default", "karras", "default"), strict=True,
+        ):
+            job = self.store.get(identifier)
+            self.assertEqual(job.status, "completed")
+            metadata = json.loads(job.outputs[0].metadata_path.read_text())
+            self.assertEqual(metadata["scheduler"]["class_name"], scheduler_class)
+            self.assertEqual(metadata["scheduler"]["config"].get("use_karras_sigmas", False), schedule == "karras")
+        self.assertEqual(len(self.pipelines), 1)
+        self.assertEqual(metadata["scheduler"]["config"]["algorithm_type"], "sde-dpmsolver++")
+        self.assertEqual(metadata["scheduler"]["config"]["solver_order"], 2)
+
     def test_generate_queues_without_loading_gpu_and_returns_resumable_job_page(self):
         identifier = self.submit()
         self.runtime.assert_not_called()

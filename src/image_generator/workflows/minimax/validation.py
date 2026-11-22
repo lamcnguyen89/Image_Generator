@@ -6,6 +6,7 @@ import struct
 from pathlib import Path
 
 from ..shared.validation import _nonnegative_number, validate_weights
+from ..shared.schedules import validate_schedule
 from ..ui import FormValidationError
 from .parameters import DEFAULTS, get_ui_definition
 
@@ -57,6 +58,7 @@ def validate_form_settings(model, mode, settings):
     get_ui_definition(model, mode).validate_settings(settings)
     if settings["sampling"] != DEFAULTS["sampling"]:
         raise FormValidationError({"sampling": "H3 requires res_multistep with the simple schedule."})
+    validate_schedule("comfyui_minimax_h3", settings["sampling"]["noise_schedule"], model.defaults["requirements"])
     if settings["negative_prompt"]:
         raise FormValidationError({"negative_prompt": "BasicGuider does not support negative prompting."})
     if type(settings["preserve_aspect_ratio"]) is not bool:

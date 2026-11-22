@@ -14,3 +14,19 @@ def scheduler_config_snapshot(value):
             return "NaN"
         return "Infinity" if value > 0 else "-Infinity"
     return value
+
+
+def scheduler_metadata(scheduler):
+    result = {"class_name": type(scheduler).__name__,
+              "config": scheduler_config_snapshot(dict(scheduler.config))}
+    for name in ("sigmas", "timesteps"):
+        values = getattr(scheduler, name, None)
+        if values is None:
+            continue
+        if hasattr(values, "detach"):
+            values = values.detach().cpu()
+        if hasattr(values, "tolist"):
+            values = values.tolist()
+        if isinstance(values, (list, tuple)):
+            result[name] = scheduler_config_snapshot(values)
+    return result

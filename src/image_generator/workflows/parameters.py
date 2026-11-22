@@ -24,6 +24,8 @@ class Parameter:
     cli_flags: tuple[str, ...] = ()
     validation_message: str = ""
     inherit_when_absent: bool = False
+    choice_source: str = ""
+    choices_by_source: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
     def validate(self, value: Any) -> str | None:
         if value is None and self.nullable:
