@@ -23,6 +23,7 @@ class ScheduleBinding:
     options: tuple[tuple[str, object], ...] = ()
     native_name: str | None = None
     adapter: tuple[str, str] | None = None
+    adapter_options: tuple[tuple[str, object], ...] = ()
 
     @property
     def label(self):
@@ -64,6 +65,12 @@ _BINDINGS = (
                     adapter=("image_generator.workflows.shared.schedules.normal", "NormalScheduleAdapter")),
     *(ScheduleBinding(backend, name, tuple((flag, flag == _CURVE_FLAGS[name]) for flag in flags))
       for backend, (names, flags) in _SIGMA_PROFILES.items() for name in names),
+    *(ScheduleBinding(
+        "euler_ancestral", name, (("timestep_spacing", "linspace"),),
+        adapter=("image_generator.workflows.shared.schedules.euler_ancestral", "EulerAncestralScheduleAdapter"),
+        adapter_options=tuple((flag, flag == _CURVE_FLAGS[name]) for flag in _STANDARD_FLAGS)
+        + (("final_sigmas_type", "zero"), ("interpolation_type", "linear"), ("timestep_type", "discrete")),
+    ) for name in _STANDARD_CURVES),
     ScheduleBinding("comfyui_minimax_h3", "simple", native_name="simple"),
 )
 SCHEDULE_BINDINGS = MappingProxyType({(binding.backend, binding.name): binding for binding in _BINDINGS})
@@ -87,7 +94,7 @@ def validate_schedule(backend, name, requirements):
     options = requirements.get("scheduler_config", {})
     if not isinstance(options, dict):
         raise ValueError("requirements.scheduler_config must be an object")
-    for option, value in binding.options:
+    for option, value in (*binding.options, *binding.adapter_options):
         if option in options and options[option] != value:
             raise ValueError(f"Noise schedule {name!r} requires scheduler_config.{option}={value!r}")
     return binding
@@ -105,4 +112,4 @@ def apply_schedule(backend, name, requirements, scheduler):
         return scheduler
     module, attribute = binding.adapter
     adapter = getattr(import_module(module), attribute)
-    return adapter(scheduler, backend=backend)
+    return adapter(scheduler, backend=backend, **dict(binding.adapter_options))

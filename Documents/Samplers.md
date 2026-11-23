@@ -34,8 +34,9 @@ class; switching from another sampler restores that original configuration.
 Checkpoint scheduler configuration overrides sampler defaults, preserving SDXL's
 existing handling of prediction type, zero-SNR rescaling, and other requirements.
 SDXL's Euler and DPM++ 2M SDE bindings support `default`, `normal`, `karras`,
-`exponential`, and `beta`. Euler A supports Default and Normal; model default
-retains Default only. Normal generates an explicit training-timestep grid.
+`exponential`, and `beta`. Euler A supports the same five schedules, using an
+adapter for Karras, Exponential, and Beta while preserving its ancestral update.
+Model default retains Default only. Normal generates an explicit training-timestep grid.
 The default schedule inherits the checkpoint loader's configuration. Karras
 explicitly sets `use_karras_sigmas: true` and disables alternative sigma grids;
 conflicting checkpoint schedule options fail validation. WAN retains its
@@ -63,8 +64,11 @@ If `requirements.allowed_sampling` is present, it must include the exact pair:
 
 Omitting the restriction allows every registered pair for that workflow; an
 empty list allows none. A manifest cannot import an implementation or enable a
-sampler in another workflow. The Big Love KreaEdit3 manifest permits both pairs
-above and selects ER_SDE. Other checkpoint restrictions continue to apply.
+sampler in another workflow. The Big Love KreaEdit3 manifest permits both samplers
+above with Default, Normal, Karras, Exponential, and Beta and selects ER_SDE with
+Default. The supplied FLUX, Qwen 2.1, and other Krea2 manifests expose the same
+five schedules for their existing allowed samplers. Other checkpoint restrictions
+continue to apply.
 
 For SDXL, select either of these objects in `settings.sampling` (or the model
 page's `sampling` editor), and include the pair in `allowed_sampling` when that

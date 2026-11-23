@@ -18,7 +18,7 @@ construction resolve the same registered definitions.
 | --- | --- |
 | SDXL Euler | Default, Normal, Karras, Exponential, Beta |
 | SDXL DPM++ 2M SDE | Default, Normal, Karras, Exponential, Beta |
-| SDXL Euler A | Default, Normal |
+| SDXL Euler A | Default, Normal, Karras, Exponential, Beta |
 | SDXL model default | Default |
 | Krea2 Flow Match Euler, model default, ER_SDE | Default, Normal, Karras, Exponential, Beta |
 | FLUX and Qwen 2.1 Flow Match Euler/model default | Default, Normal, Karras, Exponential, Beta |
@@ -32,6 +32,19 @@ on DPM++ enables `use_exponential_sigmas` and disables Karras, Beta, Lu, and flo
 sigma grids. Conflicting `requirements.scheduler_config` flags fail validation.
 Defaults and named schedules use fresh request state, allowing model reuse
 without carrying scheduler history or previous schedule flags between jobs.
+
+Euler ancestral uses a schedule adapter for Karras, Exponential, and Beta.
+Diffusers' Euler scheduler prepares the sigma grid and matching fractional model
+timesteps using the checkpoint's training configuration. Euler ancestral keeps
+its native input scaling, prediction conversion, and seeded stochastic update.
+The adapter resets solver indices on every run and records the selected curve
+and original scheduler class in output metadata.
+
+The supplied FLUX, Qwen 2.1, and Krea2 checkpoint manifests and examples permit
+Default, Normal, Karras, Exponential, and Beta for their existing allowed samplers.
+Their selected defaults are unchanged. Checkpoint-specific restrictions such as
+NoobAI's Euler/Default requirement remain in force. Simple remains a MiniMax-only
+binding; WAN and MiniMax retain their existing schedule choices.
 
 Normal generates an evenly spaced grid across the model's training timesteps.
 For SDXL, its adapter interpolates the training log-sigma table and appends zero,
@@ -105,7 +118,9 @@ Seeded scheduler noise remains owned by the sampler implementation.
 1. Add a `ScheduleSpec` with a stable name and display label.
 2. Register `ScheduleBinding` entries only for verified backend profiles. Native
    Diffusers bindings declare constructor flags; native ComfyUI bindings declare
-   `native_name`. A new curve requiring different numerical code also needs a
+   `native_name`. Adapter-only configuration goes in `adapter_options`; it is
+   checked against checkpoint overrides without being passed to the underlying
+   scheduler constructor. A new curve requiring different numerical code also needs a
    compatible runtime adapter before it can be registered; declare its trusted
    module and class in `ScheduleBinding.adapter`, as Normal does.
 3. For a new sampler/backend implementation, set its `schedule_backend` in

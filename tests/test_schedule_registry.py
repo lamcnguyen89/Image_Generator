@@ -18,7 +18,7 @@ from image_generator.workflows.shared.samplers.ui import sampling_fields
 
 class ScheduleRegistryTests(unittest.TestCase):
     def test_profile_capabilities_and_shared_labels(self):
-        for profile in ("flow_match", "euler_discrete", "dpm_multistep"):
+        for profile in ("flow_match", "euler_discrete", "dpm_multistep", "euler_ancestral"):
             self.assertEqual([(spec.name, spec.label) for spec in available_schedules(profile)],
                              [("default", "Default"), ("normal", "Normal"), ("karras", "Karras"),
                               ("exponential", "Exponential"), ("beta", "Beta")])
@@ -26,7 +26,6 @@ class ScheduleRegistryTests(unittest.TestCase):
             self.assertEqual([spec.name for spec in available_schedules(profile)], ["default"])
             with self.assertRaisesRegex(ValueError, "Unsupported noise schedule"):
                 get_schedule(profile, "karras")
-        self.assertEqual([spec.name for spec in available_schedules("euler_ancestral")], ["default", "normal"])
         self.assertEqual(get_schedule("comfyui_minimax_h3", "simple").native_name, "simple")
         self.assertEqual(available_schedules("unknown"), ())
         for name in (None, [], "unknown", "os.system"):
@@ -65,6 +64,35 @@ class ScheduleRegistryTests(unittest.TestCase):
             validate_sampling("sdxl", pair, requirements)
         with self.assertRaisesRegex(ValueError, "prohibited"):
             validate_sampling("sdxl", {"sampler": "euler", "noise_schedule": "beta"}, requirements)
+
+    def test_ancestral_adapter_options_reject_conflicts_without_passing_native_flags(self):
+        for name in ("karras", "exponential", "beta"):
+            options = scheduler_options("euler_ancestral", name, {})
+            self.assertEqual(options, {"timestep_spacing": "linspace"})
+            for option, value in get_schedule("euler_ancestral", name).adapter_options:
+                conflict = not value if isinstance(value, bool) else "sigma_min"
+                with self.subTest(schedule=name, option=option), self.assertRaisesRegex(ValueError, "requires scheduler_config"):
+                    validate_schedule("euler_ancestral", name, {"scheduler_config": {option: conflict}})
+
+    def test_shipped_image_allowlists_expose_curves_for_existing_samplers(self):
+        expected = {"default", "normal", "karras", "exponential", "beta"}
+        for family in ("FLUX", "QWEN_2_1", "Krea2"):
+            for path in (ROOT / "Models/Model_Families" / family).rglob("model.defaults*.json"):
+                with self.subTest(path=path):
+                    document = json.loads(path.read_text())
+                    model = SimpleNamespace(defaults=document)
+                    sampler_field, schedule_field = sampling_fields(model)
+                    self.assertEqual({name for name, _ in schedule_field.choices}, expected)
+                    for sampler, schedules in schedule_field.choices_by_source:
+                        self.assertEqual(set(schedules), expected)
+                        for schedule in schedules:
+                            validate_sampling(document["workflow"], {"sampler": sampler, "noise_schedule": schedule},
+                                              document["requirements"])
+                    self.assertNotIn("model_default", dict(sampler_field.choices))
+                    validate_sampling(document["workflow"], document["settings"]["sampling"], document["requirements"])
+
+        noobai = json.loads((ROOT / "Models/Model_Families/SDXL/checkpoints/noobaiXLNAIXL_vPred10Version/model.defaults.json").read_text())
+        self.assertEqual(noobai["requirements"]["allowed_sampling"], [{"sampler": "euler", "noise_schedule": "default"}])
 
     def test_flow_samplers_share_schedule_definitions_and_video_defaults_stay_pinned(self):
         for workflow, samplers in (("flux", ("flow_match_euler", "model_default")),
@@ -110,6 +138,7 @@ print(json.dumps([s.name for s in available_schedules('flow_match')]))
 assert 'torch' not in sys.modules and 'diffusers' not in sys.modules
 assert 'comfy.samplers' not in sys.modules
 assert 'image_generator.workflows.shared.schedules.normal' not in sys.modules
+assert 'image_generator.workflows.shared.schedules.euler_ancestral' not in sys.modules
 """
         result = subprocess.run([sys.executable, "-S", "-c", code, str(ROOT / "src"), str(ROOT / "tests/fixtures/model_families")],
                                 capture_output=True, text=True, timeout=10)

@@ -111,7 +111,8 @@ class NativeSDXLSamplerTests(unittest.TestCase):
 
         native_config = dict(diffusers.DDIMScheduler().config)
         flow_config = dict(diffusers.FlowMatchEulerDiscreteScheduler(use_dynamic_shifting=True).config)
-        cases = (("sdxl", "euler", native_config), ("sdxl", "dpmpp_2m_sde", native_config),
+        cases = (("sdxl", "euler", native_config), ("sdxl", "euler_ancestral", native_config),
+                 ("sdxl", "dpmpp_2m_sde", native_config),
                  ("flux", "flow_match_euler", flow_config), ("qwen_2_1", "flow_match_euler", flow_config),
                  ("krea2", "er_sde", flow_config))
         for workflow, sampler, original in cases:
@@ -137,12 +138,55 @@ class NativeSDXLSamplerTests(unittest.TestCase):
                     self.assertEqual(metadata["sigmas"], scheduler.sigmas.tolist())
                     self.assertEqual(metadata["timesteps"], scheduler.timesteps.tolist())
                     json.dumps(metadata, allow_nan=False)
-                    if schedule != "default":
+                    if schedule != "default" and not (sampler == "euler_ancestral" and schedule == "normal"):
                         for curve in ("karras", "exponential", "beta"):
                             self.assertEqual(scheduler.config[f"use_{curve}_sigmas"], curve == schedule)
                     if schedule == "exponential" and sampler != "er_sde":
                         gaps = scheduler.sigmas[:-1].double().log().diff()
                         torch.testing.assert_close(gaps, gaps[0].expand_as(gaps), rtol=1e-5, atol=1e-6)
+
+    def test_ancestral_curves_match_euler_grids_with_seeded_noise_and_fresh_state(self):
+        original = dict(diffusers.DDIMScheduler().config)
+        before = deepcopy(original)
+        requirements = {"scheduler_config": {"prediction_type": "v_prediction", "rescale_betas_zero_snr": True}}
+        for schedule in ("karras", "exponential", "beta"):
+            with self.subTest(schedule=schedule):
+                scheduler = self.build("euler_ancestral", original, requirements, noise_schedule=schedule)
+                reference = self.build("euler", original, requirements, noise_schedule=schedule)
+                scheduler.set_timesteps(8, device="cpu")
+                reference.set_timesteps(8, device="cpu")
+                torch.testing.assert_close(scheduler.sigmas, reference.sigmas, rtol=0, atol=0)
+                torch.testing.assert_close(scheduler.timesteps, reference.timesteps, rtol=0, atol=0)
+                self.assertEqual(scheduler.config.base_scheduler_class, "EulerAncestralDiscreteScheduler")
+                self.assertEqual(scheduler.config.schedule_adapter, schedule)
+                results = []
+                for seed in (42, 42, 43):
+                    scheduler.set_timesteps(8, device="cpu")
+                    self.assertIsNone(scheduler.step_index)
+                    generator = torch.Generator().manual_seed(seed)
+                    sample = torch.full((1, 4, 2, 2), 0.3)
+                    for timestep in scheduler.timesteps:
+                        prediction = scheduler.scale_model_input(sample, timestep).tanh() * 0.1
+                        sample = scheduler.step(prediction, timestep, sample, generator=generator).prev_sample
+                    self.assertTrue(torch.isfinite(sample).all())
+                    results.append(sample)
+                torch.testing.assert_close(results[0], results[1], rtol=0, atol=0)
+                self.assertFalse(torch.equal(results[0], results[2]))
+                scheduler.set_begin_index(2)
+                scheduler.set_timesteps(1)
+                self.assertIsNone(scheduler.begin_index)
+                self.assertIsNone(scheduler.step_index)
+                self.assertEqual(len(scheduler.sigmas), 2)
+                with self.assertRaisesRegex(ValueError, "positive inference"):
+                    scheduler.set_timesteps(0)
+                with self.assertRaisesRegex(ValueError, "own grid"):
+                    scheduler.set_timesteps(timesteps=[999, 500])
+                with self.assertRaisesRegex(ValueError, "own grid"):
+                    scheduler.set_timesteps(sigmas=[1, 0.5, 0])
+
+        default = self.build("euler_ancestral", original)
+        self.assertIsInstance(default, diffusers.EulerAncestralDiscreteScheduler)
+        self.assertEqual(original, before)
 
     def test_normal_discrete_grid_matches_reference_and_differs_from_dpm_default(self):
         import inspect

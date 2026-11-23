@@ -175,9 +175,9 @@ assert 'image_generator.workflows.shared.samplers.er_sde' not in sys.modules
         self.assertEqual(noise.choices, (("default", "Default"), ("karras", "Karras")))
         self.assertEqual(dict(noise.choices_by_source), {"euler": ("default",), "dpmpp_2m_sde": ("karras",)})
         validate_sampling("sdxl", {**sampling, "sampler": "euler"}, {})
-        for sampler in ("euler_ancestral", "model_default"):
-            with self.subTest(sampler=sampler), self.assertRaisesRegex(ValueError, "Unsupported noise schedule"):
-                validate_sampling("sdxl", {**sampling, "sampler": sampler}, {})
+        validate_sampling("sdxl", {**sampling, "sampler": "euler_ancestral"}, {})
+        with self.assertRaisesRegex(ValueError, "Unsupported noise schedule"):
+            validate_sampling("sdxl", {**sampling, "sampler": "model_default"}, {})
         with self.assertRaisesRegex(ValueError, "prohibited"):
             validate_sampling("sdxl", {**sampling, "noise_schedule": "default"}, requirements)
         for option, value in (("use_karras_sigmas", False), ("use_exponential_sigmas", True),

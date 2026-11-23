@@ -51,6 +51,22 @@
       {
         "sampler": "flow_match_euler",
         "noise_schedule": "default"
+      },
+      {
+        "sampler": "flow_match_euler",
+        "noise_schedule": "normal"
+      },
+      {
+        "sampler": "flow_match_euler",
+        "noise_schedule": "karras"
+      },
+      {
+        "sampler": "flow_match_euler",
+        "noise_schedule": "exponential"
+      },
+      {
+        "sampler": "flow_match_euler",
+        "noise_schedule": "beta"
       }
     ]
   },

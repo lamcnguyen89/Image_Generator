@@ -14,8 +14,9 @@ FLUX's separate true CFG control.
 
 The sampler dropdown comes from the shared registry, filtered by the checkpoint's
 `requirements.allowed_sampling`. Big Love KreaEdit3 selects **ER SDE** by default
-and also offers **Flow match Euler**. The noise schedule is **Default**, preserving
-Krea 2's resolution-aware schedule. To edit the `sampling` row on the model page,
+and also offers **Flow match Euler**. Both samplers offer **Default**, **Normal**,
+**Karras**, **Exponential**, and **Beta** noise schedules. **Default** remains selected,
+preserving Krea 2's resolution-aware schedule. To edit the `sampling` row on the model page,
 enter the complete JSON object:
 
 ```json
