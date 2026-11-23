@@ -24,8 +24,8 @@ construction resolve the same registered definitions.
 | SDXL DDIM, DDPM, PNDM | Default |
 | SDXL model default | Default |
 | FLUX, Qwen 2.1, Krea2: Flow Match Euler / Heun, ER SDE, UniPC, DPM++ 2M / 2M SDE, model default | Default, Normal, Karras, Exponential, Beta |
-| WAN model default, UniPC, DPM++ 2M | Default |
-| MiniMax H3 RES multistep, Euler | Simple |
+| WAN model default, UniPC, DPM++ 2M | Default, Normal, Simple |
+| MiniMax H3 RES multistep, Euler | Simple, Normal, Karras, Exponential, Beta |
 
 Default preserves the original component scheduler configuration and checkpoint
 overrides. Selecting a named curve explicitly enables its flag and disables
@@ -45,8 +45,23 @@ and original scheduler class in output metadata.
 The supplied FLUX, Qwen 2.1, and Krea2 checkpoint manifests and examples permit
 Default, Normal, Karras, Exponential, and Beta for all six explicit flow samplers.
 Their selected defaults are unchanged. Checkpoint-specific restrictions such as
-NoobAI's Euler/Default requirement remain in force. Simple remains a MiniMax-only
-binding; WAN's explicit UniPC/DPM++ 2M retain Default, and MiniMax Euler retains Simple.
+NoobAI's Euler/Default requirement remain in force. WAN defaults to Default and
+MiniMax defaults to Simple; additional video schedule choices do not change these selections.
+
+WAN Normal uses evenly spaced unshifted training times from 1 through
+`1 / num_train_timesteps`, inclusive. WAN Simple samples the discrete training
+grid using the reverse-table indices from ComfyUI Simple. Both support 1 through
+`num_train_timesteps` inference steps. Native UniPC applies WAN's flow shift once,
+appends zero, and offsets the initial sigma below one to avoid singular log-SNR.
+All three WAN samplers use the selected grid's exact model timesteps for expert
+selection. Default retains its original step-dependent grid and configuration.
+Named WAN schedules reject conflicting checkpoint curve, prediction, and grid flags.
+
+MiniMax resolves Simple, Normal, Karras, Exponential, and Beta to ComfyUI's native
+schedule names for both RES multistep and Euler. The runtime validates the
+descending flow grid and records actual sigmas and the effective inference-step
+count under `scheduler` in output metadata. Beta can remove duplicate training
+indices, reducing the effective count; initial sampling progress uses that count.
 
 Heun, LMS, DPM2, DPM2 ancestral, and DEIS use native curve flags through separate
 profiles. Normal is not registered for these profiles; the existing adapter has

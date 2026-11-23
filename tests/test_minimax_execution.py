@@ -20,6 +20,33 @@ from image_generator.worker import Worker
 
 
 class MiniMaxExecutionTests(MiniMaxFixture, unittest.TestCase):
+    def test_named_schedules_save_queue_and_dispatch_in_both_video_modes(self):
+        jobs = []
+        for mode in ("txt2vid", "img2vid"):
+            for sampler in ("res_multistep", "euler"):
+                for schedule in ("normal", "karras", "exponential", "beta"):
+                    pair = {"sampler": sampler, "noise_schedule": schedule}
+                    data = self.data(mode=mode, action="save_model",
+                                     **{"sampling.sampler": sampler, "sampling.noise_schedule": schedule})
+                    self.assertEqual(self.client.post("/settings/models/fixture-minimax", data=data).status_code, 303)
+                    data = self.data(mode=mode)
+                    self.assertEqual(data["sampling.noise_schedule"], schedule)
+                    response = (self.client.post("/generate/fixture-minimax", data=data) if mode == "txt2vid"
+                                else self.post(data))
+                    self.assertEqual(response.status_code, 303)
+                    jobs.append((response.location.rsplit("/", 1)[1], pair))
+        self.run_worker()
+        for identifier, pair in jobs:
+            job = self.store.get(identifier)
+            self.assertEqual(job.status, "completed", job.error)
+            metadata = json.loads(job.outputs[0].metadata_path.read_text())
+            self.assertEqual(metadata["settings"]["sampling"], pair)
+            self.assertEqual(metadata["scheduler"]["native_schedule"], pair["noise_schedule"])
+            self.assertEqual(metadata["scheduler"]["native_sampler"], pair["sampler"])
+            self.assertEqual(metadata["scheduler"]["num_inference_steps"], 4)
+            self.assertEqual(len(metadata["scheduler"]["sigmas"]), 5)
+        self.assertEqual(len(self.base_models), 1)
+
     def test_euler_saves_queues_and_executes_with_simple_schedule(self):
         page = FormPage(self.client.get("/generate/fixture-minimax?mode=txt2vid").text)
         self.assertEqual([option["value"] for option in page.options["sampling.sampler"]], ["res_multistep", "euler"])
@@ -193,7 +220,8 @@ class MiniMaxExecutionTests(MiniMaxFixture, unittest.TestCase):
         for name in ("fps", "guidance_scale", "negative_prompt"):
             self.assertIn("readonly", page.controls[name][0])
         self.assertEqual([item["value"] for item in page.options["sampling.sampler"]], ["res_multistep", "euler"])
-        self.assertEqual([item["value"] for item in page.options["sampling.noise_schedule"]], ["simple"])
+        self.assertEqual([item["value"] for item in page.options["sampling.noise_schedule"]],
+                         ["simple", "normal", "karras", "exponential", "beta"])
 
     def test_source_is_original_immutable_retry_stable_and_survives_restart(self):
         data = self.data()

@@ -1,6 +1,7 @@
 """Instance-owned generation implementation."""
 
 import gc
+import math
 from pathlib import Path
 from time import perf_counter
 
@@ -83,10 +84,20 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
                 steps=settings["num_inference_steps"],
                 denoise=1.0,
             )[0]
+            sigma_values = sigmas.detach().cpu().tolist() if hasattr(sigmas, "detach") else sigmas.tolist()
+            if (len(sigma_values) < 2 or sigma_values[-1] != 0
+                    or any(not math.isfinite(value) or not 0 < value <= 1 for value in sigma_values[:-1])
+                    or any(source <= target for source, target in zip(sigma_values, sigma_values[1:]))):
+                raise ValueError("MiniMax requires a finite descending flow sigma grid ending at zero")
+            scheduler_metadata = {
+                "backend": "comfyui", "native_sampler": get_sampler("minimax", settings["sampling"]["sampler"]).native_name,
+                "native_schedule": schedule.native_name, "sigmas": sigma_values,
+                "num_inference_steps": len(sigma_values) - 1,
+            }
             noise = nodes.RandomNoise.execute(noise_seed=seed)[0]
             self._torch.cuda.synchronize()
             start = perf_counter()
-            with self._sampling_progress(settings["num_inference_steps"]):
+            with self._sampling_progress(len(sigma_values) - 1):
                 sampled = nodes.SamplerCustomAdvanced.execute(
                     noise=noise, guider=guider, sampler=sampler, sigmas=sigmas, latent_image=latent
                 )[0]
@@ -103,7 +114,7 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
             else:
                 frames = self._runtime.nodes.VAEDecode().decode(vae=self._pipeline["vae"], samples=sampled)[0]
             self._torch.cuda.synchronize()
-            return frames, perf_counter() - start
+            return frames, perf_counter() - start, scheduler_metadata
 
     def generate(self, request):
         if request.settings["num_videos_per_prompt"] != 1:
@@ -152,7 +163,7 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
             seeds = image_seeds(settings, settings["num_videos_per_prompt"])
             for index, seed in enumerate(seeds):
                 self.report_progress("video_variation", index + 1, len(seeds))
-                frames, elapsed = self._render_one(request, positive, latent, seed)
+                frames, elapsed, scheduler_metadata = self._render_one(request, positive, latent, seed)
                 if len(frames) != settings["num_frames"]:
                     raise RuntimeError("The MiniMax decoder returned an unexpected frame count")
                 from image_generator.generation import request_snapshot
@@ -163,6 +174,7 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
                         **request_snapshot(request),
                         "seeds": [seed],
                         "video_index": index,
+                        "scheduler": scheduler_metadata,
                         "component_paths": {
                             "checkpoint": str(checkpoint),
                             "vae": str(vae),

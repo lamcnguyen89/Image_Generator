@@ -108,8 +108,7 @@ class ScheduleRegistryTests(unittest.TestCase):
         for schedule in ("karras", "exponential", "beta"):
             with self.assertRaisesRegex(ValueError, "Unsupported noise schedule"):
                 validate_sampling("wan", {"sampler": "model_default", "noise_schedule": schedule}, {})
-            with self.assertRaisesRegex(ValueError, "Unsupported noise schedule"):
-                get_schedule("comfyui_minimax_h3", schedule)
+            self.assertEqual(get_schedule("comfyui_minimax_h3", schedule).native_name, schedule)
 
     def test_normal_has_its_own_policy_and_clears_curve_overrides(self):
         for backend in ("flow_match", "euler_discrete", "dpm_multistep", "euler_ancestral"):
@@ -143,6 +142,7 @@ assert 'torch' not in sys.modules and 'diffusers' not in sys.modules
 assert 'comfy.samplers' not in sys.modules
 assert 'image_generator.workflows.shared.schedules.normal' not in sys.modules
 assert 'image_generator.workflows.shared.schedules.euler_ancestral' not in sys.modules
+assert 'image_generator.workflows.shared.schedules.wan' not in sys.modules
 """
         result = subprocess.run([sys.executable, "-S", "-c", code, str(ROOT / "src"), str(ROOT / "tests/fixtures/model_families")],
                                 capture_output=True, text=True, timeout=10)

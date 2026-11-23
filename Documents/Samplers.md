@@ -51,7 +51,8 @@ The default schedule inherits the checkpoint loader's configuration. Karras
 explicitly sets `use_karras_sigmas: true` and disables alternative sigma grids;
 conflicting checkpoint schedule options fail validation. WAN retains its
 loader's default scheduler as the default selection and offers explicit UniPC
-and DPM++ 2M. MiniMax offers RES multistep and Euler with Simple.
+and DPM++ 2M. WAN offers Default, Normal, and Simple noise schedules. MiniMax offers
+RES multistep and Euler with Simple, Normal, Karras, Exponential, and Beta.
 
 ## Checkpoint configuration
 
@@ -137,12 +138,16 @@ WAN's explicit `uni_pc` binding reproduces the loaded UniPC flow scheduler.
 `dpmpp_2m` resets a native flow-prediction DPM++ solver and installs the source
 UniPC sigma grid and exact model timesteps. This preserves the flow shift and
 high/low-noise expert boundary while changing the numerical update. Both explicit
-bindings require a UniPC flow source, retain the Default noise schedule, and
-create fresh request state. DPM++ metadata includes the source scheduler config.
+bindings require a UniPC flow source and create fresh request state. Default
+retains the loader's original grid. Normal and Simple replace the unshifted input
+grid before native UniPC applies WAN's shift once. DPM++ metadata includes the
+source scheduler config and selected schedule adapter when present.
 
 MiniMax's `res_multistep` and `euler` bindings select their registered native
-ComfyUI names through KSamplerSelect. Both use Simple and BasicGuider; runtime
-availability and checkpoint `allowed_sampling` restrictions are enforced.
+ComfyUI names through KSamplerSelect. Both use BasicGuider and offer Simple,
+Normal, Karras, Exponential, and Beta through native ComfyUI scheduling. Runtime
+availability and checkpoint `allowed_sampling` restrictions are enforced; output
+metadata records the actual sigma grid and effective step count.
 Existing default selections remain unchanged for both video families.
 
 ## ER_SDE implementation

@@ -79,10 +79,10 @@ class MiniMaxFixture:
                                load_lora_for_models=Mock(side_effect=apply_adapter)),
             utils=SimpleNamespace(load_torch_file=Mock(return_value=({}, {})), PROGRESS_BAR_HOOK=None),
             management=SimpleNamespace(unload_all_models=Mock()),
-            samplers=SimpleNamespace(SAMPLER_NAMES=["res_multistep", "euler"], SCHEDULER_NAMES=["simple"]),
+            samplers=SimpleNamespace(SAMPLER_NAMES=["res_multistep", "euler"], SCHEDULER_NAMES=["simple", "normal", "karras", "exponential", "beta"]),
             h3=SimpleNamespace(MiniMaxH3ImageToVideo=SimpleNamespace(execute=Mock(return_value=SimpleNamespace(result=("positive", "latent"))))),
             sampling=SimpleNamespace(BasicGuider=node("guider"), KSamplerSelect=node("sampler"),
-                                     BasicScheduler=node("sigmas"), RandomNoise=node("noise"), SamplerCustomAdvanced=node("sampled")),
+                                     BasicScheduler=SimpleNamespace(execute=Mock(side_effect=lambda **kw: (np.linspace(1, 0, kw["steps"] + 1),))), RandomNoise=node("noise"), SamplerCustomAdvanced=node("sampled")),
             nodes=SimpleNamespace(VAEDecodeTiled=Mock(return_value=SimpleNamespace(decode=Mock(return_value=(frames,)))),
                                   VAEDecode=Mock(return_value=SimpleNamespace(decode=Mock(return_value=(frames,))))))
         self.runtime.utils.set_progress_bar_global_hook = Mock(
@@ -113,6 +113,35 @@ class MiniMaxFixture:
 
 
 class MiniMaxTests(MiniMaxFixture, unittest.TestCase):
+    def test_all_schedules_dispatch_for_both_samplers_and_record_actual_grid(self):
+        for sampler in ("res_multistep", "euler"):
+            for schedule in ("simple", "normal", "karras", "exponential", "beta"):
+                with self.subTest(sampler=sampler, schedule=schedule):
+                    batch = self.workflow.generate(self.request(sampling={"sampler": sampler, "noise_schedule": schedule}))
+                    self.runtime.sampling.KSamplerSelect.execute.assert_called_with(sampler_name=sampler)
+                    self.assertEqual(self.runtime.sampling.BasicScheduler.execute.call_args.kwargs["scheduler"], schedule)
+                    self.assertEqual(batch.metadata["scheduler"]["native_schedule"], schedule)
+                    self.assertEqual(batch.metadata["scheduler"]["native_sampler"], sampler)
+                    self.assertEqual(batch.metadata["scheduler"]["num_inference_steps"], 20)
+                    self.assertEqual(len(batch.metadata["scheduler"]["sigmas"]), 21)
+        self.assertEqual(len(self.base_models), 1)
+
+    def test_beta_effective_steps_drive_initial_progress_and_metadata(self):
+        self.runtime.sampling.BasicScheduler.execute.side_effect = lambda **kw: (np.array([1.0, 0.7, 0.3, 0.0]),)
+        events = []
+        self.workflow.set_progress_callback(events.append)
+        batch = self.workflow.generate(self.request(sampling={"sampler": "euler", "noise_schedule": "beta"}))
+        self.assertEqual(batch.metadata["settings"]["num_inference_steps"], 20)
+        self.assertEqual(batch.metadata["scheduler"]["num_inference_steps"], 3)
+        self.assertEqual([(event.current, event.total) for event in events if event.stage == "denoising"], [(0, 3)])
+
+    def test_invalid_native_sigma_grids_fail_before_sampling(self):
+        for values in ([1.0, float("nan"), 0.0], [1.0, 0.5, 0.5, 0.0], [1.0, 0.7, 0.8, 0.0], [1.0, 0.1], [0.0]):
+            self.runtime.sampling.BasicScheduler.execute.side_effect = lambda **kw: (np.array(values),)
+            with self.assertRaisesRegex(ValueError, "flow sigma grid"):
+                self.workflow.generate(self.request())
+        self.runtime.sampling.SamplerCustomAdvanced.execute.assert_not_called()
+
     def test_euler_dispatches_native_sampler_in_both_modes_and_retains_simple(self):
         for mode in ("txt2vid", "img2vid"):
             batch = self.workflow.generate(self.request(mode=mode, sampling={"sampler": "euler", "noise_schedule": "simple"}))

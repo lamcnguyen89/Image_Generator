@@ -76,6 +76,17 @@ _BINDINGS = (
         + (("final_sigmas_type", "zero"), ("interpolation_type", "linear"), ("timestep_type", "discrete")),
     ) for name in _STANDARD_CURVES),
     ScheduleBinding("comfyui_minimax_h3", "simple", native_name="simple"),
+    *(ScheduleBinding("comfyui_minimax_h3", name, native_name=name)
+      for name in ("normal", "karras", "exponential", "beta")),
+    ScheduleBinding("wan_unipc", "default"),
+    *(ScheduleBinding(
+        "wan_unipc", name,
+        (("prediction_type", "flow_prediction"), ("use_flow_sigmas", True), ("final_sigmas_type", "zero"),
+         ("timestep_spacing", "linspace"))
+        + tuple((flag, False) for flag in _STANDARD_FLAGS),
+        adapter=("image_generator.workflows.shared.schedules.wan", "WanFlowScheduleAdapter"),
+        adapter_options=(("schedule", name),),
+    ) for name in ("normal", "simple")),
 )
 SCHEDULE_BINDINGS = MappingProxyType({(binding.backend, binding.name): binding for binding in _BINDINGS})
 

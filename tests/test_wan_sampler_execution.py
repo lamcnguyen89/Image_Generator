@@ -60,7 +60,8 @@ class WanSamplerExecutionTests(WanExecutionFixture, unittest.TestCase):
                     page = FormPage(self.client.get(f"/generate/{model}").text)
                     self.assertEqual([item["value"] for item in page.options["sampling.sampler"]],
                                      ["model_default", "uni_pc", "dpmpp_2m"])
-                    self.assertEqual([item["value"] for item in page.options["sampling.noise_schedule"]], ["default"])
+                    self.assertEqual([item["value"] for item in page.options["sampling.noise_schedule"]],
+                                     ["default", "normal", "simple"])
                     data = self.data(model, action="save_model", **{"sampling.sampler": sampler})
                     data.pop("input_image", None)
                     self.assertEqual(self.client.post(f"/settings/models/{model}", data=data).status_code, 303)
@@ -86,4 +87,35 @@ class WanSamplerExecutionTests(WanExecutionFixture, unittest.TestCase):
             self.assertEqual(grid, reference)
             if sampler == "dpmpp_2m":
                 self.assertEqual(metadata["scheduler"]["config"]["algorithm_type"], "dpmsolver++")
+        self.assertEqual(len(self.pipelines), 2)
+
+    def test_named_schedules_save_and_execute_in_both_modes_for_all_samplers(self):
+        jobs = []
+        for model in ("fixture-wan", "fixture-wan-t2v"):
+            for sampler in ("model_default", "uni_pc", "dpmpp_2m"):
+                for schedule in ("normal", "simple"):
+                    pair = {"sampler": sampler, "noise_schedule": schedule}
+                    data = self.data(model, action="save_model",
+                                     **{"sampling.sampler": sampler, "sampling.noise_schedule": schedule})
+                    data.pop("input_image", None)
+                    self.assertEqual(self.client.post(f"/settings/models/{model}", data=data).status_code, 303)
+                    data = self.data(model)
+                    self.assertEqual(data["sampling.noise_schedule"], schedule)
+                    if model.endswith("t2v"):
+                        data.pop("input_image", None)
+                        response = self.client.post(f"/generate/{model}", data=data)
+                    else:
+                        response = self.post(data, model)
+                    self.assertEqual(response.status_code, 303)
+                    jobs.append((response.location.rsplit("/", 1)[1], pair))
+        self.worker().run(until_idle=True)
+        grids = {}
+        for identifier, pair in jobs:
+            job = self.store.get(identifier)
+            self.assertEqual(job.status, "completed", job.error)
+            metadata = json.loads(job.outputs[0].metadata_path.read_text())
+            self.assertEqual(metadata["settings"]["sampling"], pair)
+            grid = (metadata["scheduler"]["sigmas"], metadata["scheduler"]["timesteps"])
+            self.assertEqual(grid, grids.setdefault(pair["noise_schedule"], grid))
+        self.assertNotEqual(grids["normal"], grids["simple"])
         self.assertEqual(len(self.pipelines), 2)

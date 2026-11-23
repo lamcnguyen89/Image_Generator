@@ -61,8 +61,9 @@ through `sampling: {"sampler": "model_default", "noise_schedule": "default"}`
 and an empty `scheduler_config`.
 
 Both WAN 2.2 A14B modes also expose explicit UniPC and DPM++ 2M sampler bindings.
-They retain the loader's UniPC flow grid and expert timesteps with the Default
-noise schedule. The model's saved default selection remains `model_default`.
+With Default selected they retain the loader's UniPC flow grid and expert
+timesteps. All three samplers also offer Normal and Simple grids, shifted once
+by native UniPC. The model's saved default selection remains `model_default`/Default.
 
 Playback fps, aspect-ratio fitting, and VAE tiling need workflow/export handling;
 they should not all be blindly forwarded as pipeline call arguments. Input

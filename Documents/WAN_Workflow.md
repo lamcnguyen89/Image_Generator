@@ -41,15 +41,19 @@ Both guidance scales must enable CFG together (both > 1) or disable it together
 (both <= 1). Frame counts must be `4*n + 1`, at least 5, and satisfy the manifest's
 additional frame-count requirements. FPS must be positive; it changes playback
 rate, not the number of generated frames. Sampling offers `model_default`, explicit
-`uni_pc`, and `dpmpp_2m`, all with the `default` noise schedule. `model_default`
+`uni_pc`, and `dpmpp_2m`, all with `default`, `normal`, and `simple` noise schedules. `model_default`
 remains selected. Explicit bindings require the loader's UniPC flow scheduler.
-UniPC reproduces that scheduler; DPM++ 2M uses its numerical update while retaining
-the exact UniPC sigma grid and model timesteps, including flow shift and expert
-boundary selection. Mandatory scheduler settings are reapplied per variation;
+UniPC reproduces the loader grid with Default selected. Normal uses the full
+training-time range and Simple subsamples the discrete training grid; UniPC
+applies the model's flow shift once. DPM++ 2M uses its numerical update with the
+selected UniPC grid and exact model timesteps for expert selection. Mandatory scheduler settings are reapplied per variation;
 conflicts with a selected solver's fixed algorithm/order fail validation.
 
 Use `--sampler uni_pc` or `--sampler dpmpp_2m` in the CLI, or choose the sampler
 in either video generation form. Checkpoint `allowed_sampling` restrictions apply.
+Choose `--sampling-noise-schedule normal` or `simple` for the named grids; both
+accept 1 through the scheduler's number of training timesteps. Default remains
+the checkpoint's selected noise schedule.
 
 `--preserve-aspect-ratio` fits the source aspect ratio to the requested pixel area,
 rounding dimensions to the loaded VAE/transformer's spatial alignment.

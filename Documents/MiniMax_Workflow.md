@@ -22,8 +22,8 @@ The shared UI contract renders H3-specific controls:
 - Frame counts `17*n + 5`, constrained by the manifest and the native 3600-frame
   ceiling. This rule is independent of WAN's `4*n + 1` constraint.
 - Native 24 FPS and CFG 1, rendered read-only and validated again in Python.
-- A choice of `res_multistep` (the default) or `euler`, both with the `simple`
-  schedule and BasicGuider. Choices and exact checkpoint pair restrictions use
+- A choice of `res_multistep` (the default) or `euler`, both with Simple (the default),
+  Normal, Karras, Exponential, or Beta schedules and BasicGuider. Choices and exact checkpoint pair restrictions use
   the shared sampler registry; runtime construction uses native ComfyUI nodes.
 - A choice of text-to-video or image-to-video. Only image-to-video requires a
   source image and exposes source-aspect preservation; text-to-video uses the
@@ -39,6 +39,10 @@ or exported: this adapter produces silent MP4s, matching the notebook.
 Select Euler with `--sampler euler` in the CLI or the sampler dropdown in either
 video mode. Switching samplers reuses loaded model components. The selected pair
 is saved with model preferences and included in queued requests and output metadata.
+Select a schedule with `--sampling-noise-schedule normal`, `karras`, `exponential`,
+or `beta`, or use the Advanced noise-schedule dropdown. Native ComfyUI generates
+the grid; metadata records actual sigmas and effective steps. Beta can remove
+duplicate noise levels, so the effective count can be lower than the requested count.
 
 Web submission queues generation for the shared worker; see
 [web execution](MiniMax_UI_Execution.md). **Preview request** checks form values

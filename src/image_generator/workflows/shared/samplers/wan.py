@@ -6,14 +6,17 @@ import torch
 from diffusers.configuration_utils import FrozenDict
 
 from ..sampling import build_scheduler
+from ..schedules import apply_schedule, scheduler_options
 
 
 def build_wan(*, spec, sampling, requirements, diffusers, original_class, original_config, generators):
     if original_class is not diffusers.UniPCMultistepScheduler:
         raise ValueError("Explicit WAN samplers require a UniPCMultistepScheduler source")
-    source = build_scheduler(diffusers.UniPCMultistepScheduler, original_config, requirements=requirements)
+    source = build_scheduler(diffusers.UniPCMultistepScheduler, original_config, requirements=requirements,
+                             **scheduler_options(spec.schedule_backend, sampling["noise_schedule"], requirements))
     if source.config.prediction_type != "flow_prediction" or not source.config.use_flow_sigmas:
         raise ValueError("Explicit WAN samplers require UniPC flow_prediction and use_flow_sigmas=True")
+    source = apply_schedule(spec.schedule_backend, sampling["noise_schedule"], requirements, source)
     if spec.name == "uni_pc":
         return source
     solver_class = getattr(diffusers, spec.scheduler_class)

@@ -27,7 +27,7 @@ class VideoSamplerRegistryTests(unittest.TestCase):
             self.assertEqual([name for name, _ in fields[0].choices], [sampler])
             self.assertEqual([name for name, _ in fields[1].choices], [schedule])
             validate_sampling(workflow, pair, requirements)
-            for invalid in ("karras", "normal", "beta", "exponential"):
+            for invalid in (("karras", "beta", "exponential") if workflow == "wan" else ("default", "sgm_uniform")):
                 with self.assertRaisesRegex(ValueError, "Unsupported noise schedule"):
                     validate_sampling(workflow, {**pair, "noise_schedule": invalid}, {})
             with self.assertRaisesRegex(ValueError, "prohibited"):
@@ -55,8 +55,8 @@ class WanSamplerNumericalTests(unittest.TestCase):
         return dict(diffusers.UniPCMultistepScheduler(prediction_type="flow_prediction", use_flow_sigmas=True,
                                                      flow_shift=3.0, solver_order=2, solver_type="bh2").config)
 
-    def build(self, sampler, config, requirements=None, original_class=None):
-        return create_scheduler("wan", {"sampler": sampler, "noise_schedule": "default"}, requirements or {},
+    def build(self, sampler, config, requirements=None, original_class=None, *, schedule="default"):
+        return create_scheduler("wan", {"sampler": sampler, "noise_schedule": schedule}, requirements or {},
                                 diffusers=diffusers, original_class=original_class or diffusers.UniPCMultistepScheduler,
                                 original_config=config, generators=[torch.Generator().manual_seed(42)])
 
@@ -124,6 +124,64 @@ class WanSamplerNumericalTests(unittest.TestCase):
                 self.build(sampler, invalid)
         with self.assertRaisesRegex(ValueError, "requires scheduler_config"):
             self.build("dpmpp_2m", config, {"scheduler_config": {"solver_order": 3}})
+
+    def test_named_wan_schedules_match_training_grid_reference_and_keep_shift(self):
+        import numpy as np
+
+        config = self.source_config()
+        before = deepcopy(config)
+        for schedule in ("normal", "simple"):
+            for steps in (1, 7, 20, 1000):
+                for shift in (1.0, 3.0, 5.0):
+                    if schedule == "normal":
+                        inputs = np.linspace(1.0, 1.0 / 1000, steps)
+                    else:
+                        # Scalar ComfyUI Simple reference: walk backwards
+                        # through the full unshifted flow training table.
+                        table = [(i + 1) / 1000 for i in range(1000)]
+                        inputs = np.array([table[-(1 + int(i * 1000 / steps))] for i in range(steps)])
+                    expected = shift * inputs / (1 + (shift - 1) * inputs)
+                    expected[0] -= 1e-6
+                    expected_times = torch.tensor(expected * 1000, dtype=torch.int64)
+                    expected_sigmas = torch.tensor([*expected, 0], dtype=torch.float32)
+                    for sampler in ("model_default", "uni_pc", "dpmpp_2m"):
+                        with self.subTest(schedule=schedule, steps=steps, shift=shift, sampler=sampler):
+                            scheduler = self.build(sampler, config, {"scheduler_config": {"flow_shift": shift}}, schedule=schedule)
+                            scheduler.set_timesteps(steps, device="cpu")
+                            torch.testing.assert_close(scheduler.sigmas, expected_sigmas, rtol=0, atol=0)
+                            torch.testing.assert_close(scheduler.timesteps, expected_times, rtol=0, atol=0)
+                            self.assertEqual((scheduler.timesteps >= 875).tolist(), (expected_times >= 875).tolist())
+                            if sampler == "dpmpp_2m":
+                                self.assertEqual(scheduler.config.source_scheduler_config["schedule_adapter"], schedule)
+                            else:
+                                self.assertEqual(scheduler.config.schedule_adapter, schedule)
+        self.assertEqual(config, before)
+
+    def test_named_wan_schedules_run_on_video_latents_and_reset(self):
+        for sampler in ("model_default", "uni_pc", "dpmpp_2m"):
+            for schedule in ("normal", "simple"):
+                with self.subTest(sampler=sampler, schedule=schedule):
+                    scheduler = self.build(sampler, self.source_config(), schedule=schedule)
+                    results = []
+                    for _ in range(2):
+                        scheduler.set_timesteps(8)
+                        self.assertIsNone(scheduler.step_index)
+                        sample = torch.full((1, 4, 2, 2, 2), 0.3)
+                        for t in scheduler.timesteps:
+                            scale = 0.2 if t >= 875 else 0.1
+                            sample = scheduler.step(sample.tanh() * scale, t, sample).prev_sample
+                        self.assertTrue(torch.isfinite(sample).all())
+                        results.append(sample)
+                    torch.testing.assert_close(results[0], results[1], rtol=0, atol=0)
+                    json.dumps(scheduler_metadata(scheduler), allow_nan=False)
+                    for invalid in (0, -1, 1001, True, 2.5):
+                        with self.assertRaisesRegex(ValueError, "inference steps"):
+                            scheduler.set_timesteps(invalid)
+        for schedule in ("normal", "simple"):
+            for config in ({"use_karras_sigmas": True}, {"use_exponential_sigmas": True}, {"use_beta_sigmas": True},
+                           {"use_flow_sigmas": False}, {"prediction_type": "epsilon"}, {"final_sigmas_type": "sigma_min"}):
+                with self.assertRaisesRegex(ValueError, "requires scheduler_config"):
+                    validate_sampling("wan", {"sampler": "uni_pc", "noise_schedule": schedule}, {"scheduler_config": config})
 
 
 if __name__ == "__main__":
