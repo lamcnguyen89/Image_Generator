@@ -35,6 +35,10 @@ def create_app(config=None):
     app.config["ACCESS_PASSWORD"] = os.environ.get("IMAGE_GENERATOR_ACCESS_PASSWORD", "")
     if config is not None:
         app.config.update(config)
+    from .diagnostics import configure_logging, install_request_logging
+    if app.config.get("LOG_ENABLED", not app.testing):
+        configure_logging(app.config.get("LOG_DIR"), app.config.get("LOG_LEVEL"))
+        install_request_logging(app)
     if not app.config.get("SECRET_KEY"):
         app.config["SECRET_KEY"] = token_hex(32)
     if not isinstance(app.config["ACCESS_PASSWORD"], str):

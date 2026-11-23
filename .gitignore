@@ -230,6 +230,7 @@ __marimo__/
 /data/jobs.sqlite3.worker.lock
 /data/outputs/
 /data/inputs/
+/data/logs/
 
 
 # Model weights (checkpoints, LoRAs, VAEs, etc.), ignored by extension anywhere in the repo

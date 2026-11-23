@@ -5,6 +5,8 @@ import math
 from pathlib import Path
 from time import perf_counter
 
+from image_generator.diagnostics import measured_operation
+
 from ..base import GeneratedBatch, Workflow
 from ..shared.assets import file_fingerprint
 from ..shared.seeds import image_seeds
@@ -204,6 +206,7 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
             self.close()
             raise
 
+    @measured_operation("model_unload")
     def close(self):
         self._model = self._pipeline = None
         self._model_key = self._lora_key = None

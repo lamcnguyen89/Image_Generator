@@ -134,3 +134,39 @@ Start both in one terminal with `bash scripts/start.sh` (automatically uses
 [SDXL execution and GPU testing](Documents/SDXL_UI_Execution.md).
 To run the same launcher automatically at boot, install the single
 [systemd service](systemd/README.md).
+
+## Diagnostic logging
+
+The web server, generation worker, and CLI runners write JSON Lines to
+`data/logs/application.log`. Logs rotate at 5 MB per file, retaining the active
+file and 14 backups (`application.log.1` is the newest backup). **All retained
+application log files together use at most 75 MB (75,000,000 bytes).** Older
+records are discarded automatically. Web and worker processes share a rotation
+lock, including across restarts. Oversized individual records are truncated as
+valid JSON. This budget covers these files; terminal output and systemd's
+journal have their own retention settings.
+
+Logs include UTC timestamps, process/thread identity, job/workflow IDs, generation
+parameters and seeds, image/video/frame counts, output dimensions and file sizes,
+generation and save/encoding durations, throughput, stage transitions, model reuse,
+runtime imports, model loading/cleanup, and failure tracebacks. Resource snapshots
+record process RAM, CPU time, thread count, available system RAM and swap, plus
+CUDA availability/initialization, the selected GPU, and allocated/reserved/peak
+VRAM when PyTorch has initialized CUDA. VRAM peaks are process-lifetime PyTorch
+allocator peaks, not per-job peaks or total device usage. Periodic snapshots run
+every five seconds during generation; these samples may miss brief memory spikes.
+GPU probes never import PyTorch or synchronize GPU work. Missing diagnostics
+dependencies or failed probes are recorded without stopping generation.
+
+Set `IMAGE_GENERATOR_LOG_LEVEL=DEBUG` for throttled step progress, definition
+imports, and HTTP route timings (HTTP errors are logged at WARNING by default).
+Use `IMAGE_GENERATOR_LOG_DIR` to change the shared log directory, and
+`IMAGE_GENERATOR_RESOURCE_INTERVAL` to change the sampling interval in seconds
+(`0` disables periodic samples). Put these settings in `.env` or export them
+before starting the application.
+Application telemetry excludes prompts, request bodies, authentication headers,
+and runtime tokens. Known environment credentials and Hugging Face tokens are
+redacted from messages and tracebacks. Third-party exception messages can still
+contain user data; review logs before sharing them. Flask tests skip file logging
+unless `LOG_ENABLED=True` is explicitly configured. Library callers can opt into
+file logging with `image_generator.diagnostics.configure_logging()`.

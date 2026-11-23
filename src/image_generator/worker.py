@@ -12,6 +12,7 @@ from threading import Event, Thread
 from time import monotonic
 from uuid import uuid4
 
+from .diagnostics import GenerationTelemetry, configure_logging, event, resource_snapshot
 from .generation import save_batch
 from .job_requests import decode_request, verify_fingerprints
 from .jobs import JobStore
@@ -105,6 +106,7 @@ class Worker:
             try:
                 self.store._heartbeat(self.id)
             except Exception as error:
+                LOGGER.exception("Worker %s heartbeat failed", self.id)
                 self._heartbeat_failure = error
                 self.request_stop()
                 return
@@ -114,13 +116,19 @@ class Worker:
             raise RuntimeError("Worker heartbeat failed; stopping this worker") from self._heartbeat_failure
 
     def _close_workflow(self):
+        workflow_name = self._workflow_name
         workflow, self._workflow = self._workflow, None
         self._workflow_name = None
         if workflow is not None:
             try:
+                started = monotonic()
+                event("workflow_close_started", workflow=workflow_name)
                 workflow.set_progress_callback(None)
                 workflow.close()
+                event("workflow_closed", workflow=workflow_name, elapsed_seconds=monotonic() - started,
+                      resources=resource_snapshot())
             except BaseException as error:
+                LOGGER.exception("Workflow %s cleanup failed", workflow_name)
                 self.request_stop()
                 raise WorkerCleanupError("Workflow cleanup failed; a new model will not be loaded") from error
 
@@ -169,40 +177,46 @@ class Worker:
         self.current_job_id = job.id
         LOGGER.info("Job %s running (%s)", job.id, job.workflow)
         try:
-            request = decode_request(job.request)
-            if request.model.defaults["workflow"] != job.workflow:
-                raise ValueError("Queued workflow does not match its request snapshot")
-            verify_fingerprints(job.fingerprints)
-            self._check_health()
-            self.store._progress(job.id, self.id, "preparing")
-            workflow = self._ensure_workflow(job.workflow)
-            self._last_progress = None
-            workflow.set_progress_callback(lambda event: self._report_progress(job.id, event))
-            workflow.validate(request)
-            self.store._progress(job.id, self.id, "generating")
-            iterator = iter(workflow.generate_batches(request))
-            count = 0
-            try:
-                for batch in iterator:
-                    self._check_health()
-                    save_stage = "encoding_video" if batch.videos else "saving"
-                    self.store._progress(job.id, self.id, save_stage, count)
-                    root = self.video_output_dir if batch.videos else self.output_dir
-                    directory = root / job.id
-                    if directory.is_symlink():
-                        raise ValueError("Job output directory must not be a symlink")
-                    saved = save_batch(batch, directory)
-                    self.store._record_outputs(job.id, self.id, saved)
-                    count += len(saved)
-                    self.store._progress(job.id, self.id, "saving", count)
-                    del batch
-                    self.store._progress(job.id, self.id, "generating", count)
-            finally:
-                close_iterator = getattr(iterator, "close", None)
-                if close_iterator is not None:
-                    close_iterator()
-            self._check_health()
-            result = self.store._finish(job.id, self.id, "completed")
+            with GenerationTelemetry(job_id=job.id, workflow=job.workflow,
+                                     device=self.runtime_options.get(job.workflow, {}).get("device")) as telemetry:
+                request = decode_request(job.request)
+                telemetry.request(request)
+                if request.model.defaults["workflow"] != job.workflow:
+                    raise ValueError("Queued workflow does not match its request snapshot")
+                verify_fingerprints(job.fingerprints)
+                self._check_health()
+                self.store._progress(job.id, self.id, "preparing")
+                workflow = self._ensure_workflow(job.workflow)
+                self._last_progress = None
+                workflow.set_progress_callback(lambda event: self._report_progress(job.id, event))
+                workflow.validate(request)
+                self.store._progress(job.id, self.id, "generating")
+                iterator = iter(workflow.generate_batches(request))
+                count = 0
+                try:
+                    for batch in iterator:
+                        self._check_health()
+                        save_stage = "encoding_video" if batch.videos else "saving"
+                        workflow.report_progress(save_stage, count)
+                        root = self.video_output_dir if batch.videos else self.output_dir
+                        directory = root / job.id
+                        if directory.is_symlink():
+                            raise ValueError("Job output directory must not be a symlink")
+                        save_started = monotonic()
+                        saved = save_batch(batch, directory)
+                        telemetry.batch_saved(batch, save_seconds=monotonic() - save_started)
+                        self.store._record_outputs(job.id, self.id, saved)
+                        count += len(saved)
+                        self.store._progress(job.id, self.id, "saving", count)
+                        del batch
+                        self.store._progress(job.id, self.id, "generating", count)
+                finally:
+                    close_iterator = getattr(iterator, "close", None)
+                    if close_iterator is not None:
+                        close_iterator()
+                self._check_health()
+                result = self.store._finish(job.id, self.id, "completed")
+                workflow.set_progress_callback(None)
         except Exception as error:
             cleanup_error = None
             try:
@@ -210,7 +224,7 @@ class Worker:
             except WorkerCleanupError as failure:
                 cleanup_error = failure
             result = self.store._finish(job.id, self.id, "failed", f"{type(error).__name__}: {error}")
-            LOGGER.warning("Job %s failed (%s)", job.id, type(error).__name__)
+            LOGGER.exception("Job %s failed (%s)", job.id, type(error).__name__)
             if cleanup_error is not None:
                 raise cleanup_error
             if isinstance(error, WorkerCleanupError):
@@ -265,6 +279,7 @@ class Worker:
                 self._started = False
                 self._closed = True
                 self._release_lock()
+                LOGGER.info("Worker %s stopped", self.id)
 
 
 def main(argv=None):
@@ -286,7 +301,6 @@ def main(argv=None):
     for option in extra_options.values():
         parser.add_argument("--" + option.name.replace("_", "-"), type=option.type, help=option.help)
     args = parser.parse_args(argv)
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     try:
         try:
             from dotenv import load_dotenv
@@ -294,6 +308,7 @@ def main(argv=None):
             pass
         else:
             load_dotenv(PROJECT_ROOT / ".env")
+        configure_logging()
         cache_root = Path(os.getenv("CACHE_LOCATION") or PROJECT_ROOT / "Models").expanduser()
         if not cache_root.is_absolute():
             cache_root = PROJECT_ROOT / cache_root

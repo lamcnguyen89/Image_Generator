@@ -8,6 +8,8 @@ from importlib import import_module
 from pathlib import Path
 from time import perf_counter
 
+from image_generator.diagnostics import measured_operation
+
 from ..base import GeneratedBatch, GenerationRequest, Workflow
 from ..shared.metadata import scheduler_metadata
 from ..shared.samplers import create_scheduler
@@ -57,6 +59,7 @@ class SDXLWorkflow(Workflow):
         if path.suffix.lower() != ".safetensors":
             raise ValueError(f"{label} weights must be a .safetensors file")
 
+    @measured_operation("runtime_load")
     def _load_runtime(self):
         if self._torch is None:
             self._torch = import_module("torch")
@@ -70,6 +73,7 @@ class SDXLWorkflow(Workflow):
         if self._diffusers is None:
             self._diffusers = import_module("diffusers")
 
+    @measured_operation("model_load")
     def _load_pipeline(self, request):
         path = request.model.asset_paths["weights"]
         fingerprint = None
@@ -232,6 +236,7 @@ class SDXLWorkflow(Workflow):
             self.close()
             raise
 
+    @measured_operation("model_unload")
     def close(self) -> None:
         self._pipeline = None
         self._model_key = None

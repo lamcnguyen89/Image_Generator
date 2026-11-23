@@ -199,11 +199,18 @@ class WebTests(unittest.TestCase):
             def __init__(self, html):
                 super().__init__()
                 self.elements = []
+                self.in_main = False
                 self.feed(html)
 
             def handle_starttag(self, tag, attrs):
-                if tag in {"img", "video", "source"}:
+                if tag == "main":
+                    self.in_main = True
+                if self.in_main and tag in {"img", "video", "source"}:
                     self.elements.append((tag, dict(attrs)))
+
+            def handle_endtag(self, tag):
+                if tag == "main":
+                    self.in_main = False
 
         html = self.client.get("/").text
         elements = MediaElements(html).elements

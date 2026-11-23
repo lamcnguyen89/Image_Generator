@@ -7,6 +7,8 @@ from importlib import import_module
 from pathlib import Path
 from types import MethodType, SimpleNamespace
 
+from image_generator.diagnostics import measured_operation
+
 from ..shared.assets import file_fingerprint
 
 
@@ -33,6 +35,7 @@ def protect_quantized_transfers(root, torch):
 
 
 class ComfyRuntimeMixin:
+    @measured_operation("runtime_load")
     def _load_runtime(self):
         if self._runtime is not None:
             return
@@ -86,6 +89,7 @@ class ComfyRuntimeMixin:
             )
         )
 
+    @measured_operation("model_load")
     def _ensure_pipeline(self, checkpoint, vae, encoder):
         key = tuple(file_fingerprint(path) for path in (checkpoint, vae, encoder))
         if self._pipeline is not None and key == self._model_key:

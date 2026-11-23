@@ -5,8 +5,10 @@ import json
 import os
 from pathlib import Path
 import sys
+import logging
 
 from .catalog import discover_catalog
+from .diagnostics import configure_logging
 from .generation import prepare_generation, request_snapshot, run_generation
 from .workflows.base import SavedVideo
 
@@ -49,6 +51,17 @@ def run_family(family, argv=None):
     bootstrap.add_argument("--model-id", default=definition.default_model_id)
     bootstrap.add_argument("--mode")
     selected, _ = bootstrap.parse_known_args(argv)
+    # Read logging options without changing the environment during dry runs.
+    try:
+        from dotenv import dotenv_values
+    except ImportError:
+        logging_options = {}
+    else:
+        logging_options = dotenv_values(PROJECT_ROOT / ".env")
+    configure_logging(
+        os.getenv("IMAGE_GENERATOR_LOG_DIR") or logging_options.get("IMAGE_GENERATOR_LOG_DIR"),
+        os.getenv("IMAGE_GENERATOR_LOG_LEVEL") or logging_options.get("IMAGE_GENERATOR_LOG_LEVEL"),
+    )
     try:
         catalog = discover_catalog(selected.root)
         candidates = [model for model in catalog.models.values() if model.defaults["workflow"] == family]
@@ -65,6 +78,7 @@ def run_family(family, argv=None):
         ui = definition.get_ui_definition(model, mode)
         mode_definition = definition.mode(mode)
     except (ValueError, OSError) as error:
+        logging.getLogger(__name__).exception("Generation preparation failed")
         print(f"Generation failed: {error}", file=sys.stderr)
         return 1
 
@@ -136,6 +150,7 @@ def run_family(family, argv=None):
         from dotenv import load_dotenv
 
         load_dotenv(PROJECT_ROOT / ".env")
+        configure_logging()
         cache_root = Path(os.getenv("CACHE_LOCATION") or PROJECT_ROOT / "Models").expanduser()
         if not cache_root.is_absolute():
             cache_root = PROJECT_ROOT / cache_root
@@ -155,6 +170,7 @@ def run_family(family, argv=None):
                 print(f"Image: {output.image_path}")
             print(f"Metadata: {output.metadata_path}\nSeed: {output.seed}")
     except (ValueError, OSError, RuntimeError, ImportError) as error:
+        logging.getLogger(__name__).exception("Generation failed")
         print(f"Generation failed: {error}", file=sys.stderr)
         return 1
     return 0

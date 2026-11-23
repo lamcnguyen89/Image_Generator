@@ -4,9 +4,11 @@ from copy import deepcopy
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+from time import perf_counter
 from uuid import uuid4
 
 from .catalog import Catalog
+from .diagnostics import GenerationTelemetry, event
 from .workflows.base import GeneratedBatch, GenerationRequest, LoRASelection, SavedImage, SavedVideo
 from .workflows.registry import create_workflow, get_definition
 
@@ -120,6 +122,8 @@ def save_batch(batch: GeneratedBatch, output_dir: str | Path) -> tuple[SavedImag
             metadata_path.unlink(missing_ok=True)
             raise
         saved.append(SavedImage(image_path, metadata_path, seed))
+        event("output_saved", kind="image", path=str(image_path), seed=seed,
+              width=image.width, height=image.height, bytes=image_path.stat().st_size)
     return tuple(saved)
 
 
@@ -177,6 +181,8 @@ def save_video_batch(batch: GeneratedBatch, output_dir: str | Path) -> tuple[Sav
                     path.unlink(missing_ok=True)
             raise
         saved.append(SavedVideo(video_path, metadata_path, seed, conditioning_path))
+        event("output_saved", kind="video", path=str(video_path), seed=seed,
+              bytes=video_path.stat().st_size, **metadata["output_video"])
     return tuple(saved)
 
 
@@ -186,12 +192,27 @@ def run_generation(request: GenerationRequest, output_dir: str | Path, **runtime
     A future worker can retain a workflow instance and call generate() directly
     to reuse its pipeline across serialized requests.
     """
-    workflow = create_workflow(request.model.defaults["workflow"], **runtime_options)
-    try:
-        saved = []
-        for batch in workflow.generate_batches(request):
-            saved.extend(save_batch(batch, output_dir))
-            del batch  # Release decoded video frames before requesting another variation.
-        return tuple(saved)
-    finally:
-        workflow.close()
+    name = request.model.defaults["workflow"]
+    with GenerationTelemetry(workflow=name, device=runtime_options.get("device")) as telemetry:
+        telemetry.request(request)
+        workflow = create_workflow(name, **runtime_options)
+        try:
+            # Enables existing denoising callbacks for CLI stage timing too.
+            workflow.set_progress_callback(lambda progress: None)
+            saved = []
+            iterator = iter(workflow.generate_batches(request))
+            try:
+                for batch in iterator:
+                    workflow.report_progress("encoding_video" if batch.videos else "saving")
+                    started = perf_counter()
+                    saved.extend(save_batch(batch, output_dir))
+                    telemetry.batch_saved(batch, save_seconds=perf_counter() - started)
+                    del batch  # Release frames before requesting another variation.
+            finally:
+                close_iterator = getattr(iterator, "close", None)
+                if close_iterator is not None:
+                    close_iterator()
+            return tuple(saved)
+        finally:
+            workflow.set_progress_callback(None)
+            workflow.close()

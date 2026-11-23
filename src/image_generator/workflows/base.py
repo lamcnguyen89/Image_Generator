@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from image_generator.catalog import CatalogAsset
+from image_generator.diagnostics import StageTimer
 
 from .ui import UIDefinition
 
@@ -70,9 +71,16 @@ class Workflow(ABC):
 
     def set_progress_callback(self, callback: Callable[[WorkflowProgress], None] | None) -> None:
         """Attach a process-local observer; callbacks are never request settings."""
+        timer = getattr(self, "_diagnostic_timer", None)
+        if timer is not None:
+            timer.finish()
+        self._diagnostic_timer = StageTimer(getattr(self, "workflow_id", type(self).__name__))
         self._progress_callback = callback
 
     def report_progress(self, stage: str, current=None, total=None) -> None:
+        if getattr(self, "_diagnostic_timer", None) is None:
+            self._diagnostic_timer = StageTimer(getattr(self, "workflow_id", type(self).__name__))
+        self._diagnostic_timer.progress(stage, current, total)
         callback = getattr(self, "_progress_callback", None)
         if callback is not None:
             callback(WorkflowProgress(stage, current, total))

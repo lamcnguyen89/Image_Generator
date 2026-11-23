@@ -6,6 +6,8 @@ from copy import deepcopy
 from importlib import import_module
 from pathlib import Path
 
+from image_generator.diagnostics import measured_operation
+
 from ..base import Workflow
 from .adapters import DiffusersAdapters
 from .metadata import scheduler_metadata
@@ -29,6 +31,7 @@ class TransformerWorkflow(DiffusersAdapters, Workflow):
         self._scheduler_class = self._scheduler_config = None
         self._has_adapters = False
 
+    @measured_operation("runtime_load")
     def _load_runtime(self):
         self.report_progress("loading_runtime")
         if self._torch is None:
@@ -56,6 +59,7 @@ class TransformerWorkflow(DiffusersAdapters, Workflow):
             options["token"] = self._token
         return options
 
+    @measured_operation("model_load")
     def _ensure_pipeline(self, request, fingerprint):
         key = (request.model.id, request.model.defaults.get("base_model_id"), fingerprint)
         if self._pipeline is not None and self._model_key == key:
@@ -92,6 +96,7 @@ class TransformerWorkflow(DiffusersAdapters, Workflow):
     def _scheduler_metadata(self):
         return scheduler_metadata(self._pipeline.scheduler)
 
+    @measured_operation("model_unload")
     def close(self):
         self._pipeline = self._model_key = self._scheduler_class = self._scheduler_config = None
         self._has_adapters = False

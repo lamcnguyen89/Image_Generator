@@ -15,7 +15,10 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="header-actions">
-      <a class="brand" href="{{ url_for('catalog.index') }}">Midnight Generator</a>
+      <a class="brand" href="{{ url_for('catalog.index') }}">
+        <img class="brand-logo" src="{{ url_for('catalog.static', filename='favicon.ico') }}" alt="" width="48" height="48">
+        <span>Midnight Generator</span>
+      </a>
       <details class="header-menu">
         <summary>Menu</summary>
         <nav class="header-menu-links" aria-label="Main navigation">
