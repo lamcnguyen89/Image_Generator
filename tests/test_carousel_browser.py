@@ -39,6 +39,9 @@ PAGE = """<!doctype html>
   <article class="card">{{ asset_preview(lora) }}</article>
 </form>
 <div style="margin-top: 3000px; width: 260px">{{ asset_preview(offscreen) }}</div>
+<div data-media-gallery style="margin-top: 1500px; width: 260px">
+  <video id="single-video" muted playsinline preload="metadata" style="width: 260px; height: 180px"></video>
+</div>
 <script>{{ harness | safe }}</script>
 </body></html>"""
 
@@ -153,6 +156,47 @@ window.addEventListener("load", async () => {
     stream.getTracks().forEach((track) => track.stop());
     const videoURL = URL.createObjectURL(new Blob(chunks, {type: "video/webm"}));
     slides[12].querySelector("[data-media-item]").href = videoURL;
+    video.querySelector("source").dataset.mediaSrc = videoURL;
+
+    key("End");
+    await until(() => video.readyState >= 2 && !video.paused && video.currentTime > 0);
+    check(video.muted && video.loop && video.playsInline,
+          "Visible carousel video automatically plays muted, inline, and looping");
+    offscreen.scrollIntoView({block: "center"});
+    await until(() => video.paused && !video.querySelector("source").hasAttribute("src"));
+    window.scrollTo(0, 0);
+    await until(() => !video.paused && video.currentTime > 0);
+    check(true, "Scrolling away stops carousel video and scrolling back restarts playback");
+
+    const singleVideo = document.getElementById("single-video");
+    singleVideo.src = videoURL;
+    singleVideo.scrollIntoView({block: "center"});
+    await until(() => !singleVideo.paused && singleVideo.currentTime > 0 && video.paused);
+    check(singleVideo.muted && singleVideo.loop && singleVideo.playsInline,
+          "A single-video card also automatically plays when scrolled into view");
+    Object.defineProperty(document, "hidden", {configurable: true, value: true});
+    document.dispatchEvent(new Event("visibilitychange"));
+    check(singleVideo.paused, "Hiding the tab pauses a single-video preview");
+    delete document.hidden;
+    document.dispatchEvent(new Event("visibilitychange"));
+    await until(() => !singleVideo.paused);
+    window.dispatchEvent(new PageTransitionEvent("pagehide"));
+    check(singleVideo.paused, "Leaving the page pauses a single-video preview");
+    window.dispatchEvent(new PageTransitionEvent("pageshow"));
+    await until(() => !singleVideo.paused);
+    window.scrollTo(0, 0);
+    await until(() => singleVideo.paused && !video.paused && video.currentTime > 0);
+    check(true, "Returning to the page resumes only visible video previews");
+
+    slides[12].querySelector("[data-media-item]").click();
+    const previewViewer = document.querySelector(".media-viewer");
+    await until(() => !previewViewer.querySelector("video")?.paused);
+    check(video.paused && singleVideo.paused, "Focus mode pauses inline video previews");
+    previewViewer.querySelector("[data-viewer-close]").click();
+    await until(() => !previewViewer.open && !video.paused && video.currentTime > 0);
+    check(true, "Closing focus mode resumes the visible inline video");
+    track.scrollTo({left: track.clientWidth * 3, behavior: "instant"});
+    await until(() => at(3) && video.paused);
 
     const locationBefore = location.href;
     const opener = slides[3].querySelector("[data-media-item]");
