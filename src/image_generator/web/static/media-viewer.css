@@ -1,0 +1,27 @@
+html.media-viewer-open { overflow: hidden; }
+.asset-media-link { position: relative; cursor: zoom-in; }
+.asset-video-hint { position: absolute; inset: auto auto .75rem .75rem; padding: .35rem .65rem; border-radius: 6px; background: #000b; color: #fff; font-size: .85rem; pointer-events: none; }
+.media-viewer { box-sizing: border-box; width: 100vw; max-width: none; height: 100vh; height: 100dvh; max-height: none; margin: 0; padding: 1rem; border: 0; background: transparent; color: var(--text); }
+.media-viewer::backdrop { background: rgb(0 0 0 / 72%); }
+.media-viewer[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: .75rem; }
+.media-viewer-header, .media-viewer-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.media-viewer-title { margin: 0; font-size: 1rem; overflow-wrap: anywhere; text-shadow: 0 1px 4px #000; }
+.media-viewer button { flex-shrink: 0; min-width: 44px; min-height: 44px; padding: .5rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); color: var(--text); font: inherit; cursor: pointer; }
+.media-viewer [data-viewer-close], .media-viewer [data-viewer-previous], .media-viewer [data-viewer-next] { font-size: 2rem; font-weight: 800; line-height: 1; }
+.media-viewer [data-viewer-close] { font-size: 2.5rem; }
+.media-viewer button:hover { border-color: var(--accent); color: var(--accent); }
+.media-viewer button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.media-viewer button:disabled { opacity: .4; cursor: default; }
+.media-viewer button[hidden] { display: none; }
+.media-viewer-body { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .75rem; min-height: 0; }
+.media-viewer-stage { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); align-items: center; justify-items: center; height: 100%; min-width: 0; overflow: auto; overscroll-behavior: contain; }
+.media-viewer-stage img, .media-viewer-stage video { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.media-viewer-stage[data-actual-size] { display: block; }
+.media-viewer-stage[data-actual-size] img { max-width: none; max-height: none; margin: auto; }
+.media-viewer-footer { justify-content: center; flex-wrap: wrap; }
+.media-viewer-status { margin: 0; font-size: .9rem; text-shadow: 0 1px 4px #000; }
+@media (max-width: 600px) {
+  .media-viewer { padding: .5rem; }
+  .media-viewer-body { gap: .25rem; }
+  .media-viewer button { padding: .4rem; }
+}

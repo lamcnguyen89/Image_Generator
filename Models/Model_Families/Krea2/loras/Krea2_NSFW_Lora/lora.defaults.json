@@ -22,7 +22,7 @@
   "weights": "Verite_realism.safetensors",
   "sha256": null,
   "notes_file": "Krea2_NSFW.md",
-  "preview_image": "Example.png",
+  "preview_image": "examples/Example.png",
   "compatibility": {
     "model_variant": "krea_2_raw",
     "trained_on": null,
@@ -52,6 +52,6 @@
     }
   },
   "example_media": [
-    "Example.png"
+    "examples/Example.png"
   ]
 }

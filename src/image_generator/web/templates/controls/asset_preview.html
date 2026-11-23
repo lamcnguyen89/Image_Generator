@@ -1,21 +1,14 @@
+{% from "controls/media_item.html" import media_item %}
 {% macro asset_preview(asset, href=none, title=none) %}
 {% set examples = asset | asset_previews %}
 {% set carousel = examples | length > 1 %}
-<div class="asset-preview{{ ' asset-preview-empty' if not examples else '' }}"{% if carousel %} data-asset-carousel role="group" aria-roledescription="carousel" aria-label="Examples for {{ asset.display_name }}"{% endif %}>
+<div class="asset-preview{{ ' asset-preview-empty' if not examples else '' }}" data-media-gallery data-media-label="{{ title or asset.display_name }}"{% if carousel %} data-asset-carousel role="group" aria-roledescription="carousel" aria-label="Examples for {{ asset.display_name }}"{% endif %}>
   {% if examples %}
   {% if carousel %}<div class="asset-carousel-track" data-carousel-track tabindex="0" aria-label="Example media; use left and right arrow keys">{% endif %}
   {% for media in examples %}
     {% if carousel %}<div class="asset-carousel-slide" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ examples | length }}">{% endif %}
-    {% if media.kind == 'video' %}
-    <video class="asset-media" controls muted playsinline preload="{{ 'none' if carousel else 'metadata' }}" aria-label="Example video for {{ asset.display_name }}{% if carousel %} ({{ loop.index }} of {{ examples | length }}){% endif %}">
-      <source {{ 'data-media-src' if carousel else 'src' }}="{{ media.url }}" type="{{ media.mimetype }}">
-      <a href="{{ media.url }}">Open example video</a>
-    </video>
-    {% else %}
-    {% if href %}<a class="asset-media-link" href="{{ href }}" aria-label="Open {{ asset.display_name }}">{% endif %}
-    <img class="asset-media" {{ 'data-media-src' if carousel else 'src' }}="{{ media.url }}" alt="Example image for {{ asset.display_name }}{% if carousel %} ({{ loop.index }} of {{ examples | length }}){% endif %}" loading="{{ 'eager' if carousel else 'lazy' }}" decoding="async">
-    {% if href %}</a>{% endif %}
-    {% endif %}
+    {% set label = 'Example ' ~ media.kind ~ ' for ' ~ asset.display_name ~ (' (' ~ loop.index ~ ' of ' ~ examples | length ~ ')' if carousel else '') %}
+    {{ media_item(media, label, deferred=carousel) }}
     {% if carousel %}</div>{% endif %}
   {% endfor %}
   {% if carousel %}

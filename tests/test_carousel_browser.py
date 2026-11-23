@@ -16,6 +16,7 @@ import threading
 import unittest
 
 from flask import render_template_string, request
+from PIL import Image
 from werkzeug.serving import WSGIRequestHandler, make_server
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,6 +30,8 @@ PAGE = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Carousel memory check</title>
 <link rel="stylesheet" href="{{ url_for('catalog.static', filename='catalog.css') }}">
 <script src="{{ url_for('catalog.static', filename='carousel.js') }}" defer></script>
+<link rel="stylesheet" href="{{ url_for('catalog.static', filename='media-viewer.css') }}">
+<script src="{{ url_for('catalog.static', filename='media-viewer.js') }}" defer></script>
 </head><body>
 {% from 'controls/asset_preview.html' import asset_preview %}
 <form id="cards" style="display: grid; grid-template-columns: 260px 260px; gap: 20px">
@@ -129,6 +132,105 @@ window.addEventListener("load", async () => {
     window.dispatchEvent(new PageTransitionEvent("pageshow"));
     await until(() => at(3) && sources(second).length === 1);
     check(true, "Restoring the page restores selected media");
+
+    // Record a tiny, valid video locally to exercise actual browser autoplay.
+    // No external media, camera access, or binary fixtures are needed.
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 32;
+    const context = canvas.getContext("2d");
+    const stream = canvas.captureStream(10);
+    const recording = new MediaRecorder(stream, {mimeType: "video/webm"});
+    const chunks = [];
+    recording.addEventListener("dataavailable", (event) => chunks.push(event.data));
+    const stopped = new Promise((resolve) => recording.addEventListener("stop", resolve));
+    recording.start();
+    for (let frame = 0; frame < 5; frame++) {
+      context.fillStyle = frame % 2 ? "red" : "blue";
+      context.fillRect(0, 0, 32, 32);
+      await wait(100);
+    }
+    recording.stop(); await stopped;
+    stream.getTracks().forEach((track) => track.stop());
+    const videoURL = URL.createObjectURL(new Blob(chunks, {type: "video/webm"}));
+    slides[12].querySelector("[data-media-item]").href = videoURL;
+
+    const locationBefore = location.href;
+    const opener = slides[3].querySelector("[data-media-item]");
+    opener.click();
+    const viewer = document.querySelector(".media-viewer");
+    const stage = viewer.querySelector("[data-viewer-stage]");
+    const viewerNext = viewer.querySelector("[data-viewer-next]");
+    const viewerPrevious = viewer.querySelector("[data-viewer-previous]");
+    const viewerCounter = viewer.querySelector("[data-viewer-counter]");
+    const zoom = viewer.querySelector("[data-viewer-zoom]");
+    const viewerKey = (key) => viewer.dispatchEvent(new KeyboardEvent("keydown", {
+      key, bubbles: true, cancelable: true,
+    }));
+    await until(() => stage.querySelector("img")?.naturalWidth > 0);
+    const image = stage.querySelector("img");
+    const fitsStage = () => {
+      const imageBox = image.getBoundingClientRect(), stageBox = stage.getBoundingClientRect();
+      return imageBox.width <= stageBox.width + 1 && imageBox.height <= stageBox.height + 1 &&
+        Math.abs(imageBox.width / imageBox.height - image.naturalWidth / image.naturalHeight) < .01;
+    };
+    check(viewer.open && location.href === locationBefore, "Clicking an example opens a modal without navigating");
+    check(viewerCounter.textContent === "4 / 13", "Focus mode starts at the clicked example");
+    check(stage.querySelector("img").src === opener.href, "Focus mode loads the original full-resolution media URL");
+    check(fitsStage(), "Large original images fit inside the viewer without cropping or distortion: " +
+      JSON.stringify({image: image.getBoundingClientRect(), stage: stage.getBoundingClientRect()}));
+    check(fitsStage() && viewer.scrollWidth <= innerWidth, `The media and viewer controls fit the ${innerWidth}px viewport`);
+    check(document.activeElement === viewer.querySelector("[data-viewer-close]"), "Modal starts with focus on its exit button");
+    check(getComputedStyle(document.documentElement).overflow === "hidden", "The background page cannot scroll while focused");
+    check(getComputedStyle(viewer, "::backdrop").backgroundColor === "rgba(0, 0, 0, 0.72)", "The modal backdrop dims the visible page");
+    zoom.click();
+    check(stage.hasAttribute("data-actual-size") && zoom.getAttribute("aria-pressed") === "true", "Actual size enables inspecting original image pixels");
+    check(image.getBoundingClientRect().width === image.naturalWidth && image.getBoundingClientRect().height === image.naturalHeight,
+          "Actual size displays the image at its original pixel dimensions");
+    zoom.click();
+    check(!stage.hasAttribute("data-actual-size"), "Fit to screen restores the contained image");
+    const oldImage = stage.querySelector("img");
+    viewerNext.click();
+    check(viewerCounter.textContent === "5 / 13" && stage.children.length === 1 && !oldImage.hasAttribute("src"),
+          "Focus navigation replaces and releases its previous image");
+    viewerKey("Home");
+    viewerPrevious.click();
+    await until(() => stage.querySelector("video")?.readyState >= 2 && !stage.querySelector("video").paused);
+    const focusedVideo = stage.querySelector("video");
+    check(viewerCounter.textContent === "13 / 13" && focusedVideo.muted && focusedVideo.controls && focusedVideo.loop,
+          "Focus navigation wraps to video and autoplays it muted with controls");
+    check(zoom.hidden, "Image zoom is hidden for videos");
+    viewerNext.click();
+    check(focusedVideo.paused && focusedVideo.buffered.length === 0 && !focusedVideo.querySelector("source").hasAttribute("src"),
+          "Leaving a focused video pauses it and discards its source and buffers");
+    viewerKey("End");
+    await until(() => stage.querySelector("video")?.readyState >= 2 && !stage.querySelector("video").paused);
+    Object.defineProperty(document, "hidden", {configurable: true, value: true});
+    document.dispatchEvent(new Event("visibilitychange"));
+    check(!stage.children.length, "Hiding the tab releases the focused media");
+    delete document.hidden;
+    document.dispatchEvent(new Event("visibilitychange"));
+    await until(() => stage.querySelector("video")?.readyState >= 2 && !stage.querySelector("video").paused);
+    check(viewerCounter.textContent === "13 / 13", "Returning to the tab preserves selection and resumes focused video");
+    viewer.querySelector("[data-viewer-close]").click();
+    await until(() => !viewer.open && !stage.children.length);
+    check(document.activeElement === opener && !document.documentElement.classList.contains("media-viewer-open"),
+          "Closing releases media, restores page scrolling, and returns focus to the clicked example");
+
+    // A gallery inserted after startup uses the same viewer, including singles.
+    const single = document.createElement("div");
+    single.dataset.mediaGallery = "";
+    single.dataset.mediaLabel = "Dynamic single gallery";
+    single.append(slides[0].querySelector("[data-media-item]").cloneNode(true));
+    document.getElementById("cards").append(single);
+    single.querySelector("a").click();
+    check(document.querySelectorAll(".media-viewer").length === 1 && viewerCounter.textContent === "1 / 1" &&
+          viewerNext.disabled && viewerPrevious.disabled, "New single-item galleries reuse the viewer and disable navigation");
+    check(viewer.querySelector(".media-viewer-title").textContent === "Dynamic single gallery", "Each gallery supplies its own title");
+    // Native Escape closes modal dialogs through their cancel event.
+    viewer.requestClose();
+    await until(() => !viewer.open && !stage.children.length);
+    check(true, "Native dialog cancellation releases focused media");
+    URL.revokeObjectURL(videoURL);
     check(!submitted, "Carousel controls do not submit the generation form");
   } catch (error) { results.push("FAIL: " + error.message); }
   await fetch("/browser-results", {method: "POST", headers: {"Content-Type": "application/json"},
@@ -145,6 +247,11 @@ class QuietHandler(WSGIRequestHandler):
 @unittest.skipUnless(os.environ.get("CAROUSEL_FIREFOX"), "Set CAROUSEL_FIREFOX to run real-browser checks")
 class CarouselBrowserTests(unittest.TestCase):
     def test_only_visible_selected_media_is_loaded_and_old_sources_are_released(self):
+        for width in (1366, 390):
+            with self.subTest(viewport_width=width):
+                self.check_browser(width)
+
+    def check_browser(self, width):
         with tempfile.TemporaryDirectory(prefix="carousel-browser-") as temporary:
             root = Path(temporary)
             catalog = root / "families"
@@ -154,6 +261,7 @@ class CarouselBrowserTests(unittest.TestCase):
                 directory = catalog / folder
                 for index in range(12):
                     (directory / f"photo-{index:02}.png").write_bytes(pixel)
+                Image.new("RGB", (1800, 1200), (24, 120, 180)).save(directory / "photo-03.png")
                 (directory / "video.webm").write_bytes(b"test video")
             app = create_app({"TESTING": True, "ACCESS_PASSWORD": "", "CATALOG_ROOT": catalog})
             requested, results = [], []
@@ -191,6 +299,7 @@ class CarouselBrowserTests(unittest.TestCase):
                 try:
                     browser = subprocess.Popen([
                         os.environ["CAROUSEL_FIREFOX"], "--headless", "--no-remote", "--profile", str(profile),
+                        "--width", str(width), "--height", "768",
                         f"http://127.0.0.1:{server.server_port}/browser-test",
                     ], stdout=log, stderr=log)
                     completed = done.wait(30)

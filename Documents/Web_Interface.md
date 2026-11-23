@@ -43,17 +43,36 @@ caches and the timing of memory reclamation remain under the browser's control.
 Without JavaScript, a link opens the first example. Single-example cards retain
 native image lazy loading or video metadata preloading.
 
-Set `preview_image` in an asset's defaults manifest to an image or video path
-inside that asset's directory. When it is unset or the file is missing, the UI
+Store example images and videos in `examples/` inside each asset's directory.
+Set `preview_image` in its defaults manifest to a relative path such as
+`examples/cover.png`. When it is unset or the file is missing, the UI
 uses supported media files in filename order, ignoring case. Any filename
 works, and refreshing automatically synchronizes the defaults JSON's
-`example_media` list with files in the folder. Multiple examples form a carousel
-with arrows, a counter, swipe/scroll, and keyboard navigation.
+`example_media` list with files in `examples/` (and directly in the asset folder
+for older catalogs). Other subfolders and hidden files are skipped. Multiple
+examples form a carousel with arrows, a counter, swipe/scroll, and keyboard
+navigation.
 Supported extensions are PNG, JPG/JPEG, WebP, GIF, AVIF, MP4, WebM, and MOV/QT;
 video playback depends on browser codec support. Assets without media keep their
 title and show a placeholder. Media uses the same sign-in protection as the UI.
-Model card images link to the same generation page as their titles. Template
-edits reload on the next request; Python code changes still require a restart.
+Click an example image or video to open focus mode over the dimmed page. The
+viewer uses the original media file, fits it without cropping, and offers
+**Actual size** for inspecting image pixels. Previous/next buttons wrap through
+that card's examples; Left/Right, Home, and End also navigate when video controls
+or actual-size panning are not using those keys. Videos autoplay muted with
+native playback controls and loop. **Close** or Escape exits and restores focus
+to the example. Model titles and **Configure generation** still open generation.
+Only the current focused item is loaded; changing items, closing, or hiding the
+page releases it and resets video buffers. Returning to the tab reloads the
+focused item and resumes video autoplay.
+
+The shared `controls/media_item.html` macro supplies original-file links and
+media metadata. Wrap these links in `data-media-gallery` with an optional
+`data-media-label` to reuse the viewer in other galleries. `media-viewer.js`
+delegates clicks and creates one native modal dialog on first use, including
+for galleries added later. Modified clicks and browsers without dialog support
+retain the original-file link. Template edits reload on the next request;
+Python code changes still require a restart.
 
 Checkpoint and LoRA entries also show a **Source website** link when their
 defaults JSON includes an HTTP or HTTPS `source_url`. Links open in a new tab.

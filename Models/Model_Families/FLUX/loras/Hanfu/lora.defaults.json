@@ -15,7 +15,7 @@
   "weights": "Hanfu_NSFW_epoch_18.safetensors",
   "sha256": null,
   "notes_file": "Hanfu_NSFW_Notes.md",
-  "preview_image": "example.png",
+  "preview_image": "examples/example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "691639.safetensors",
@@ -39,20 +39,20 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.png",
-    "0EF0PAQAA894TMBGXHZMRB6A70.png",
-    "2F69NCTK5EE4NQDRP5M1PDEAM0.png",
-    "5ZQTWG9E92CTCGXA2RNMTJVS10.png",
-    "7RV1TV5SGKR7Q485WQYADW0DX0.png",
-    "ANQ8T97W3A4GNW9S7PZQRW3KE0.png",
-    "B0289JWWP5ZC1T9JXP27AXE5F0.png",
-    "B277CX9HYM3E9DHWCMEGPMWFQ0.png",
-    "CMQVSTPHJZNNW6PD2MZGDJ1880.png",
-    "E9W0K9XQD3VFZFKBBFDZ0DDJ20.png",
-    "F5R5X38K35JPE9PXDZR3SJVVP0.png",
-    "KSEAQNZEXGA157VFQ438GSXXR0.png",
-    "QYA38F4VY2ZCB8C865310ENFQ0.png",
-    "WCAMSCGKSQ6SJGSQ3PMV6M3CB0.png",
-    "ZXSJ0Q8935874MM4DMN8R2DE00.png"
+    "examples/example.png",
+    "examples/0EF0PAQAA894TMBGXHZMRB6A70.png",
+    "examples/2F69NCTK5EE4NQDRP5M1PDEAM0.png",
+    "examples/5ZQTWG9E92CTCGXA2RNMTJVS10.png",
+    "examples/7RV1TV5SGKR7Q485WQYADW0DX0.png",
+    "examples/ANQ8T97W3A4GNW9S7PZQRW3KE0.png",
+    "examples/B0289JWWP5ZC1T9JXP27AXE5F0.png",
+    "examples/B277CX9HYM3E9DHWCMEGPMWFQ0.png",
+    "examples/CMQVSTPHJZNNW6PD2MZGDJ1880.png",
+    "examples/E9W0K9XQD3VFZFKBBFDZ0DDJ20.png",
+    "examples/F5R5X38K35JPE9PXDZR3SJVVP0.png",
+    "examples/KSEAQNZEXGA157VFQ438GSXXR0.png",
+    "examples/QYA38F4VY2ZCB8C865310ENFQ0.png",
+    "examples/WCAMSCGKSQ6SJGSQ3PMV6M3CB0.png",
+    "examples/ZXSJ0Q8935874MM4DMN8R2DE00.png"
   ]
 }

@@ -20,15 +20,17 @@ without GPU dependencies. Run `python scripts/inspect_catalog.py` to list models
 and LoRAs, or add `--json` to inspect their effective settings. See the
 [catalog guide](Documents/Catalog.md) for the Python API, override rules, and tests.
 
-Checkpoint and LoRA cards show a carousel when their folder contains multiple
-example images or videos. Copy media beside `model.defaults.json` or
-`lora.defaults.json`, then refresh the page. Any filename works; files appear in
-filename order (case insensitive), so zero-pad numbers to keep them in sequence.
+Checkpoint and LoRA cards show a carousel when their `examples/` folder contains
+multiple example images or videos. Copy media into `examples/` beside
+`model.defaults.json` or `lora.defaults.json`, then refresh the page. Any filename
+works; files appear in filename order (case insensitive), so zero-pad numbers to
+keep them in sequence.
 Catalog loading automatically saves the current relative paths in the defaults
 JSON's `example_media` list, adding copied files and removing deleted files.
 This list is generated; no manual JSON edits are needed. Hidden files and
-subfolders are skipped. An optional `preview_image` in the defaults JSON
-appears first without being repeated and may point into a subfolder.
+other subfolders are skipped. Media directly in the asset folder remains
+supported for older catalogs. An optional `preview_image` such as
+`examples/cover.png` in the defaults JSON appears first without being repeated.
 Use the arrows, swipe/scroll, or focus the media and press Left/Right to browse.
 Carousels require JavaScript and attach a media source only for the selected
 slide while the carousel is visible. Leaving a slide, scrolling a carousel out

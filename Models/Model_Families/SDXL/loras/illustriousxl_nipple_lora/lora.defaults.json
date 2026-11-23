@@ -24,7 +24,7 @@
   "weights": "IL20-NP43i_v2.safetensors",
   "sha256": null,
   "notes_file": null,
-  "preview_image": "example.webp",
+  "preview_image": "examples/example.webp",
   "compatibility": {
     "trained_on": null,
     "model_variant": null,
@@ -41,6 +41,6 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.webp"
+    "examples/example.webp"
   ]
 }

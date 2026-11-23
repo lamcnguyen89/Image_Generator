@@ -40,8 +40,10 @@ class MediaTests(unittest.TestCase):
         self.assertEqual(self.client.get("/").status_code, 200)
         before = {path: path.read_bytes() for path in self.root.rglob("*.json")}
         for path in (self.model, self.lora):
-            (path.parent / "Example.PNG").write_bytes(b"first")
-            (path.parent / "random download.jpg").write_bytes(b"second")
+            examples = path.parent / "examples"
+            examples.mkdir()
+            (examples / "Example.PNG").write_bytes(b"first")
+            (examples / "random download.jpg").write_bytes(b"second")
         for url, asset_id in (("/", "fixture-flux"), ("/generate/fixture-flux", "fixture-flux-style")):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
@@ -52,24 +54,26 @@ class MediaTests(unittest.TestCase):
         for path, content in before.items():
             if path in (self.model, self.lora):
                 self.assertEqual(self.read(path), {
-                    **json.loads(content), "example_media": ["Example.PNG", "random download.jpg"],
+                    **json.loads(content), "example_media": ["examples/Example.PNG", "examples/random download.jpg"],
                 })
             else:
                 self.assertEqual(path.read_bytes(), content)
 
     def test_added_renamed_and_deleted_files_update_list_and_carousel(self):
-        first = self.model.parent / "photo.png"
+        examples = self.model.parent / "examples"
+        examples.mkdir()
+        first = examples / "photo.png"
         first.write_bytes(b"photo")
         self.catalog()
-        self.assertEqual(self.read(self.model)["example_media"], ["photo.png"])
-        second = self.model.parent / "second.webp"
+        self.assertEqual(self.read(self.model)["example_media"], ["examples/photo.png"])
+        second = examples / "second.webp"
         second.write_bytes(b"second")
         first.rename(first.with_name("renamed.png"))
         self.assertIn("data-asset-carousel", self.client.get("/").text)
-        self.assertEqual(self.read(self.model)["example_media"], ["renamed.png", "second.webp"])
+        self.assertEqual(self.read(self.model)["example_media"], ["examples/renamed.png", "examples/second.webp"])
         second.unlink()
         self.assertNotIn("data-asset-carousel", self.client.get("/").text)
-        self.assertEqual(self.read(self.model)["example_media"], ["renamed.png"])
+        self.assertEqual(self.read(self.model)["example_media"], ["examples/renamed.png"])
         first.with_name("renamed.png").unlink()
         self.catalog()
         self.assertEqual(self.read(self.model)["example_media"], [])
@@ -105,6 +109,32 @@ class MediaTests(unittest.TestCase):
         self.model.write_text(json.dumps(document))
         self.catalog()
         self.assertEqual(self.read(self.model)["example_media"], ["nested/photo.png", "keep.png"])
+
+    def test_examples_folder_filters_files_and_deduplicates_legacy_media(self):
+        directory = self.model.parent
+        examples = directory / "examples"
+        examples.mkdir()
+        (examples / "photo.png").write_bytes(b"photo")
+        (directory / "legacy.png").symlink_to("examples/photo.png")
+        (examples / ".hidden.png").write_bytes(b"hidden")
+        (examples / "weights.safetensors").write_bytes(b"weights")
+        (examples / "nested").mkdir()
+        (examples / "nested/photo.png").write_bytes(b"nested")
+        outside = self.root / "private.png"
+        outside.write_bytes(b"private")
+        (examples / "escape.png").symlink_to(outside)
+        (examples / "broken.jpg").symlink_to("missing.jpg")
+        self.catalog()
+        self.assertEqual(self.read(self.model)["example_media"], ["examples/photo.png"])
+
+    def test_examples_directory_symlink_cannot_escape_asset(self):
+        outside = self.root / "private"
+        outside.mkdir()
+        (outside / "photo.png").write_bytes(b"private")
+        (self.model.parent / "examples").symlink_to(outside, target_is_directory=True)
+        self.catalog()
+        self.assertEqual(self.read(self.model).get("example_media", []), [])
+        self.assertEqual(self.client.get("/assets/fixture-flux/preview").status_code, 404)
 
     def test_read_only_catalog_does_not_sync_and_stable_loads_do_not_rewrite(self):
         (self.model.parent / "photo.png").write_bytes(b"photo")

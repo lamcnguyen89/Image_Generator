@@ -256,3 +256,9 @@ __marimo__/
 *.mkv
 *.flv
 *.wmv
+
+# Checkpoint and LoRA example videos live alongside tracked asset metadata.
+!/Models/Model_Families/*/checkpoints/*/examples/*.mp4
+!/Models/Model_Families/*/checkpoints/*/examples/*.mov
+!/Models/Model_Families/*/loras/*/examples/*.mp4
+!/Models/Model_Families/*/loras/*/examples/*.mov

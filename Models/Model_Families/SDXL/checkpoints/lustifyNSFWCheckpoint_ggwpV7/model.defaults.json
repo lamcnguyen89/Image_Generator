@@ -23,7 +23,7 @@
   "sha256": null,
   "base_model_id": "stabilityai/stable-diffusion-xl-base-1.0",
   "notes_file": "Lustify_Notes.md",
-  "preview_image": "example.png",
+  "preview_image": "examples/example.png",
   "supported_modes": [
     "txt2img"
   ],
@@ -51,20 +51,20 @@
     "loras": []
   },
   "example_media": [
-    "example.png",
-    "223V2Y7QH76NV2X6VP8QV24BW0.png",
-    "27TBC8MF00PDPSR6BKGG38K6G0.png",
-    "2VRJHSKY70K3S98ZQ2Z6XB2S60.png",
-    "3RBXMTRM13CFV0JF7FWEFB5FS0.png",
-    "6110PRK0RQ1TB7P2H7WSDBWRH0.png",
-    "A15T9TW31BEFJVWAXQ2XEGDTX0.png",
-    "A8KMKPJRHD1HEGRMW5FZFZDWS0.png",
-    "C9FPTW83ZAG2Z80E1JXFA31EQ0.png",
-    "DBFBQ612ZMK7H7G2VJM3RZZEG0.png",
-    "DGVMSKM5537WT3P2MXX5YKK0C0.mp4",
-    "EBD612W5C42H7GQ8P8GPMC90H0.png",
-    "N0CQ62RWRA490C7DZZFCXRCJ90.png",
-    "S4KMA3GN8NVDSJ39SKEZNDBH30.png",
-    "SHTCR40KC9FJ3X6796E9NRJWA0.png"
+    "examples/example.png",
+    "examples/223V2Y7QH76NV2X6VP8QV24BW0.png",
+    "examples/27TBC8MF00PDPSR6BKGG38K6G0.png",
+    "examples/2VRJHSKY70K3S98ZQ2Z6XB2S60.png",
+    "examples/3RBXMTRM13CFV0JF7FWEFB5FS0.png",
+    "examples/6110PRK0RQ1TB7P2H7WSDBWRH0.png",
+    "examples/A15T9TW31BEFJVWAXQ2XEGDTX0.png",
+    "examples/A8KMKPJRHD1HEGRMW5FZFZDWS0.png",
+    "examples/C9FPTW83ZAG2Z80E1JXFA31EQ0.png",
+    "examples/DBFBQ612ZMK7H7G2VJM3RZZEG0.png",
+    "examples/DGVMSKM5537WT3P2MXX5YKK0C0.mp4",
+    "examples/EBD612W5C42H7GQ8P8GPMC90H0.png",
+    "examples/N0CQ62RWRA490C7DZZFCXRCJ90.png",
+    "examples/S4KMA3GN8NVDSJ39SKEZNDBH30.png",
+    "examples/SHTCR40KC9FJ3X6796E9NRJWA0.png"
   ]
 }

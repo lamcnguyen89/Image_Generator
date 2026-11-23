@@ -20,7 +20,7 @@
   "weights": "06_wan2.2_i2v_highnoise_pov_missionary_v1.0.safetensors",
   "sha256": null,
   "notes_file": "Missionary_Notes.md",
-  "preview_image": "example.png",
+  "preview_image": "examples/example.mp4",
   "compatibility": {
     "model_variant": "wan_2_2_i2v_a14b",
     "expert_target": "high_noise",
@@ -46,6 +46,6 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.mp4"
+    "examples/example.mp4"
   ]
 }

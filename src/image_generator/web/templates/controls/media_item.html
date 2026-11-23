@@ -1,0 +1,12 @@
+{% macro media_item(media, label, deferred=false) %}
+<a class="asset-media-link" href="{{ media.url }}" data-media-item data-media-kind="{{ media.kind }}" data-media-type="{{ media.mimetype }}" aria-label="View full size: {{ label }}">
+  {% if media.kind == 'video' %}
+  <video class="asset-media" muted playsinline preload="{{ 'none' if deferred else 'metadata' }}" aria-label="{{ label }}">
+    <source {{ 'data-media-src' if deferred else 'src' }}="{{ media.url }}" type="{{ media.mimetype }}">
+  </video>
+  <span class="asset-video-hint" aria-hidden="true">▶ View video</span>
+  {% else %}
+  <img class="asset-media" {{ 'data-media-src' if deferred else 'src' }}="{{ media.url }}" alt="{{ label }}" loading="{{ 'eager' if deferred else 'lazy' }}" decoding="async">
+  {% endif %}
+</a>
+{% endmacro %}

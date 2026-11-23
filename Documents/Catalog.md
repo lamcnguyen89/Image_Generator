@@ -7,21 +7,23 @@ It is the data layer for the planned web interface and generation workflows.
 
 ## Example media synchronization
 
-Copy example images or videos directly into a checkpoint or LoRA folder using
-any filename. On the next catalog load/page refresh, discovery synchronizes an
-`example_media` list in that asset's defaults JSON, for example:
+Copy example images or videos into `examples/` inside a checkpoint or LoRA
+folder using any filename. On the next catalog load/page refresh, discovery
+synchronizes an `example_media` list in that asset's defaults JSON, for example:
 
 ```json
-"example_media": ["example.png", "downloaded image.jpg", "sample.webm"]
+"example_media": ["examples/example.png", "examples/downloaded image.jpg", "examples/sample.webm"]
 ```
 
 The list stores paths relative to the asset folder. `preview_image`, when set
 to an existing supported local file, appears first; other files follow in
 case-insensitive filename order, without duplicate resolved paths. Deleted or
 renamed files are reflected on the next load. PNG, JPG/JPEG, WebP, GIF, AVIF,
-MP4, WebM, and MOV/QT are supported. Hidden files, unsupported extensions,
-subfolders, and symlinks escaping the asset folder are excluded from automatic
-discovery. An explicit `preview_image` may point into an asset subfolder.
+MP4, WebM, and MOV/QT are supported. Media directly in the asset folder is also
+discovered for older catalogs. Hidden files, unsupported extensions, other
+subfolders (including folders inside `examples/`), and symlinks escaping the
+asset folder are excluded from automatic discovery. An explicit `preview_image`
+such as `examples/cover.png` may point into an asset subfolder.
 
 This field is generated from files, so manual JSON edits are unnecessary.
 Synchronization uses atomic writes and the settings writers' lock, preserving

@@ -16,7 +16,7 @@
   "sha256": null,
   "base_model_id": "Qwen/Qwen-Image-2.1",
   "notes_file": null,
-  "preview_image": "example.png",
+  "preview_image": "examples/example.jpeg",
   "supported_modes": [
     "txt2img"
   ],
@@ -170,8 +170,8 @@
     "loras": []
   },
   "example_media": [
-    "example.jpeg",
-    "Example_02.png",
-    "Example_03.png"
+    "examples/example.jpeg",
+    "examples/Example_02.png",
+    "examples/Example_03.png"
   ]
 }

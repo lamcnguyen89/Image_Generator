@@ -21,7 +21,7 @@
   "weights": "ChelXL.safetensors",
   "sha256": null,
   "notes_file": "ChelXL_Notes.md",
-  "preview_image": "example.png",
+  "preview_image": "examples/example.png",
   "compatibility": {
     "trained_on": "stablediffusionapi/pony-diffusion-v6-xl",
     "verified_checkpoint_ids": [],
@@ -38,6 +38,6 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.png"
+    "examples/example.png"
   ]
 }

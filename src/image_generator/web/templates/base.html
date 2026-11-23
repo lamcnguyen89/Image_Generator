@@ -9,6 +9,8 @@
   <script src="{{ url_for('catalog.static', filename='navigation.js') }}" defer></script>
   <script src="{{ url_for('catalog.static', filename='memory.js') }}" defer></script>
   <script src="{{ url_for('catalog.static', filename='carousel.js') }}" defer></script>
+  <link rel="stylesheet" href="{{ url_for('catalog.static', filename='media-viewer.css') }}">
+  <script src="{{ url_for('catalog.static', filename='media-viewer.js') }}" defer></script>
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -49,7 +51,12 @@
     </section>
   </header>
   <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
-  <footer>Midnight Generator · Uncensored</footer>
+  <footer>
+    <a class="footer-home" href="{{ url_for('catalog.index') }}">
+      <img class="brand-logo" src="{{ url_for('catalog.static', filename='favicon.ico') }}" alt="" width="16" height="16">
+      <span>Midnight Generator · Uncensored</span>
+    </a>
+  </footer>
   {% block scripts %}{% endblock %}
 </body>
 </html>

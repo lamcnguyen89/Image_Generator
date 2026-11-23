@@ -16,7 +16,7 @@
   "sha256": null,
   "base_model_id": null,
   "notes_file": "../../README.md",
-  "preview_image": "example.mp4",
+  "preview_image": "examples/example.mp4",
   "supported_modes": [
     "img2vid",
     "txt2vid"
@@ -76,6 +76,23 @@
     ]
   },
   "example_media": [
-    "example.mp4"
+    "examples/31HJQ8ZDDZC216ZBQHE154X0F0.qt",
+    "examples/6R4PRRG8BQRK6JACPRSCS2S5R0.qt",
+    "examples/7AG36Y90MYA54QXM6V1J3R9TY0.mp4",
+    "examples/7RQ183MSANHZB0NJXTVZX2K7C0.qt",
+    "examples/9TWQPCGD5XV4KFF2R9T989S900.qt",
+    "examples/D4HBA15ER9WAY5JWDWSYKEKJM0.mp4",
+    "examples/GPQ240DNXP809EKE3JQNXK1HX0.mp4",
+    "examples/GY3B2HAAVVH0XVN4CS2KZV8MK0.mp4",
+    "examples/H2BAY62476NQ6ABSC4CK8HEQD0.qt",
+    "examples/KZCP81C59SF6E6A8WGCBEY1GQ0.qt",
+    "examples/M6N6C9TH98FH4RH3PHYPR7SHW0.mp4",
+    "examples/P1T3TXPVECHFGFAKCCWE0EGPK0.mp4",
+    "examples/PM1666F86YCFNRY0GAXZDA8ZR0.qt",
+    "examples/QCSVA65NYGVGVFC96ZS8MXYAA0.qt",
+    "examples/RGSH74CSX5QF89W4D5EHYDK010.mp4",
+    "examples/VZXRBP0EMFPJNVNEC56VS04N40.qt",
+    "examples/XQ8ZY25RT7K0JGBRE583WT8450.qt",
+    "examples/Z7SF47Z1TFC7M15PT54QK2QAA0.qt"
   ]
 }

@@ -19,7 +19,7 @@
   "sha256": null,
   "base_model_id": "black-forest-labs/FLUX.1-dev",
   "notes_file": "fluxNSFWUnlocked_Notes.md",
-  "preview_image": "example.webp",
+  "preview_image": "examples/example.webp",
   "supported_modes": [
     "txt2img"
   ],
@@ -176,13 +176,13 @@
     "loras": []
   },
   "example_media": [
-    "example.webp",
-    "example_02.mp4",
-    "example_03.png",
-    "example_04.png",
-    "example_05.png",
-    "example_06.png",
-    "example_07.png",
-    "examploe_08.png"
+    "examples/example.webp",
+    "examples/example_02.mp4",
+    "examples/example_03.png",
+    "examples/example_04.png",
+    "examples/example_05.png",
+    "examples/example_06.png",
+    "examples/example_07.png",
+    "examples/examploe_08.png"
   ]
 }

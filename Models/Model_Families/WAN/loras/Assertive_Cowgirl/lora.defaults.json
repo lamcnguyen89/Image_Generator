@@ -16,7 +16,7 @@
   "weights": "01_Wan22-I2V-HIGH-Hip_Slammin_Assertive_Cowgirl.safetensors",
   "sha256": null,
   "notes_file": "01_Assertive_Cowgirl_Notes.md",
-  "preview_image": "example.mp4",
+  "preview_image": "examples/example.mp4",
   "compatibility": {
     "model_variant": "wan_2_2_i2v_a14b",
     "expert_target": "high_noise",
@@ -41,6 +41,6 @@
     }
   },
   "example_media": [
-    "example.mp4"
+    "examples/example.mp4"
   ]
 }

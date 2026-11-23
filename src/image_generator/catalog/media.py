@@ -13,15 +13,19 @@ def example_media(asset):
 
     Resolve symlinks before checking containment. Only supported media within
     this asset's directory may be served, never weights or files outside it.
-    Directly copied media can have any filename. Ignore hidden files and do not
-    scan subfolders; an explicitly configured preview can live in a subfolder.
+    Scan examples/ and, for older catalogs, the asset directory itself. Media
+    can have any filename. Ignore hidden files and other subfolders; an
+    explicitly configured preview can live in any asset subfolder.
     """
     directory = asset.manifest_path.parent.resolve()
     configured = asset.defaults.get("preview_image")
     candidates = [directory / configured] if configured else []
+    folders = [directory / "examples", directory]
     candidates.extend(sorted(
-        (path for path in directory.iterdir() if not path.name.startswith(".")),
-        key=lambda path: (path.name.casefold(), path.name),
+        (path for folder in folders
+         if folder.resolve().is_relative_to(directory) and folder.is_dir()
+         for path in folder.iterdir() if not path.name.startswith(".")),
+        key=lambda path: (path.name.casefold(), path.name, path.as_posix()),
     ))
     media = []
     seen = set()

@@ -56,7 +56,16 @@
     },
     "loras": []
   },
-  "example_media": [],
+  "example_media": [
+    "examples/B44ZFYZZ7V5KH84SS1GBPME310.mp4",
+    "examples/example.mp4",
+    "examples/KC6NY241TTJC3YWKPJE18K1MG0.mp4",
+    "examples/MJ274S0K5SDTTKVAVSDDB0V0T0.mp4",
+    "examples/NM6MSCHMPQM6CZ6BTN5WX2RFN0.mp4",
+    "examples/R4ET8XJEPMHK186D690VE478Z0.mp4",
+    "examples/VY5SQH1W6PDBEN67HD7ME8FCW0.mp4",
+    "examples/X72ZMV9268HNNVWN0SKETZ12W0.mp4"
+  ],
   "generation_group": {
     "id": "wan_2_2_a14b",
     "display_name": "Wan 2.2",

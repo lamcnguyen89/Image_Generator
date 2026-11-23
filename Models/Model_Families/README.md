@@ -1,6 +1,10 @@
 # Model family layout
 
 Each selectable model and each LoRA has its own folder and two JSON files.
+Example images and videos live in an `examples/` subfolder inside each asset
+folder, alongside its JSON files, weights, and notes. The `preview_image` and
+generated `example_media` paths are relative to the asset folder, for example
+`examples/example.png`. Refreshing the catalog discovers media added there.
 The nine SDXL checkpoint folders now contain populated `model.defaults.json`
 files and initial `model.user.json` override files. SDXL's ChelXL LoRA also has
 populated defaults and an initial user override file. The FLUX checkpoint also

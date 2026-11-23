@@ -219,15 +219,15 @@
     ]
   },
   "example_media": [
-    "example.png",
-    "Example_02.png",
-    "Example_03.png",
-    "Example_04.png",
-    "Example_05.png",
-    "Example_06.png",
-    "Example_07.png",
-    "Example_08.png",
-    "Example_09.png",
-    "Example_10.png"
+    "examples/example.png",
+    "examples/Example_02.png",
+    "examples/Example_03.png",
+    "examples/Example_04.png",
+    "examples/Example_05.png",
+    "examples/Example_06.png",
+    "examples/Example_07.png",
+    "examples/Example_08.png",
+    "examples/Example_09.png",
+    "examples/Example_10.png"
   ]
 }

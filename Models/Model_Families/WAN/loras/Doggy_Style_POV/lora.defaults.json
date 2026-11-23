@@ -19,7 +19,7 @@
   "weights": "03_doggyPOV_v1_1.safetensors",
   "sha256": null,
   "notes_file": "03_doggy_POV_Notes.md",
-  "preview_image": "example.mp4",
+  "preview_image": "examples/example.mp4",
   "compatibility": {
     "model_variant": null,
     "expert_target": null,
@@ -43,6 +43,6 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.mp4"
+    "examples/example.mp4"
   ]
 }

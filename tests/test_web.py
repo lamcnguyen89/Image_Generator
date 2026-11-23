@@ -93,14 +93,19 @@ class WebTests(unittest.TestCase):
         self.assertNotIn("<form", html)
 
     def test_example_images_and_videos_render_above_card_details(self):
-        (self.model_path.parent / "Example.PNG").write_bytes(b"example image")
+        (self.model_path.parent / "examples").mkdir()
+        (self.model_path.parent / "examples/Example.PNG").write_bytes(b"example image")
         lora = self.write_lora()
-        (lora.parent / "example.mp4").write_bytes(b"example video")
+        (lora.parent / "examples").mkdir()
+        (lora.parent / "examples/example.mp4").write_bytes(b"example video")
         self.write_user({"loras": [{"id": "demo-lora", "enabled": False}]})
 
         html = self.client.get("/").text
         self.assertIn('<img class="asset-media" src="/assets/demo-model/preview"', html)
-        self.assertRegex(html, r'<a class="asset-media-link" href="/generate/demo-model"[^>]*>\s*<img ')
+        self.assertRegex(html, r'<a class="asset-media-link" href="/assets/demo-model/preview"[^>]*data-media-item[^>]*>\s*<img ')
+        self.assertIn('data-media-gallery data-media-label="Demo checkpoint"', html)
+        self.assertIn('/catalog-assets/media-viewer.js', html)
+        self.assertIn('/catalog-assets/media-viewer.css', html)
         self.assertIn('<h3 class="asset-preview-title"><a href="/generate/demo-model">', html)
         self.assertLess(html.index('class="asset-preview-title"'), html.index('class="asset-card-body"'))
         self.assertLess(html.index('class="asset-card-body"'), html.index("A local test model."))
@@ -108,7 +113,8 @@ class WebTests(unittest.TestCase):
                                 ("/generate/demo-model", "adapter-body")):
             with self.subTest(url=url):
                 html = self.client.get(url).text
-                self.assertIn('<video class="asset-media" controls muted playsinline preload="metadata"', html)
+                self.assertIn('<video class="asset-media" muted playsinline preload="metadata"', html)
+                self.assertIn('data-media-item data-media-kind="video" data-media-type="video/mp4"', html)
                 self.assertIn('<source src="/assets/demo-lora/preview" type="video/mp4">', html)
                 self.assertLess(html.index('class="asset-preview-title"'), html.index(f'class="{body_class}"'))
         self.assertIn('name="lora" value="demo-lora"', html)
@@ -231,13 +237,15 @@ class WebTests(unittest.TestCase):
         self.assertNotIn('data-carousel-next', html)
 
     def test_carousel_media_order_deduplication_and_video_ranges(self):
-        self.write(self.model_path, {**self.model, "preview_image": "example.png"})
-        (self.model_path.parent / "example.png").write_bytes(b"chosen image")
-        (self.model_path.parent / "EXAMPLE-01.JPG").write_bytes(b"second image")
+        self.write(self.model_path, {**self.model, "preview_image": "examples/example.png"})
+        examples = self.model_path.parent / "examples"
+        examples.mkdir()
+        (examples / "example.png").write_bytes(b"chosen image")
+        (examples / "EXAMPLE-01.JPG").write_bytes(b"second image")
         video = bytes(range(128))
-        (self.model_path.parent / "example-02.webm").write_bytes(video)
+        (examples / "example-02.webm").write_bytes(video)
         # An alias of the chosen preview must not add a duplicate slide.
-        (self.model_path.parent / "example-03.png").symlink_to("example.png")
+        (examples / "example-03.png").symlink_to("example.png")
         for suffix, mimetype, payload in (("", "image/png", b"chosen image"),
                                           ("/1", "image/jpeg", b"second image"),
                                           ("/2", "video/webm", video)):

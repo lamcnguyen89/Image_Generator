@@ -36,7 +36,7 @@
   "weights": "Missionnary.safetensors",
   "sha256": null,
   "notes_file": "Missionary.md",
-  "preview_image": "example.png",
+  "preview_image": "examples/example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": null,
@@ -52,6 +52,6 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.png"
+    "examples/example.png"
   ]
 }

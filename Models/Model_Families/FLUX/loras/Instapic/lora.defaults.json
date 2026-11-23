@@ -15,7 +15,7 @@
   "weights": "Hanfu_NSFW_epoch_18.safetensors",
   "sha256": null,
   "notes_file": "Hanfu_NSFW_Notes.md",
-  "preview_image": "example.png",
+  "preview_image": "examples/example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "691639.safetensors",
@@ -37,6 +37,6 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.png"
+    "examples/example.png"
   ]
 }

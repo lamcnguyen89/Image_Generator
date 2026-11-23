@@ -27,7 +27,7 @@
   "sha256": null,
   "base_model_id": "stabilityai/stable-diffusion-xl-base-1.0",
   "notes_file": "lllustriousxl_Notes.md",
-  "preview_image": "example.png",
+  "preview_image": "examples/764MFEQW5QNNRE82S5N0Q7T280.png",
   "supported_modes": [
     "txt2img"
   ],
@@ -55,13 +55,13 @@
     "loras": []
   },
   "example_media": [
-    "764MFEQW5QNNRE82S5N0Q7T280.png",
-    "example.png.png",
-    "FM1NWYTZB5DRXHJRYDKHC7J0A0.png",
-    "K6GHKXT6K44AE9TTPDZBTSXM00.png",
-    "PVV1SJVAV2SN007ARBF1NJRM10.png",
-    "VXZHQ7H0ESC531BT4W1MT2Z000.png",
-    "XHT4SV0TNN2R01D5WVF56N8580.png",
-    "YEZZ8PSCG9Q1DFKHR8WSZ23MW0.png"
+    "examples/764MFEQW5QNNRE82S5N0Q7T280.png",
+    "examples/example.png.png",
+    "examples/FM1NWYTZB5DRXHJRYDKHC7J0A0.png",
+    "examples/K6GHKXT6K44AE9TTPDZBTSXM00.png",
+    "examples/PVV1SJVAV2SN007ARBF1NJRM10.png",
+    "examples/VXZHQ7H0ESC531BT4W1MT2Z000.png",
+    "examples/XHT4SV0TNN2R01D5WVF56N8580.png",
+    "examples/YEZZ8PSCG9Q1DFKHR8WSZ23MW0.png"
   ]
 }

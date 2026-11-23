@@ -16,7 +16,7 @@
   "weights": "CS.safetensors",
   "sha256": null,
   "notes_file": "CS_Notes.md",
-  "preview_image": "example.mp4",
+  "preview_image": "examples/example.mp4",
   "compatibility": {
     "model_variant": "wan_2_2_i2v_a14b",
     "expert_target": null,
@@ -39,6 +39,6 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.mp4"
+    "examples/example.mp4"
   ]
 }

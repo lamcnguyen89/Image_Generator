@@ -19,7 +19,7 @@
   "weights": "bkk.safetensors",
   "sha256": null,
   "notes_file": "bkk_Notes.md",
-  "preview_image": "example.png",
+  "preview_image": "examples/example.png",
   "compatibility": {
     "model_variant": "flux_1_dev",
     "trained_on": "691639.safetensors",
@@ -38,6 +38,6 @@
     "recommended_generation": {}
   },
   "example_media": [
-    "example.png"
+    "examples/example.png"
   ]
 }
