@@ -31,7 +31,8 @@ the loaded checkpoint, encoder, VAE, and configured LoRAs in the worker.
 
 H3 uses dimensions divisible by 32 (or stricter checkpoint alignment), frame
 counts of `17*n + 5` below the 3600-frame ceiling, and silent video at 24 FPS.
-CFG 1, an empty negative prompt, and RES multistep/simple sampling are read-only;
+CFG 1 and an empty negative prompt are read-only. Sampling offers RES multistep
+(the default) and Euler, both with the Simple schedule;
 Python rejects forged values. Multiple explicitly H3-compatible LoRAs share
 one list with individual strengths. Zero-strength adapters are skipped. Changing
 or clearing adapters rebuilds from the cached unpatched base. Compatibility

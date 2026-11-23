@@ -11,15 +11,24 @@ Noise-schedule names, labels, backend configuration, and compatibility live in
 the separate [schedule registry](Schedules.md), also used by MiniMax's native
 Simple schedule.
 
-Krea2 implements `flow_match_euler`, `er_sde`, and the existing `model_default`
-Euler alias. Every request constructs a fresh scheduler from the original
+The workflows expose these explicit sampler bindings:
+
+| Workflow | Samplers |
+| --- | --- |
+| SDXL | `euler`, `euler_ancestral`, `dpmpp_2m`, `dpmpp_2m_sde`, `dpmpp_3m`, `dpmpp_3m_sde`, `uni_pc`, `heun`, `lms`, `dpm_2`, `dpm_2_ancestral`, `ddim`, `ddpm`, `pndm`, `deis`, `model_default` |
+| FLUX, Qwen 2.1, Krea2 | `flow_match_euler`, `er_sde`, `flow_match_heun`, `uni_pc`, `dpmpp_2m`, `dpmpp_2m_sde`, `model_default` |
+| WAN 2.2 I2V/T2V A14B | `model_default`, `uni_pc`, `dpmpp_2m` |
+| MiniMax H3 | `res_multistep`, `euler` |
+
+`model_default` retains the loader scheduler for SDXL and WAN, and the existing
+Flow Match Euler alias for FLUX, Qwen 2.1, and Krea2. PNDM uses its PLMS path
+(`skip_prk_steps=True`).
+Every request constructs a fresh scheduler from the original
 component scheduler configuration, allowing model reuse without retaining solver
 history between jobs. Output metadata includes the selected sampling settings,
 actual scheduler class and configuration, seeds, and library versions.
 
-FLUX and Qwen 2.1 register `flow_match_euler` and the existing `model_default`
-Euler alias. Their UI choices, settings
-saves, backend validation, and scheduler construction use the same registry.
+UI choices, settings saves, backend validation, and sampler construction use the same registry.
 Checkpoint `allowed_sampling` restrictions and scheduler configuration apply to
 each request. Qwen's explicit `sigmas` and repository `sample_sigmas` retain their
 existing precedence, progress reporting, and metadata. Registering samplers for
@@ -27,12 +36,13 @@ SDXL or Krea2 does not make them available to FLUX or Qwen automatically. Flow
 samplers support Default, Normal, Karras, Exponential, and Beta where checkpoint
 restrictions allow them. An explicit Qwen `sigmas` list requires Default.
 
-SDXL implements `model_default`, `euler`, `euler_ancestral` (Euler A), and
-`dpmpp_2m_sde` (DPM++ 2M SDE). Native scheduler classes and default options live
+Native SDXL scheduler classes and fixed solver options live
 in their registry bindings. `model_default` uses the original loader's scheduler
 class; switching from another sampler restores that original configuration.
-Checkpoint scheduler configuration overrides sampler defaults, preserving SDXL's
-existing handling of prediction type, zero-SNR rescaling, and other requirements.
+Checkpoint scheduler configuration preserves SDXL's handling of prediction type,
+zero-SNR rescaling, and other requirements. Overrides that conflict with a sampler's
+fixed algorithm or solver order fail validation. Samplers whose native classes do
+not support zero-SNR rescaling reject that checkpoint requirement.
 SDXL's Euler and DPM++ 2M SDE bindings support `default`, `normal`, `karras`,
 `exponential`, and `beta`. Euler A supports the same five schedules, using an
 adapter for Karras, Exponential, and Beta while preserving its ancestral update.
@@ -40,7 +50,8 @@ Model default retains Default only. Normal generates an explicit training-timest
 The default schedule inherits the checkpoint loader's configuration. Karras
 explicitly sets `use_karras_sigmas: true` and disables alternative sigma grids;
 conflicting checkpoint schedule options fail validation. WAN retains its
-loader's default scheduler and schedule; MiniMax retains res_multistep/Simple.
+loader's default scheduler as the default selection and offers explicit UniPC
+and DPM++ 2M. MiniMax offers RES multistep and Euler with Simple.
 
 ## Checkpoint configuration
 
@@ -67,8 +78,8 @@ empty list allows none. A manifest cannot import an implementation or enable a
 sampler in another workflow. The Big Love KreaEdit3 manifest permits both samplers
 above with Default, Normal, Karras, Exponential, and Beta and selects ER_SDE with
 Default. The supplied FLUX, Qwen 2.1, and other Krea2 manifests expose the same
-five schedules for their existing allowed samplers. Other checkpoint restrictions
-continue to apply.
+five schedules for all six explicit flow samplers. Current default selections and
+other checkpoint restrictions continue to apply.
 
 For SDXL, select either of these objects in `settings.sampling` (or the model
 page's `sampling` editor), and include the pair in `allowed_sampling` when that
@@ -95,9 +106,48 @@ changing to a sampler that does not support Karras selects its first allowed
 schedule. Backend validation also checks the exact pair, including for CLI and
 inline JSON edits.
 
+## Additional flow solvers
+
+Flow Heun, UniPC, and DPM++ reuse Flow Match Euler's sigma preparation, including
+resolution-dependent shifting, repository/custom Qwen sigmas, and named schedule
+curves. `FlowSolverAdapter` then installs the prepared sigmas and matching model
+timesteps into the native solver after resetting its state. Native solver flags
+do not resample or shift the installed grid a second time. UniPC and DPM++ use
+`prediction_type="flow_prediction"` and `use_flow_sigmas=True`.
+
+Flow Heun expands an N-interval grid into 2N-1 model evaluations, with predictor
+and corrector evaluations at intermediate noise levels and a final Euler update
+to zero. Flow pipeline progress counts these evaluations. Qwen's effective step
+count remains the number of requested/repository sigma entries; scheduler metadata
+records the full evaluated timestep and sigma lists.
+
+For UniPC and DPM++, an initial sigma of exactly one is moved to `1 - 1e-6`, with
+a matching model timestep, to avoid singular log-SNR coefficients. Grids must be
+finite, strictly decreasing, and end at zero. Inverted grids and Euler's separate
+`stochastic_sampling` mode are rejected. DPM++ SDE binds request generators because
+the flow pipelines do not forward generators to scheduler steps. Metadata includes
+the native solver class and configuration alongside the source schedule settings.
+
+ER SDE is shared by FLUX, Qwen 2.1, and Krea2. ER SDE for SDXL, flow Euler
+ancestral, and image RES multistep remain deferred.
+
+## Video solvers
+
+WAN's explicit `uni_pc` binding reproduces the loaded UniPC flow scheduler.
+`dpmpp_2m` resets a native flow-prediction DPM++ solver and installs the source
+UniPC sigma grid and exact model timesteps. This preserves the flow shift and
+high/low-noise expert boundary while changing the numerical update. Both explicit
+bindings require a UniPC flow source, retain the Default noise schedule, and
+create fresh request state. DPM++ metadata includes the source scheduler config.
+
+MiniMax's `res_multistep` and `euler` bindings select their registered native
+ComfyUI names through KSamplerSelect. Both use Simple and BasicGuider; runtime
+availability and checkpoint `allowed_sampling` restrictions are enforced.
+Existing default selections remain unchanged for both video families.
+
 ## ER_SDE implementation
 
-`FlowMatchERSDEScheduler` adapts the VP ER-SDE Taylor method to Krea2 flow
+`FlowMatchERSDEScheduler` adapts the VP ER-SDE Taylor method to flow
 predictions, using `alpha = 1 - sigma`, `lambda = sigma / alpha`, and the clean
 prediction `x0 = sample - sigma * velocity`. It ramps from first to third order,
 uses 200 quadrature points and the noise scaler
@@ -105,7 +155,7 @@ uses 200 quadrature points and the noise scaler
 at the final zero sigma. See [Cui et al.](https://arxiv.org/abs/2309.06169) and the
 [authors' reference implementation](https://github.com/QinpengCui/ER-SDE-Solver).
 
-The existing Diffusers flow scheduler prepares Krea2's resolution-aware schedule.
+The existing Diffusers flow scheduler prepares each model's shifted schedule.
 An initial sigma of exactly 1 is moved to `1 - 1e-4`, with a matching model
 timestep, to avoid infinite lambda. The adapter requires strictly decreasing
 sigmas in `[0, 1)` ending at zero. Inverted schedules and the separate Euler

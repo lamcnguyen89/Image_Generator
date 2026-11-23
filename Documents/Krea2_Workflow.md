@@ -27,7 +27,8 @@ Krea 2 uses `cond + guidance_scale * (cond - uncond)`. Guidance 0 disables CFG;
 negative prompting applies above 0. There is no `true_cfg_scale` setting.
 Dimensions must be positive multiples of 16 (and satisfy checkpoint alignment).
 The sequence budget is 1–512, or a smaller manifest limit. Sampling supports
-`flow_match_euler` and `er_sde` through the [shared sampler registry](Samplers.md).
+`flow_match_euler`, `er_sde`, `flow_match_heun`, `uni_pc`, `dpmpp_2m`, and
+`dpmpp_2m_sde` through the [shared sampler registry](Samplers.md).
 `model_default` retains the existing Euler behavior. The
 [schedule registry](Schedules.md) supplies Default, Normal, Karras, Exponential, and Beta,
 filtered by checkpoint restrictions. Default uses the component repository's
@@ -37,7 +38,7 @@ schedule source (`FlowMatchEulerDiscreteScheduler`), rather than requiring the
 Euler solver. The checkpoint's `requirements.allowed_sampling` further restricts
 the choices shown in the form and accepted by the backend.
 
-Big Love KreaEdit3 defaults to ER_SDE and permits Euler as an alternative. ER_SDE
+Big Love KreaEdit3 defaults to ER_SDE and permits the other five flow samplers. ER_SDE
 uses third-order corrections with seeded noise for each image. Its first sigma
 is moved slightly below 1 to avoid the singular pure-noise endpoint. This changes
 sampling behavior; it does not promise pixel-identical output to a ComfyUI

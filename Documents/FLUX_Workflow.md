@@ -32,8 +32,9 @@ be multiples of 16.
 
 The [shared sampler registry](Samplers.md) supplies form choices, settings-save
 and request validation, and runtime scheduler construction. FLUX registers
-`flow_match_euler` and the existing `model_default` Euler alias, both using
-FlowMatchEulerDiscreteScheduler. The [schedule registry](Schedules.md) supplies
+`flow_match_euler`, `er_sde`, `flow_match_heun`, `uni_pc`, `dpmpp_2m`,
+`dpmpp_2m_sde`, and the existing `model_default` Euler alias. All preserve
+FlowMatchEulerDiscreteScheduler's grid preparation. The [schedule registry](Schedules.md) supplies
 Default, Normal, Karras, Exponential, and Beta where checkpoint restrictions allow them.
 Default preserves the component schedule. Mandatory manifest
 scheduler configuration is applied to a fresh scheduler on every request from the

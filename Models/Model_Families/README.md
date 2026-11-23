@@ -164,8 +164,9 @@ override structure as SDXL, with FLUX-specific fields and settings:
   remaining pipeline components, matching the existing notebook.
 - `requirements` records a dimension multiple of 16, a sequence-length limit of
   512, and `FlowMatchEulerDiscreteScheduler`. `allowed_sampling` permits
-  `flow_match_euler` with Default, Normal, Karras, Exponential, and Beta noise
-  schedules. Default remains selected.
+  Flow Match Euler, ER SDE, Flow Match Heun, UniPC, DPM++ 2M, and DPM++ 2M SDE
+  with Default, Normal, Karras, Exponential, and Beta noise schedules. Flow Match
+  Euler with Default remains selected.
 - Settings include separate `guidance_scale` and `true_cfg_scale` values,
   `max_sequence_length`, prompts, dimensions, seed, image count, sampling, and an
   empty `loras` list. There is no SDXL-style `clip_skip` setting.

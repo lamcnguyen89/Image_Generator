@@ -58,6 +58,7 @@ class Pipeline:
             raise RuntimeError("synthetic Qwen inference failure")
         sigmas = arguments["sigmas"] if arguments["sigmas"] is not None else self.config["sample_sigmas"]
         self.num_timesteps = len(sigmas) if sigmas is not None else arguments["num_inference_steps"]
+        self.num_timesteps = getattr(self.owner, "model_evaluations", self.num_timesteps)
         for step in range(self.num_timesteps):
             callback = arguments.get("callback_on_step_end")
             if callback:
@@ -400,6 +401,18 @@ class Qwen21ExecutionTests(unittest.TestCase):
                 batch = workflow.generate(self.prepared(true_cfg_scale=cfg, negative_prompt=negative))
                 self.assertIs(batch.metadata["true_cfg_enabled"], active)
                 self.assertEqual(self.calls[-1]["arguments"]["negative_prompt"], negative if active else None)
+
+    def test_progress_waits_for_all_predictor_corrector_evaluations(self):
+        self.model_evaluations = 7  # Four Heun intervals need seven evaluations.
+        workflow, events = self.workflow(), []
+        workflow.set_progress_callback(events.append)
+        workflow.generate(self.prepared(num_inference_steps=4))
+        denoising = [event for event in events if event.stage == "denoising"]
+        self.assertEqual([(event.current, event.total) for event in denoising[1:]],
+                         [(index, 7) for index in range(1, 8)])
+        self.assertEqual(sum(event.stage == "decoding" for event in events), 1)
+        self.assertGreater(next(index for index, event in enumerate(events) if event.stage == "decoding"),
+                           max(index for index, event in enumerate(events) if event.stage == "denoising"))
 
     def test_backend_rejects_wrong_architecture_fields_and_invalid_constraints_without_runtime(self):
         for changes in ({"guidance_scale": 3.5}, {"max_sequence_length": 512}, {"clip_skip": 1},

@@ -67,6 +67,106 @@
       {
         "sampler": "flow_match_euler",
         "noise_schedule": "beta"
+      },
+      {
+        "sampler": "er_sde",
+        "noise_schedule": "default"
+      },
+      {
+        "sampler": "er_sde",
+        "noise_schedule": "normal"
+      },
+      {
+        "sampler": "er_sde",
+        "noise_schedule": "karras"
+      },
+      {
+        "sampler": "er_sde",
+        "noise_schedule": "exponential"
+      },
+      {
+        "sampler": "er_sde",
+        "noise_schedule": "beta"
+      },
+      {
+        "sampler": "flow_match_heun",
+        "noise_schedule": "default"
+      },
+      {
+        "sampler": "flow_match_heun",
+        "noise_schedule": "normal"
+      },
+      {
+        "sampler": "flow_match_heun",
+        "noise_schedule": "karras"
+      },
+      {
+        "sampler": "flow_match_heun",
+        "noise_schedule": "exponential"
+      },
+      {
+        "sampler": "flow_match_heun",
+        "noise_schedule": "beta"
+      },
+      {
+        "sampler": "uni_pc",
+        "noise_schedule": "default"
+      },
+      {
+        "sampler": "uni_pc",
+        "noise_schedule": "normal"
+      },
+      {
+        "sampler": "uni_pc",
+        "noise_schedule": "karras"
+      },
+      {
+        "sampler": "uni_pc",
+        "noise_schedule": "exponential"
+      },
+      {
+        "sampler": "uni_pc",
+        "noise_schedule": "beta"
+      },
+      {
+        "sampler": "dpmpp_2m",
+        "noise_schedule": "default"
+      },
+      {
+        "sampler": "dpmpp_2m",
+        "noise_schedule": "normal"
+      },
+      {
+        "sampler": "dpmpp_2m",
+        "noise_schedule": "karras"
+      },
+      {
+        "sampler": "dpmpp_2m",
+        "noise_schedule": "exponential"
+      },
+      {
+        "sampler": "dpmpp_2m",
+        "noise_schedule": "beta"
+      },
+      {
+        "sampler": "dpmpp_2m_sde",
+        "noise_schedule": "default"
+      },
+      {
+        "sampler": "dpmpp_2m_sde",
+        "noise_schedule": "normal"
+      },
+      {
+        "sampler": "dpmpp_2m_sde",
+        "noise_schedule": "karras"
+      },
+      {
+        "sampler": "dpmpp_2m_sde",
+        "noise_schedule": "exponential"
+      },
+      {
+        "sampler": "dpmpp_2m_sde",
+        "noise_schedule": "beta"
       }
     ]
   },

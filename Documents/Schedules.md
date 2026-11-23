@@ -18,12 +18,14 @@ construction resolve the same registered definitions.
 | --- | --- |
 | SDXL Euler | Default, Normal, Karras, Exponential, Beta |
 | SDXL DPM++ 2M SDE | Default, Normal, Karras, Exponential, Beta |
+| SDXL DPM++ 2M / 3M / 3M SDE, UniPC | Default, Normal, Karras, Exponential, Beta |
 | SDXL Euler A | Default, Normal, Karras, Exponential, Beta |
+| SDXL Heun, LMS, DPM2, DPM2 ancestral, DEIS | Default, Karras, Exponential, Beta |
+| SDXL DDIM, DDPM, PNDM | Default |
 | SDXL model default | Default |
-| Krea2 Flow Match Euler, model default, ER_SDE | Default, Normal, Karras, Exponential, Beta |
-| FLUX and Qwen 2.1 Flow Match Euler/model default | Default, Normal, Karras, Exponential, Beta |
-| WAN model default | Default |
-| MiniMax H3 res_multistep | Simple, matching its existing native workflow |
+| FLUX, Qwen 2.1, Krea2: Flow Match Euler / Heun, ER SDE, UniPC, DPM++ 2M / 2M SDE, model default | Default, Normal, Karras, Exponential, Beta |
+| WAN model default, UniPC, DPM++ 2M | Default |
+| MiniMax H3 RES multistep, Euler | Simple |
 
 Default preserves the original component scheduler configuration and checkpoint
 overrides. Selecting a named curve explicitly enables its flag and disables
@@ -41,10 +43,16 @@ The adapter resets solver indices on every run and records the selected curve
 and original scheduler class in output metadata.
 
 The supplied FLUX, Qwen 2.1, and Krea2 checkpoint manifests and examples permit
-Default, Normal, Karras, Exponential, and Beta for their existing allowed samplers.
+Default, Normal, Karras, Exponential, and Beta for all six explicit flow samplers.
 Their selected defaults are unchanged. Checkpoint-specific restrictions such as
 NoobAI's Euler/Default requirement remain in force. Simple remains a MiniMax-only
-binding; WAN and MiniMax retain their existing schedule choices.
+binding; WAN's explicit UniPC/DPM++ 2M retain Default, and MiniMax Euler retains Simple.
+
+Heun, LMS, DPM2, DPM2 ancestral, and DEIS use native curve flags through separate
+profiles. Normal is not registered for these profiles; the existing adapter has
+only been verified for the profiles offering it above. Heun and DPM2 also require
+special handling of intermediate evaluation grids. DDIM, DDPM, and PNDM retain
+their native Default schedules.
 
 Normal generates an evenly spaced grid across the model's training timesteps.
 For SDXL, its adapter interpolates the training log-sigma table and appends zero,

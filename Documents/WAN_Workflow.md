@@ -40,8 +40,16 @@ Other omitted settings preserve resolved model/user values.
 Both guidance scales must enable CFG together (both > 1) or disable it together
 (both <= 1). Frame counts must be `4*n + 1`, at least 5, and satisfy the manifest's
 additional frame-count requirements. FPS must be positive; it changes playback
-rate, not the number of generated frames. Only the default model scheduler/noise
-schedule is implemented. Mandatory scheduler settings are reapplied per variation.
+rate, not the number of generated frames. Sampling offers `model_default`, explicit
+`uni_pc`, and `dpmpp_2m`, all with the `default` noise schedule. `model_default`
+remains selected. Explicit bindings require the loader's UniPC flow scheduler.
+UniPC reproduces that scheduler; DPM++ 2M uses its numerical update while retaining
+the exact UniPC sigma grid and model timesteps, including flow shift and expert
+boundary selection. Mandatory scheduler settings are reapplied per variation;
+conflicts with a selected solver's fixed algorithm/order fail validation.
+
+Use `--sampler uni_pc` or `--sampler dpmpp_2m` in the CLI, or choose the sampler
+in either video generation form. Checkpoint `allowed_sampling` restrictions apply.
 
 `--preserve-aspect-ratio` fits the source aspect ratio to the requested pixel area,
 rounding dimensions to the loaded VAE/transformer's spatial alignment.

@@ -22,7 +22,9 @@ The shared UI contract renders H3-specific controls:
 - Frame counts `17*n + 5`, constrained by the manifest and the native 3600-frame
   ceiling. This rule is independent of WAN's `4*n + 1` constraint.
 - Native 24 FPS and CFG 1, rendered read-only and validated again in Python.
-- `res_multistep` sampling with the `simple` schedule and BasicGuider.
+- A choice of `res_multistep` (the default) or `euler`, both with the `simple`
+  schedule and BasicGuider. Choices and exact checkpoint pair restrictions use
+  the shared sampler registry; runtime construction uses native ComfyUI nodes.
 - A choice of text-to-video or image-to-video. Only image-to-video requires a
   source image and exposes source-aspect preservation; text-to-video uses the
   requested dimensions directly.
@@ -33,6 +35,10 @@ Negative prompting is unavailable in this BasicGuider implementation. Supplying 
 nonempty negative prompt, changing fixed FPS/CFG, or selecting an unsupported
 sampler is rejected rather than silently ignored. Native audio is not decoded
 or exported: this adapter produces silent MP4s, matching the notebook.
+
+Select Euler with `--sampler euler` in the CLI or the sampler dropdown in either
+video mode. Switching samplers reuses loaded model components. The selected pair
+is saved with model preferences and included in queued requests and output metadata.
 
 Web submission queues generation for the shared worker; see
 [web execution](MiniMax_UI_Execution.md). **Preview request** checks form values

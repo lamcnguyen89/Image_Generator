@@ -79,7 +79,7 @@ class MiniMaxFixture:
                                load_lora_for_models=Mock(side_effect=apply_adapter)),
             utils=SimpleNamespace(load_torch_file=Mock(return_value=({}, {})), PROGRESS_BAR_HOOK=None),
             management=SimpleNamespace(unload_all_models=Mock()),
-            samplers=SimpleNamespace(SAMPLER_NAMES=["res_multistep"], SCHEDULER_NAMES=["simple"]),
+            samplers=SimpleNamespace(SAMPLER_NAMES=["res_multistep", "euler"], SCHEDULER_NAMES=["simple"]),
             h3=SimpleNamespace(MiniMaxH3ImageToVideo=SimpleNamespace(execute=Mock(return_value=SimpleNamespace(result=("positive", "latent"))))),
             sampling=SimpleNamespace(BasicGuider=node("guider"), KSamplerSelect=node("sampler"),
                                      BasicScheduler=node("sigmas"), RandomNoise=node("noise"), SamplerCustomAdvanced=node("sampled")),
@@ -113,6 +113,16 @@ class MiniMaxFixture:
 
 
 class MiniMaxTests(MiniMaxFixture, unittest.TestCase):
+    def test_euler_dispatches_native_sampler_in_both_modes_and_retains_simple(self):
+        for mode in ("txt2vid", "img2vid"):
+            batch = self.workflow.generate(self.request(mode=mode, sampling={"sampler": "euler", "noise_schedule": "simple"}))
+            self.runtime.sampling.KSamplerSelect.execute.assert_called_with(sampler_name="euler")
+            self.assertEqual(self.runtime.sampling.BasicScheduler.execute.call_args.kwargs["scheduler"], "simple")
+            self.assertEqual(batch.metadata["settings"]["sampling"], {"sampler": "euler", "noise_schedule": "simple"})
+        self.workflow.generate(self.request())
+        self.runtime.sampling.KSamplerSelect.execute.assert_called_with(sampler_name="res_multistep")
+        self.assertEqual(len(self.base_models), 1)
+
     def test_text_to_video_uses_requested_canvas_without_image_conditioning(self):
         self.source.unlink()
         events = []
@@ -302,7 +312,8 @@ class MiniMaxTests(MiniMaxFixture, unittest.TestCase):
     def test_invalid_settings_fail_before_runtime_or_download(self):
         for overrides in ({"num_frames": 49}, {"num_frames": 3600}, {"fps": 16}, {"guidance_scale": 3.5},
                           {"negative_prompt": "blur"}, {"width": 48}, {"seed": -1}, {"num_frames": True},
-                          {"sampling": {"sampler": "euler"}}, {"sampling": {"noise_schedule": "default"}},
+                          {"sampling": {"sampler": "heun"}}, {"sampling": {"noise_schedule": "default"}},
+                          {"sampling": {"sampler": "euler", "noise_schedule": "simple", "extra": True}},
                           {"guidance_scale_2": 1.0}):
             with self.subTest(overrides=overrides), self.assertRaises(ValueError):
                 self.request(**overrides)

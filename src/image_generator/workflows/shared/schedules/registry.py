@@ -52,6 +52,9 @@ _SIGMA_PROFILES = {
     "flow_match": (_STANDARD_CURVES, _STANDARD_FLAGS),
     "euler_discrete": (_STANDARD_CURVES, _STANDARD_FLAGS),
     "dpm_multistep": (_STANDARD_CURVES, (*_STANDARD_FLAGS, "use_lu_lambdas", "use_flow_sigmas")),
+    "unipc_multistep": (_STANDARD_CURVES, (*_STANDARD_FLAGS, "use_flow_sigmas")),
+    "native_sigma": (_STANDARD_CURVES, _STANDARD_FLAGS),
+    "deis_multistep": (_STANDARD_CURVES, (*_STANDARD_FLAGS, "use_flow_sigmas")),
 }
 _BINDINGS = (
     *(ScheduleBinding(backend, "default") for backend in (*_SIGMA_PROFILES, "model_default", "euler_ancestral")),
@@ -60,7 +63,8 @@ _BINDINGS = (
         tuple((flag, False) for flag in flags)
         + (() if backend == "flow_match" else (("timestep_spacing", "linspace"), ("final_sigmas_type", "zero"))),
         adapter=("image_generator.workflows.shared.schedules.normal", "NormalScheduleAdapter"),
-    ) for backend, (_, flags) in _SIGMA_PROFILES.items()),
+    ) for backend, (_, flags) in _SIGMA_PROFILES.items()
+      if backend not in ("native_sigma", "deis_multistep")),
     ScheduleBinding("euler_ancestral", "normal", (("timestep_spacing", "linspace"),),
                     adapter=("image_generator.workflows.shared.schedules.normal", "NormalScheduleAdapter")),
     *(ScheduleBinding(backend, name, tuple((flag, flag == _CURVE_FLAGS[name]) for flag in flags))

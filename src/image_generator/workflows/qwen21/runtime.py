@@ -82,8 +82,11 @@ class Qwen21Workflow(TransformerWorkflow):
             if getattr(self, "_progress_callback", None) is not None:
 
                 def on_step_end(pipeline, step, timestep, tensors):
-                    self.report_progress("denoising", min(step + 1, steps), steps)
-                    if step + 1 == steps:
+                    total = getattr(pipeline, "num_timesteps", steps)
+                    if type(total) is not int or total <= 0:
+                        total = steps
+                    self.report_progress("denoising", min(step + 1, total), total)
+                    if step + 1 == total:
                         self.report_progress("decoding")
                     return tensors
 

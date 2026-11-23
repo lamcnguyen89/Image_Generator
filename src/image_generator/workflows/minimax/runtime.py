@@ -8,6 +8,7 @@ from ..base import GeneratedBatch, Workflow
 from ..shared.assets import file_fingerprint
 from ..shared.seeds import image_seeds
 from ..shared.schedules import validate_schedule
+from ..shared.samplers import create_scheduler, get_sampler
 from ..shared.validation import check_video_encoder
 from .comfy_runtime import ComfyRuntimeMixin
 from .conditioning import prepare_input
@@ -75,7 +76,7 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
                                      request.model.defaults["requirements"])
         with self._torch.inference_mode(False), self._torch.no_grad():
             guider = nodes.BasicGuider.execute(model=self._model, conditioning=positive)[0]
-            sampler = nodes.KSamplerSelect.execute(sampler_name=settings["sampling"]["sampler"])[0]
+            sampler = create_scheduler("minimax", settings["sampling"], request.model.defaults["requirements"], nodes=nodes)
             sigmas = nodes.BasicScheduler.execute(
                 model=self._model,
                 scheduler=schedule.native_name,
@@ -127,7 +128,7 @@ class MiniMaxWorkflow(ComfyRuntimeMixin, Workflow):
                 schedule = validate_schedule("comfyui_minimax_h3", settings["sampling"]["noise_schedule"],
                                              request.model.defaults["requirements"])
                 if (
-                    settings["sampling"]["sampler"] not in self._runtime.samplers.SAMPLER_NAMES
+                    get_sampler("minimax", settings["sampling"]["sampler"]).native_name not in self._runtime.samplers.SAMPLER_NAMES
                     or schedule.native_name not in self._runtime.samplers.SCHEDULER_NAMES
                 ):
                     raise ValueError("The selected sampling is unavailable in this ComfyUI checkout")

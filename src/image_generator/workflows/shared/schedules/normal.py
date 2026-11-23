@@ -79,6 +79,6 @@ class NormalScheduleAdapter:
         nearer_high = (log_sigmas[high] - interpolated).abs() < (interpolated - log_sigmas[low]).abs()
         model_timesteps = torch.where(nearer_high, high, low)
         self._scheduler.set_timesteps(steps, device=device)
-        dtype = torch.int64 if self._backend == "dpm_multistep" else torch.float32
+        dtype = torch.int64 if self._backend in ("dpm_multistep", "unipc_multistep") else torch.float32
         self._scheduler.timesteps = model_timesteps.to(device=device, dtype=dtype)
         self._scheduler.sigmas = sigmas

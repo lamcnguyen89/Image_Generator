@@ -18,6 +18,8 @@ preservation, 124 frames at 24 fps, 20 `res_multistep` sampling steps with the
 `simple` schedule, CFG 1 / `BasicGuider`, and tiled video decoding. Dimensions
 must be multiples of 32; valid frame counts satisfy `num_frames % 17 == 5`.
 The negative prompt is empty because this BasicGuider workflow does not use it.
+The generation forms and CLI also offer `euler` with the same Simple schedule;
+RES multistep remains the saved default. Both choices use the shared sampler registry.
 Input images are supplied for each generation, rather than saved as model defaults.
 The checkpoint supports both `img2vid` and `txt2vid`. Choose the mode in the
 generation UI. Text-to-video uses the requested width and height directly,

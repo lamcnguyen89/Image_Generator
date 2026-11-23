@@ -34,21 +34,24 @@ class SamplerRegistryTests(unittest.TestCase):
 
     def test_workflow_compatibility_is_explicit(self):
         self.assertEqual([spec.name for spec in available_samplers("krea2", {})],
-                         ["flow_match_euler", "er_sde", "model_default"])
+                         ["flow_match_euler", "er_sde", "model_default", "flow_match_heun", "uni_pc", "dpmpp_2m", "dpmpp_2m_sde"])
         self.assertEqual([spec.name for spec in available_samplers("sdxl", {})],
-                         ["model_default", "euler", "euler_ancestral", "dpmpp_2m_sde"])
+                         ["model_default", "euler", "euler_ancestral", "dpmpp_2m_sde", "dpmpp_2m", "dpmpp_3m",
+                          "dpmpp_3m_sde", "uni_pc", "heun", "lms", "dpm_2", "dpm_2_ancestral", "ddim", "ddpm", "pndm", "deis"])
         with self.assertRaisesRegex(ValueError, "not implemented"):
             get_sampler("sdxl", "er_sde")
         for workflow in ("flux", "qwen_2_1"):
             self.assertEqual([spec.name for spec in available_samplers(workflow, {})],
-                             ["flow_match_euler", "model_default"])
+                             ["flow_match_euler", "model_default", "er_sde", "flow_match_heun", "uni_pc", "dpmpp_2m", "dpmpp_2m_sde"])
             with self.assertRaisesRegex(ValueError, "not implemented"):
-                get_sampler(workflow, "er_sde")
-        self.assertEqual([spec.name for spec in available_samplers("wan", {})], ["model_default"])
-        for workflow in ("minimax", "unknown"):
-            self.assertEqual(available_samplers(workflow, {}), ())
-            with self.assertRaisesRegex(ValueError, "not implemented"):
-                get_sampler(workflow, "er_sde")
+                get_sampler(workflow, "euler_ancestral")
+        self.assertEqual([spec.name for spec in available_samplers("wan", {})], ["model_default", "uni_pc", "dpmpp_2m"])
+        self.assertEqual([spec.name for spec in available_samplers("minimax", {})], ["res_multistep", "euler"])
+        with self.assertRaisesRegex(ValueError, "not implemented"):
+            get_sampler("minimax", "er_sde")
+        self.assertEqual(available_samplers("unknown", {}), ())
+        with self.assertRaisesRegex(ValueError, "not implemented"):
+            get_sampler("unknown", "er_sde")
 
     def test_invalid_settings_fail_before_factory_import(self):
         for sampling in ({}, [], {"sampler": "er_sde"},
@@ -101,7 +104,7 @@ class SamplerRegistryTests(unittest.TestCase):
                     validate_sampling(workflow, sampling, {"scheduler_class": "EulerDiscreteScheduler"})
                 with self.assertRaisesRegex(ValueError, "Unsupported noise schedule"):
                     validate_sampling(workflow, {**sampling, "noise_schedule": "unknown_schedule"}, {})
-                for sampler in ("euler_ancestral", "dpmpp_2m_sde"):
+                for sampler in ("euler_ancestral", "lms"):
                     with self.assertRaisesRegex(ValueError, "not implemented"):
                         validate_sampling(workflow, {**sampling, "sampler": sampler}, {})
 
@@ -141,7 +144,7 @@ assert 'image_generator.workflows.shared.samplers.er_sde' not in sys.modules
         with self.assertRaisesRegex(ValueError, "no sampling options"):
             sampling_fields(model)
         self.assertEqual(dict(sampling_fields(model, workflow="flux")[0].choices),
-                         {"flow_match_euler": "Flow match Euler", "model_default": "Model default"})
+                         {spec.name: spec.label for spec in available_samplers("flux", {})})
 
     def test_sdxl_sampling_pairs_filter_forms_and_backend_consistently(self):
         requirements = {"allowed_sampling": [
@@ -164,6 +167,12 @@ assert 'image_generator.workflows.shared.samplers.er_sde' not in sys.modules
         self.assertEqual(SAMPLERS, {
             "euler": "EulerDiscreteScheduler", "euler_ancestral": "EulerAncestralDiscreteScheduler",
             "dpmpp_2m_sde": "DPMSolverMultistepScheduler",
+            "dpmpp_2m": "DPMSolverMultistepScheduler", "dpmpp_3m": "DPMSolverMultistepScheduler",
+            "dpmpp_3m_sde": "DPMSolverMultistepScheduler", "uni_pc": "UniPCMultistepScheduler",
+            "heun": "HeunDiscreteScheduler", "lms": "LMSDiscreteScheduler",
+            "dpm_2": "KDPM2DiscreteScheduler", "dpm_2_ancestral": "KDPM2AncestralDiscreteScheduler",
+            "ddim": "DDIMScheduler", "ddpm": "DDPMScheduler", "pndm": "PNDMScheduler",
+            "deis": "DEISMultistepScheduler",
         })
 
     def test_karras_honors_native_scheduler_support_and_checkpoint_pairs(self):

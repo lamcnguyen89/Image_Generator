@@ -18,7 +18,7 @@ from image_generator.workflows.shared.samplers.ui import sampling_fields
 
 class ScheduleRegistryTests(unittest.TestCase):
     def test_profile_capabilities_and_shared_labels(self):
-        for profile in ("flow_match", "euler_discrete", "dpm_multistep", "euler_ancestral"):
+        for profile in ("flow_match", "euler_discrete", "dpm_multistep", "euler_ancestral", "unipc_multistep"):
             self.assertEqual([(spec.name, spec.label) for spec in available_schedules(profile)],
                              [("default", "Default"), ("normal", "Normal"), ("karras", "Karras"),
                               ("exponential", "Exponential"), ("beta", "Beta")])
@@ -27,6 +27,9 @@ class ScheduleRegistryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Unsupported noise schedule"):
                 get_schedule(profile, "karras")
         self.assertEqual(get_schedule("comfyui_minimax_h3", "simple").native_name, "simple")
+        for profile in ("native_sigma", "deis_multistep"):
+            self.assertEqual([spec.name for spec in available_schedules(profile)],
+                             ["default", "karras", "exponential", "beta"])
         self.assertEqual(available_schedules("unknown"), ())
         for name in (None, [], "unknown", "os.system"):
             with self.subTest(name=name), self.assertRaises(ValueError):
@@ -88,7 +91,8 @@ class ScheduleRegistryTests(unittest.TestCase):
                         for schedule in schedules:
                             validate_sampling(document["workflow"], {"sampler": sampler, "noise_schedule": schedule},
                                               document["requirements"])
-                    self.assertNotIn("model_default", dict(sampler_field.choices))
+                    self.assertEqual(set(dict(sampler_field.choices)),
+                                     {"flow_match_euler", "er_sde", "flow_match_heun", "uni_pc", "dpmpp_2m", "dpmpp_2m_sde"})
                     validate_sampling(document["workflow"], document["settings"]["sampling"], document["requirements"])
 
         noobai = json.loads((ROOT / "Models/Model_Families/SDXL/checkpoints/noobaiXLNAIXL_vPred10Version/model.defaults.json").read_text())

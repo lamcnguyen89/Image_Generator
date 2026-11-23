@@ -6,9 +6,9 @@ import struct
 from pathlib import Path
 
 from ..shared.validation import _nonnegative_number, validate_weights
-from ..shared.schedules import validate_schedule
+from ..shared.samplers import validate_sampling
 from ..ui import FormValidationError
-from .parameters import DEFAULTS, get_ui_definition
+from .parameters import get_ui_definition
 
 ENCODERS = {
     f"text_encoders/qwen3vl_32b_minimax_h3_{kind}.safetensors" for kind in ("bf16", "int8_convrot", "nvfp4_awq")
@@ -56,9 +56,7 @@ def safetensors_header(path):
 
 def validate_form_settings(model, mode, settings):
     get_ui_definition(model, mode).validate_settings(settings)
-    if settings["sampling"] != DEFAULTS["sampling"]:
-        raise FormValidationError({"sampling": "H3 requires res_multistep with the simple schedule."})
-    validate_schedule("comfyui_minimax_h3", settings["sampling"]["noise_schedule"], model.defaults["requirements"])
+    validate_sampling("minimax", settings["sampling"], model.defaults["requirements"], allow_extensions=True)
     if settings["negative_prompt"]:
         raise FormValidationError({"negative_prompt": "BasicGuider does not support negative prompting."})
     if type(settings["preserve_aspect_ratio"]) is not bool:
@@ -67,6 +65,7 @@ def validate_form_settings(model, mode, settings):
 
 def validate(request):
     validate_form_settings(request.model, request.mode, request.settings)
+    validate_sampling("minimax", request.settings["sampling"], request.model.defaults["requirements"])
     if not isinstance(request.prompt, str) or not request.prompt.strip() or request.negative_prompt:
         raise ValueError("MiniMax requires a nonempty prompt and no negative prompt")
     if request.mode == "img2vid":

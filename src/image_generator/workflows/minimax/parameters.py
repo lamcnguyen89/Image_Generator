@@ -3,7 +3,7 @@
 from dataclasses import replace
 
 from ..ui import UIField, common_fields, definition, frame_constraints
-from ..shared.schedules import get_schedule
+from ..shared.samplers.ui import sampling_fields
 
 DEFAULTS = {
     "prompt": "",
@@ -30,7 +30,6 @@ MODES = ("img2vid", "txt2vid")
 
 def get_ui_definition(model, mode):
     requirements = model.defaults["requirements"]
-    schedule = get_schedule("comfyui_minimax_h3", DEFAULTS["sampling"]["noise_schedule"])
     if requirements.get("runtime") != "comfyui" or requirements.get("guider", "BasicGuider") != "BasicGuider":
         raise ValueError("MiniMax H3 requires runtime comfyui and BasicGuider")
     if requirements.get("native_fps", 24) != 24:
@@ -38,9 +37,6 @@ def get_ui_definition(model, mode):
     minimum, step = frame_constraints(requirements, native_step=17, native_offset=5)
     if minimum > 3600:
         raise ValueError("MiniMax frame_count requirements leave no supported frame count")
-    allowed = requirements.get("allowed_sampling")
-    if allowed is not None and (not isinstance(allowed, list) or DEFAULTS["sampling"] not in allowed):
-        raise ValueError("This MiniMax workflow requires res_multistep with the simple schedule")
     fields = []
     for field in common_fields(model, dimension_base=32, video=True):
         if field.name == "guidance_scale":
@@ -97,17 +93,7 @@ def get_ui_definition(model, mode):
                 read_only=True,
                 help="MiniMax H3's native rate is 24 FPS.",
             ),
-            UIField(
-                "sampling.sampler", "Sampler", "text", "Sampling", read_only=True, help="Fixed to res_multistep for H3."
-            ),
-            UIField(
-                "sampling.noise_schedule",
-                "Noise schedule",
-                "text",
-                "Sampling",
-                read_only=True,
-                help=f"Fixed to {schedule.label} for H3.",
-            ),
+            *sampling_fields(model, workflow="minimax"),
             UIField("enable_vae_tiling", "Enable VAE tiling", "boolean", "Advanced", cli_flags=("--vae-tiling",)),
         ),
     )

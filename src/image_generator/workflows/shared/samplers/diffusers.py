@@ -5,6 +5,9 @@ from ..schedules import apply_schedule, scheduler_options
 
 
 def build_native(*, spec, sampling, requirements, diffusers, original_class, original_config, generators):
+    for option in spec.incompatible_options:
+        if original_config.get(option):
+            raise ValueError(f"Sampler {spec.name!r} does not support the loader's {option}")
     scheduler_class = getattr(diffusers, spec.scheduler_class) if spec.scheduler_class else original_class
     options = dict(spec.scheduler_options)
     options.update(scheduler_options(spec.schedule_backend, sampling["noise_schedule"], requirements))

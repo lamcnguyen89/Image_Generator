@@ -29,7 +29,8 @@ including when a repository such as Turbo ships a preset schedule.
 
 The [shared sampler registry](Samplers.md) supplies sampler choices, settings-save
 and request validation, and scheduler construction. Qwen 2.1 registers
-`flow_match_euler` and the existing `model_default` Euler alias. The
+`flow_match_euler`, `er_sde`, `flow_match_heun`, `uni_pc`, `dpmpp_2m`,
+`dpmpp_2m_sde`, and the existing `model_default` Euler alias. The
 [schedule registry](Schedules.md) provides Default, Normal, Karras, Exponential, and Beta
 where checkpoint restrictions allow them. Explicit custom sigma lists require
 Default; a named curve can transform the repository/default input grid.

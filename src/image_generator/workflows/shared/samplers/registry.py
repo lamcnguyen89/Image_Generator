@@ -22,6 +22,7 @@ class SamplerSpec:
     incompatible_options: tuple[str, ...] = ()
     scheduler_class: str | None = None
     scheduler_options: tuple[tuple[str, object], ...] = ()
+    native_name: str | None = None
 
 
 _FLOW_FACTORY = "image_generator.workflows.shared.samplers.flow_match"
@@ -54,6 +55,63 @@ _SPECS = (
                 scheduler_class="DPMSolverMultistepScheduler",
                 scheduler_options=(("algorithm_type", "sde-dpmsolver++"), ("solver_order", 2))),
     SamplerSpec("model_default", "Model default", "wan", _DIFFUSERS_FACTORY),
+    SamplerSpec("uni_pc", "UniPC", "wan",
+                ("image_generator.workflows.shared.samplers.wan", "build_wan"),
+                "UniPCMultistepScheduler", scheduler_class="UniPCMultistepScheduler",
+                scheduler_options=(("prediction_type", "flow_prediction"), ("use_flow_sigmas", True))),
+    SamplerSpec("dpmpp_2m", "DPM++ 2M", "wan",
+                ("image_generator.workflows.shared.samplers.wan", "build_wan"),
+                "UniPCMultistepScheduler", scheduler_class="DPMSolverMultistepScheduler",
+                scheduler_options=(("prediction_type", "flow_prediction"), ("use_flow_sigmas", True),
+                                   ("algorithm_type", "dpmsolver++"), ("solver_order", 2),
+                                   ("solver_type", "midpoint"), ("final_sigmas_type", "zero"))),
+    *(SamplerSpec(name, label, "minimax",
+                  ("image_generator.workflows.shared.samplers.comfyui", "build_native"),
+                  schedule_backend="comfyui_minimax_h3", native_name=name)
+      for name, label in (("res_multistep", "RES multistep"), ("euler", "Euler"))),
+    *(SamplerSpec(name, label, "sdxl", _DIFFUSERS_FACTORY,
+                  scheduler_class="DPMSolverMultistepScheduler", schedule_backend="dpm_multistep",
+                  scheduler_options=(("algorithm_type", algorithm), ("solver_order", order)))
+      for name, label, algorithm, order in (
+          ("dpmpp_2m", "DPM++ 2M", "dpmsolver++", 2),
+          ("dpmpp_3m", "DPM++ 3M", "dpmsolver++", 3),
+          ("dpmpp_3m_sde", "DPM++ 3M SDE", "sde-dpmsolver++", 3),
+      )),
+    *(SamplerSpec(name, label, "sdxl", _DIFFUSERS_FACTORY,
+                  scheduler_class=cls, schedule_backend=backend, scheduler_options=options,
+                  incompatible_options=("rescale_betas_zero_snr",) if backend in ("native_sigma", "deis_multistep")
+                  or name == "pndm" else ())
+      for name, label, cls, backend, options in (
+          ("uni_pc", "UniPC", "UniPCMultistepScheduler", "unipc_multistep", (("solver_order", 2),)),
+          ("heun", "Heun", "HeunDiscreteScheduler", "native_sigma", ()),
+          ("lms", "LMS", "LMSDiscreteScheduler", "native_sigma", ()),
+          ("dpm_2", "DPM2", "KDPM2DiscreteScheduler", "native_sigma", ()),
+          ("dpm_2_ancestral", "DPM2 ancestral", "KDPM2AncestralDiscreteScheduler", "native_sigma", ()),
+          ("ddim", "DDIM", "DDIMScheduler", "model_default", ()),
+          ("ddpm", "DDPM", "DDPMScheduler", "model_default", ()),
+          ("pndm", "PNDM", "PNDMScheduler", "model_default", (("skip_prk_steps", True),)),
+          ("deis", "DEIS", "DEISMultistepScheduler", "deis_multistep", (("solver_order", 2),)),
+      )),
+    *(SamplerSpec("er_sde", "ER SDE", workflow, (_FLOW_FACTORY, "build_er_sde"),
+                  "FlowMatchEulerDiscreteScheduler", schedule_backend="flow_match",
+                  incompatible_options=("invert_sigmas", "stochastic_sampling"))
+      for workflow in ("flux", "qwen_2_1")),
+    *(SamplerSpec(name, label, workflow, (_FLOW_FACTORY, "build_solver"),
+                  "FlowMatchEulerDiscreteScheduler", schedule_backend="flow_match",
+                  incompatible_options=("invert_sigmas", "stochastic_sampling"),
+                  scheduler_class=cls, scheduler_options=options)
+      for workflow in ("flux", "qwen_2_1", "krea2")
+      for name, label, cls, options in (
+          ("flow_match_heun", "Flow match Heun", "FlowMatchHeunDiscreteScheduler", ()),
+          ("uni_pc", "UniPC", "UniPCMultistepScheduler",
+           (("prediction_type", "flow_prediction"), ("use_flow_sigmas", True), ("solver_order", 2))),
+          ("dpmpp_2m", "DPM++ 2M", "DPMSolverMultistepScheduler",
+           (("prediction_type", "flow_prediction"), ("use_flow_sigmas", True),
+            ("algorithm_type", "dpmsolver++"), ("solver_order", 2))),
+          ("dpmpp_2m_sde", "DPM++ 2M SDE", "DPMSolverMultistepScheduler",
+           (("prediction_type", "flow_prediction"), ("use_flow_sigmas", True),
+            ("algorithm_type", "sde-dpmsolver++"), ("solver_order", 2))),
+      )),
 )
 SAMPLERS = MappingProxyType({(spec.workflow, spec.name): spec for spec in _SPECS})
 
@@ -107,6 +165,9 @@ def validate_sampling(workflow, sampling, requirements, *, allow_extensions=Fals
     if spec.schedule_class is not None and requirements.get("scheduler_class", spec.schedule_class) != spec.schedule_class:
         raise ValueError(f"Sampler {spec.name!r} requires a {spec.schedule_class} schedule")
     options = requirements.get("scheduler_config", {})
+    for option, value in spec.scheduler_options:
+        if option in options and options[option] != value:
+            raise ValueError(f"Sampler {spec.name!r} requires scheduler_config.{option}={value!r}")
     for option in spec.incompatible_options:
         if options.get(option):
             raise ValueError(f"Sampler {spec.name!r} does not support scheduler_config.{option}")
