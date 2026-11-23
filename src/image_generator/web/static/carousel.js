@@ -2,43 +2,17 @@
 
 (() => {
   const carousels = document.querySelectorAll("[data-asset-carousel]");
-  const singleVideos = Array.from(document.querySelectorAll("[data-media-gallery] video"))
-    .filter((video) => !video.closest("[data-asset-carousel]"));
-  if (!carousels.length && !singleVideos.length) return;
+  if (!carousels.length) return;
   const refreshers = [];
   let pageActive = true;
-  let viewerOpen = false;
-  const canPlay = () => pageActive && !document.hidden && !viewerOpen;
-  const playVideo = (video) => {
-    video.muted = true;
-    video.loop = true;
-    video.playsInline = true;
-    // Browser autoplay restrictions or scrolling away can reject playback.
-    // The preview link still opens the video with playback controls.
-    video.play().catch(() => {});
-  };
   const visibilityCallbacks = new WeakMap();
   const visibilityObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => visibilityCallbacks.get(entry.target)(entry.isIntersecting && entry.intersectionRatio > 0));
   });
   const refreshAll = () => refreshers.forEach((refresh) => refresh());
   document.addEventListener("visibilitychange", refreshAll);
-  document.addEventListener("media-viewer-change", (event) => {
-    viewerOpen = event.detail.open;
-    refreshAll();
-  });
   window.addEventListener("pagehide", () => { pageActive = false; refreshAll(); });
   window.addEventListener("pageshow", () => { pageActive = true; refreshAll(); });
-  singleVideos.forEach((video) => {
-    let visible = false;
-    const refresh = () => {
-      if (visible && canPlay()) playVideo(video);
-      else video.pause();
-    };
-    refreshers.push(refresh);
-    visibilityCallbacks.set(video, (inViewport) => { visible = inViewport; refresh(); });
-    visibilityObserver.observe(video);
-  });
   carousels.forEach((carousel) => {
     const track = carousel.querySelector("[data-carousel-track]");
     const slides = Array.from(track.children);
@@ -47,7 +21,7 @@
     let visible = false;
     let loaded = null;
     const syncMedia = () => {
-      const target = visible && canPlay() ? current : null;
+      const target = visible && pageActive && !document.hidden ? current : null;
       if (target === loaded) return;
       if (loaded !== null) {
         const previous = slides[loaded];
@@ -70,7 +44,6 @@
       slide.querySelectorAll("video").forEach((video) => {
         video.preload = "metadata";
         video.load();
-        playVideo(video);
       });
     };
     refreshers.push(syncMedia);

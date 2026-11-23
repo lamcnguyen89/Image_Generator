@@ -115,7 +115,6 @@
     viewer.addEventListener("close", () => {
       release();
       document.documentElement.classList.remove("media-viewer-open");
-      document.dispatchEvent(new CustomEvent("media-viewer-change", {detail: {open: false}}));
       if (opener?.isConnected) opener.focus({ preventScroll: true });
       items = [];
       gallery = opener = null;
@@ -137,7 +136,6 @@
     group.querySelectorAll("video").forEach((video) => video.pause());
     viewer.showModal();
     document.documentElement.classList.add("media-viewer-open");
-    document.dispatchEvent(new CustomEvent("media-viewer-change", {detail: {open: true}}));
     show(items.indexOf(item));
   });
 
