@@ -1,5 +1,64 @@
 # Application environment setup
 
+## Web development without ML dependencies
+
+For web application work on macOS (Apple Silicon or Intel) or Linux (including
+x86 Ubuntu), use the lightweight installer with an existing Python 3.11:
+
+```bash
+bash scripts/setup_web.sh
+```
+
+Select an interpreter explicitly if needed:
+
+```bash
+bash scripts/setup_web.sh --python /path/to/python3.11
+```
+
+`PYTHON_BIN` also selects the interpreter. The installer creates a separate
+`.venv-web`, installs `requirements-web.txt`, checks dependency consistency,
+and renders the fixture catalog, model settings, and every generation form.
+It also checks static asset serving and the memory API. Verification uses
+temporary copies of the fixtures. Rerunning setup reuses `.venv-web`.
+
+The only direct dependencies are Flask, python-dotenv, Pillow (image upload
+validation), and psutil (memory monitoring). Setup does not use sudo or install
+system packages, PyTorch, Diffusers, Transformers, ComfyUI, or model weights.
+It leaves `.venv` and the full generation installer's requirements untouched.
+It requires Python's `venv` and pip support to be available already.
+
+From the project root, start only the web server with the weight-free fixtures:
+
+```bash
+IMAGE_GENERATOR_CATALOG_ROOT=tests/fixtures/model_families .venv-web/bin/python main.py
+```
+
+Open <http://127.0.0.1:5000>. You can browse catalogs, edit settings, validate
+image uploads, and preview requests. Saved settings update the selected catalog's
+JSON files, including fixtures when selected. Actual image/video generation needs
+the full runtime and real assets; this installer does not start a worker.
+`scripts/start.sh` and `scripts/setup.sh --dev` remain full generation workflows.
+
+For Python and template live reload, use Flask's local development server:
+
+```bash
+PYTHONPATH=src IMAGE_GENERATOR_CATALOG_ROOT=tests/fixtures/model_families \
+  .venv-web/bin/python -m flask --app image_generator:create_app run --debug
+```
+
+The web environment runs from source: `main.py` and the tests add `src` to the
+Python import path. Avoid `pip install -e .` in this environment because the
+package metadata currently declares the full machine learning dependency set.
+
+Run the web and request preview tests without ML dependencies:
+
+```bash
+.venv-web/bin/python -m unittest discover -s tests -p 'test_web.py'
+.venv-web/bin/python -m unittest discover -s tests -p 'test_generation_ui.py'
+```
+
+## Full generation environment
+
 The application uses one project-local `.venv` for its SDXL, FLUX, WAN, and MiniMax
 workflows. MiniMax H3 imports native ComfyUI Python nodes from `build/ComfyUI` in
 that same environment; no separate environment or ComfyUI server is needed.

@@ -1,5 +1,8 @@
 """Exercise combined-service shutdown with real, isolated child processes."""
 
+import argparse
+import errno
+import io
 import os
 from pathlib import Path
 import json
@@ -11,6 +14,7 @@ import tempfile
 from threading import Event
 import time
 import unittest
+from unittest import mock
 
 import dotenv
 
@@ -51,6 +55,52 @@ while time.monotonic() < deadline:
         raise SystemExit(int(trigger.read_text()))
     time.sleep(0.01)
 '''
+
+
+class HostnameAddressTests(unittest.TestCase):
+    def setUp(self):
+        source = START.read_text().split("<<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
+        namespace = {"__name__": "launcher_test"}
+        with mock.patch.object(sys, "argv", [str(START), str(ROOT)]):
+            exec(compile(source, str(START), "exec"), namespace)
+        self.hostname_command = namespace["hostname_command"]
+        self.parser = argparse.ArgumentParser(prog="start.sh")
+        self.publisher = mock.patch("shutil.which", return_value="/usr/bin/avahi-publish-address")
+        self.publisher.start()
+        self.addCleanup(self.publisher.stop)
+
+    def test_automatic_alias_uses_lan_route_instead_of_usb_multicast_route(self):
+        with mock.patch("socket.socket") as socket_factory:
+            probe = socket_factory.return_value.__enter__.return_value
+
+            def select_route(destination):
+                address = "192.168.55.1" if destination[0] == "224.0.0.251" else "192.168.1.81"
+                probe.getsockname.return_value = (address, 12345)
+
+            probe.connect.side_effect = select_route
+            name, command = self.hostname_command("midnightgenerator", "0.0.0.0", self.parser)
+        self.assertEqual(name, "midnightgenerator.local")
+        self.assertEqual(command[-1], "192.168.1.81")
+
+    def test_automatic_alias_fails_until_main_route_is_available(self):
+        with mock.patch("socket.socket") as socket_factory, mock.patch("sys.stderr", new_callable=io.StringIO):
+            probe = socket_factory.return_value.__enter__.return_value
+
+            def select_route(destination):
+                if destination[0] != "224.0.0.251":
+                    raise OSError(errno.ENETUNREACH, "Network is unreachable")
+                probe.getsockname.return_value = ("192.168.55.1", 12345)
+
+            probe.connect.side_effect = select_route
+            with self.assertRaises(SystemExit) as stopped:
+                self.hostname_command("midnightgenerator", "0.0.0.0", self.parser)
+        self.assertEqual(stopped.exception.code, 2)
+
+    def test_explicit_lan_address_works_without_a_main_route(self):
+        with mock.patch("socket.socket") as socket_factory:
+            _, command = self.hostname_command("midnightgenerator", "192.168.1.81", self.parser)
+            socket_factory.assert_not_called()
+        self.assertEqual(command[-1], "192.168.1.81")
 
 
 class StartTests(unittest.TestCase):

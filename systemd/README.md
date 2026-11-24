@@ -28,6 +28,12 @@ Avahi is an existing system service; no custom unit is needed for it. Leave
 orders startup after Avahi when it is being started, without requiring Avahi
 for configurations that do not use a hostname.
 
+With `IMAGE_GENERATOR_HOST=0.0.0.0`, alias publishing selects the main network
+route. If Wi-Fi is not ready at boot and no route is available, the launcher
+exits and `Restart=on-failure` retries every five seconds. It does not fall back
+to the Jetson USB bridge. Restart the service if the network address changes
+while it is running.
+
 ## Install and enable
 
 From the project root, use the convenience toggle:

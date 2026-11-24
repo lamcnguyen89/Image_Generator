@@ -1,5 +1,16 @@
 # Flask catalog and generation forms
 
+For macOS or Linux web development without ML dependencies, use
+[the lightweight web setup](Setup.md#web-development-without-ml-dependencies):
+
+```bash
+bash scripts/setup_web.sh
+IMAGE_GENERATOR_CATALOG_ROOT=tests/fixtures/model_families .venv-web/bin/python main.py
+```
+
+This starts only the web application for browsing, settings editing, and request
+previews. The following launcher is for the full generation environment.
+
 Run from the project root after the [environment setup](Setup.md):
 
 ```bash
@@ -123,9 +134,16 @@ sudo systemctl enable --now avahi-daemon
 Clients must support mDNS, and the Wi-Fi network must allow communication and
 multicast between devices. If a firewall is enabled, it must allow the web port
 and mDNS traffic on the local network. No router port forwarding is needed.
-The alias uses the IPv4 address selected by the system's multicast route. If
-you have multiple network interfaces, set `IMAGE_GENERATOR_HOST` to the desired
-LAN IPv4 address instead of `0.0.0.0`. Restart after the server's IP changes.
+With `IMAGE_GENERATOR_HOST=0.0.0.0`, the alias uses the IPv4 address selected by
+the main network route. If that route is not available at boot, the launcher
+exits and the installed systemd service retries every five seconds, avoiding
+publishing a USB bridge address before Wi-Fi connects. This selection does not
+send packets or require internet access. When starting manually, retry after
+the network connects.
+For multiple network interfaces or a LAN without a main route, set
+`IMAGE_GENERATOR_HOST` to the desired LAN IPv4 address instead of `0.0.0.0`.
+Reserve that address in your router if using a fixed setting. Restart the
+service after the server's IP changes; the alias is selected once at startup.
 A duplicate hostname or unavailable Avahi daemon causes the launcher to stop
 with an error; choose a unique name or start Avahi before retrying.
 

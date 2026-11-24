@@ -42,10 +42,13 @@ def hostname_command(hostname, host, parser):
     try:
         address = IPv4Address(host)
         if address.is_unspecified:
-            # Connecting a UDP socket selects the local interface without
-            # sending a packet or relying on an external internet service.
+            # Select the main network route, not the multicast route: at boot,
+            # multicast can select a USB bridge before Wi-Fi is connected.
+            # This documentation-only destination receives no packets; UDP
+            # connect only selects a local address and needs no internet access.
+            # If no route exists yet, fail so systemd retries once it is ready.
             with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
-                probe.connect(("224.0.0.251", 5353))
+                probe.connect(("192.0.2.1", 9))
                 address = IPv4Address(probe.getsockname()[0])
     except (ValueError, OSError) as error:
         parser.error(f"Cannot select a local IPv4 address for the hostname: {error}. Set --host or IMAGE_GENERATOR_HOST to your LAN IPv4 address.")

@@ -1,0 +1,5 @@
+# Web development only; independent of the CUDA/ComfyUI runtime constraints.
+Flask>=3.1,<4
+python-dotenv>=1.2,<2
+Pillow>=13,<14
+psutil>=7,<8

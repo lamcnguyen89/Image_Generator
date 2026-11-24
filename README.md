@@ -45,6 +45,20 @@ Run `.venv/bin/python main.py` and open <http://127.0.0.1:5000> to browse the
 catalog and inspect each model's resolved settings and linked LoRAs. See the
 [web interface guide](Documents/Web_Interface.md) for configuration and tests.
 
+For **web development on macOS or Linux without machine learning dependencies**,
+use Python 3.11 and the separate lightweight installer:
+
+```bash
+bash scripts/setup_web.sh
+IMAGE_GENERATOR_CATALOG_ROOT=tests/fixtures/model_families .venv-web/bin/python main.py
+```
+
+This creates `.venv-web` with Flask, python-dotenv, Pillow, and psutil, leaving
+the generation environment in `.venv` untouched. It supports catalog browsing,
+settings editing, image upload validation, and request previews without weights
+or a GPU. See [web development setup](Documents/Setup.md#web-development-without-ml-dependencies)
+for interpreter selection, tests, and live reload.
+
 Choose **Configure generation** to edit SDXL, FLUX, Qwen 2.1, Krea 2, WAN, or MiniMax settings and preview
 the typed request. For a demo without weights or a GPU, run
 `IMAGE_GENERATOR_CATALOG_ROOT=tests/fixtures/model_families .venv/bin/python main.py`.
